@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.rs.game.player.Player;
+import com.jupiter.game.player.Player;
 
 /**
  * Punished list defining all punishments for a certain {@link HostListType}.

@@ -1,6 +1,6 @@
 package com.rs.net.decoders;
 
-import com.rs.cache.io.InputStream;
+import com.jupiter.cache.io.InputStream;
 
 public class LogicPacket {
 

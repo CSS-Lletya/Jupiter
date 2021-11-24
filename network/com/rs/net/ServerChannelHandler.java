@@ -13,11 +13,11 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-import com.rs.Settings;
-import com.rs.cache.io.InputStream;
-import com.rs.cores.CoresManager;
+import com.jupiter.Settings;
+import com.jupiter.cache.io.InputStream;
+import com.jupiter.cores.CoresManager;
+import com.jupiter.utils.Logger;
 import com.rs.net.decoders.WorldPacketsDecoder;
-import com.rs.utils.Logger;
 
 public final class ServerChannelHandler extends SimpleChannelHandler {
 

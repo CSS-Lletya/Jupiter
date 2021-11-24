@@ -1,6 +1,6 @@
 package com.rs.net.host;
 
-import com.rs.game.player.Player;
+import com.jupiter.game.player.Player;
 
 /**
  * The net security that handles and validates all incoming connections

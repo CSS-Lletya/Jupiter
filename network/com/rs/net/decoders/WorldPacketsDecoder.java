@@ -1,41 +1,39 @@
 package com.rs.net.decoders;
 
-import com.rs.Settings;
-import com.rs.cache.io.InputStream;
-import com.rs.game.Animation;
-import com.rs.game.Graphics;
-import com.rs.game.World;
-import com.rs.game.WorldObject;
-import com.rs.game.WorldTile;
-import com.rs.game.item.AutomaticGroundItem;
-import com.rs.game.item.FloorItem;
-import com.rs.game.item.Item;
-import com.rs.game.player.FriendChatsManager;
-import com.rs.game.player.Inventory;
-import com.rs.game.player.Player;
-import com.rs.game.player.PublicChatMessage;
-import com.rs.game.player.actions.PlayerFollow;
-import com.rs.game.player.content.SkillCapeCustomizer;
-import com.rs.game.route.RouteFinder;
-import com.rs.game.route.strategy.FixedTileStrategy;
-import com.rs.game.route.strategy.RouteEvent;
+import com.jupiter.Settings;
+import com.jupiter.cache.io.InputStream;
+import com.jupiter.combat.npc.NPC;
+import com.jupiter.combat.player.PlayerCombat;
+import com.jupiter.game.Animation;
+import com.jupiter.game.Graphics;
+import com.jupiter.game.World;
+import com.jupiter.game.WorldObject;
+import com.jupiter.game.WorldTile;
+import com.jupiter.game.item.FloorItem;
+import com.jupiter.game.item.Item;
+import com.jupiter.game.player.FriendChatsManager;
+import com.jupiter.game.player.Inventory;
+import com.jupiter.game.player.Player;
+import com.jupiter.game.player.PublicChatMessage;
+import com.jupiter.game.player.actions.PlayerFollow;
+import com.jupiter.game.player.content.SkillCapeCustomizer;
+import com.jupiter.game.route.RouteFinder;
+import com.jupiter.game.route.strategy.FixedTileStrategy;
+import com.jupiter.game.route.strategy.RouteEvent;
+import com.jupiter.plugins.CommandDispatcher;
+import com.jupiter.plugins.NPCDispatcher;
+import com.jupiter.plugins.ObjectDispatcher;
+import com.jupiter.plugins.RSInterfaceDispatcher;
+import com.jupiter.plugins.rsinterface.impl.BankPinInterfacePlugin;
+import com.jupiter.plugins.rsinterface.impl.InventoryInterfacePlugin;
+import com.jupiter.skills.Skills;
+import com.jupiter.skills.magic.Magic;
+import com.jupiter.utils.Huffman;
+import com.jupiter.utils.IntegerInputAction;
+import com.jupiter.utils.Logger;
+import com.jupiter.utils.StringInputAction;
+import com.jupiter.utils.Utils;
 import com.rs.net.Session;
-import com.rs.utils.Huffman;
-import com.rs.utils.IntegerInputAction;
-import com.rs.utils.Logger;
-import com.rs.utils.StringInputAction;
-import com.rs.utils.Utils;
-
-import main.CommandDispatcher;
-import main.NPCDispatcher;
-import main.ObjectDispatcher;
-import main.RSInterfaceDispatcher;
-import main.impl.rsinterface.BankPinInterfacePlugin;
-import main.impl.rsinterface.InventoryInterfacePlugin;
-import npc.NPC;
-import player.PlayerCombat;
-import skills.Skills;
-import skills.magic.Magic;
 
 public final class WorldPacketsDecoder extends Decoder {
 
@@ -62,10 +60,10 @@ public final class WorldPacketsDecoder extends Decoder {
 	private final static int PLAYER_OPTION_2_PACKET = 6;
 	private final static int PLAYER_OPTION_3_PACKET = 31;
 	private final static int PLAYER_OPTION_4_PACKET = 89;
-	private final static int PLAYER_OPTION_5_PACKET = 103;
-	private final static int PLAYER_OPTION_6_PACKET = 1;
-	private final static int PLAYER_OPTION_7_PACKET = 51;
-	private final static int PLAYER_OPTION_8_PACKET = 94;
+//	private final static int PLAYER_OPTION_5_PACKET = 103;
+//	private final static int PLAYER_OPTION_6_PACKET = 1;
+//	private final static int PLAYER_OPTION_7_PACKET = 51;
+//	private final static int PLAYER_OPTION_8_PACKET = 94;
 	@SuppressWarnings("unused")
 	private final static int PLAYER_OPTION_9_PACKET = 53;
 	@SuppressWarnings("unused")
@@ -937,7 +935,6 @@ public final class WorldPacketsDecoder extends Decoder {
 					 */ player.setNextFaceWorldTile(tile);
 					
 					player.addWalkSteps(tile.getX(), tile.getY(), 1);
-					AutomaticGroundItem.pickup(tile, item);
 					FloorItem.removeGroundItem(player, item);
 				}
 			}, false));

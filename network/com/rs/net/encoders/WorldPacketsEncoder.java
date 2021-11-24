@@ -3,33 +3,32 @@ package com.rs.net.encoders;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
-import com.rs.Settings;
-import com.rs.cache.io.OutputStream;
-import com.rs.game.Animation;
-import com.rs.game.DynamicRegion;
-import com.rs.game.Entity;
-import com.rs.game.Graphics;
-import com.rs.game.HintIcon;
-import com.rs.game.Region;
-import com.rs.game.World;
-import com.rs.game.WorldObject;
-import com.rs.game.WorldTile;
-import com.rs.game.item.FloorItem;
-import com.rs.game.item.Item;
-import com.rs.game.item.ItemsContainer;
-import com.rs.game.player.AccountCreation;
-import com.rs.game.player.FriendChatsManager;
-import com.rs.game.player.Player;
-import com.rs.game.player.PublicChatMessage;
-import com.rs.game.player.Rights;
+import com.jupiter.Settings;
+import com.jupiter.cache.io.OutputStream;
+import com.jupiter.combat.npc.NPC;
+import com.jupiter.game.Animation;
+import com.jupiter.game.DynamicRegion;
+import com.jupiter.game.Entity;
+import com.jupiter.game.Graphics;
+import com.jupiter.game.HintIcon;
+import com.jupiter.game.Region;
+import com.jupiter.game.World;
+import com.jupiter.game.WorldObject;
+import com.jupiter.game.WorldTile;
+import com.jupiter.game.item.FloorItem;
+import com.jupiter.game.item.Item;
+import com.jupiter.game.item.ItemsContainer;
+import com.jupiter.game.player.AccountCreation;
+import com.jupiter.game.player.FriendChatsManager;
+import com.jupiter.game.player.Player;
+import com.jupiter.game.player.PublicChatMessage;
+import com.jupiter.game.player.Rights;
+import com.jupiter.utils.Huffman;
+import com.jupiter.utils.IntegerInputAction;
+import com.jupiter.utils.MapArchiveKeys;
+import com.jupiter.utils.StringInputAction;
+import com.jupiter.utils.Utils;
 import com.rs.net.Session;
-import com.rs.utils.Huffman;
-import com.rs.utils.IntegerInputAction;
-import com.rs.utils.MapArchiveKeys;
-import com.rs.utils.StringInputAction;
-import com.rs.utils.Utils;
-
-import npc.NPC;
 
 public class WorldPacketsEncoder extends Encoder {
 

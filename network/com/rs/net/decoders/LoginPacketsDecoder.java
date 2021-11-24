@@ -1,18 +1,18 @@
 package com.rs.net.decoders;
 
-import com.rs.Settings;
-import com.rs.cache.io.InputStream;
-import com.rs.game.World;
-import com.rs.game.player.AccountCreation;
-import com.rs.game.player.Player;
+import com.jupiter.Settings;
+import com.jupiter.cache.io.InputStream;
+import com.jupiter.game.World;
+import com.jupiter.game.player.AccountCreation;
+import com.jupiter.game.player.Player;
+import com.jupiter.utils.AntiFlood;
+import com.jupiter.utils.Encrypt;
+import com.jupiter.utils.IsaacKeyPair;
+import com.jupiter.utils.Logger;
+import com.jupiter.utils.Utils;
 import com.rs.net.Session;
 import com.rs.net.host.HostListType;
 import com.rs.net.host.HostManager;
-import com.rs.utils.AntiFlood;
-import com.rs.utils.Encrypt;
-import com.rs.utils.IsaacKeyPair;
-import com.rs.utils.Logger;
-import com.rs.utils.Utils;
 
 public final class LoginPacketsDecoder extends Decoder {
 	

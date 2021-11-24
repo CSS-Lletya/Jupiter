@@ -5,9 +5,9 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
-import com.rs.Settings;
-import com.rs.cache.Cache;
-import com.rs.cache.io.OutputStream;
+import com.jupiter.Settings;
+import com.jupiter.cache.Cache;
+import com.jupiter.cache.io.OutputStream;
 import com.rs.net.Session;
 
 public final class GrabPacketsEncoder extends Encoder {

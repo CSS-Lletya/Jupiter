@@ -1,9 +1,9 @@
 package com.rs.net.decoders;
 
-import com.rs.Settings;
-import com.rs.cache.io.InputStream;
+import com.jupiter.Settings;
+import com.jupiter.cache.io.InputStream;
+import com.jupiter.utils.Logger;
 import com.rs.net.Session;
-import com.rs.utils.Logger;
 
 public final class ClientPacketsDecoder extends Decoder {
 
