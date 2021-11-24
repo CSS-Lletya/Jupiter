@@ -24,11 +24,6 @@ import com.rs.utils.MapAreas;
 import com.rs.utils.Utils;
 
 import npc.NPC;
-import npc.familiar.Familiar;
-import npc.familiar.Steeltitan;
-import npc.godwars.zaros.Nex;
-import npc.godwars.zaros.NexMinion;
-import npc.qbd.QueenBlackDragon;
 import player.specials.WeaponSpecialDispatcher;
 import skills.Skills;
 import skills.magic.Magic;
@@ -66,11 +61,6 @@ public class PlayerCombat extends Action {
 		return checkAll(player);
 	}
 
-	private boolean forceCheckClipAsRange(Entity target) {
-		return target instanceof NexMinion/* || target instanceof HarAken || target instanceof HarAkenTentacle */
-				|| target instanceof QueenBlackDragon;
-	}
-
 	@Override
 	public int processWithDelay(Player player) {
 		int isRanging = isRanging(player);
@@ -85,7 +75,7 @@ public class PlayerCombat extends Action {
 		if (player.getTemporaryAttributtes().get("miasmic_effect") == Boolean.TRUE)
 			multiplier = 1.5;
 		int size = target.getSize();
-		if (!player.clipedProjectile(target, maxDistance == 0 && !forceCheckClipAsRange(target)))
+		if (!player.clipedProjectile(target, maxDistance == 0))
 			return 0;
 		if (player.hasWalkSteps())
 			maxDistance += 1;
@@ -191,7 +181,7 @@ public class PlayerCombat extends Action {
 						continue;
 					for (int npcIndex : npcIndexes) {
 						NPC n = World.getNPCs().get(npcIndex);
-						if (n == null || n == target || n == player.getFamiliar() || n.isDead() || n.hasFinished()
+						if (n == null || n == target || n.isDead() || n.hasFinished()
 								|| !n.isAtMultiArea() || !n.withinDistance(target, maxDistance)
 								|| !n.getDefinitions().hasAttackOption() || !player.getControlerManager().canHit(n))
 							continue;
@@ -1007,8 +997,6 @@ public class PlayerCombat extends Action {
 			Player p2 = (Player) target;
 			double EMD = ((Math.round(p2.getSkills().getLevel(Skills.MAGIC) * p2.getPrayer().getMageMultiplier()) + 8)
 					+ (player.getCombatDefinitions().isDefensiveCasting() ? 3 : 0));
-			if (p2.getFamiliar() != null && (p2.getFamiliar().getId() == 6870 || p2.getFamiliar().getId() == 6871))
-				EMD *= 1.05;
 			Math.round(EMD);
 			double ERD = (Math.round(p2.getSkills().getLevel(Skills.DEFENCE) * p2.getPrayer().getDefenceMultiplier())
 					+ 8);
@@ -2054,10 +2042,7 @@ public class PlayerCombat extends Action {
 										CombatDefinitions.getMeleeBonusStyle(weaponId, attackStyle))]);
 
 				def *= p2.getPrayer().getDefenceMultiplier();
-				if (!ranging) {
-					if (p2.getFamiliar() instanceof Steeltitan)
-						def *= 1.15;
-				}
+
 			} else {
 				NPC n = (NPC) target;
 				def = n.getBonuses() != null ? n.getBonuses()[ranging ? 9
@@ -2895,11 +2880,6 @@ public class PlayerCombat extends Action {
 			if (n.isCantInteract()) {
 				return false;
 			}
-			if (n instanceof Familiar) {
-				Familiar familiar = (Familiar) n;
-				if (!familiar.canAttack(target))
-					return false;
-			} else {
 				if (!n.canBeAttackFromOutOfArea() && !MapAreas.isAtArea(n.getMapAreaNameHash(), player)) {
 					return false;
 				}
@@ -2922,7 +2902,7 @@ public class PlayerCombat extends Action {
 						return false;
 					}
 				}
-			}
+			
 		}
 		if (!(target instanceof NPC && ((NPC) target).isForceMultiAttacked())) {
 
@@ -2960,7 +2940,7 @@ public class PlayerCombat extends Action {
 		}
 		maxDistance = isRanging != 0 || player.getCombatDefinitions().getSpellId() > 0 || hasPolyporeStaff(player) ? 7
 				: 0;
-		if ((!player.clipedProjectile(target, maxDistance == 0 && !forceCheckClipAsRange(target)))
+		if ((!player.clipedProjectile(target, maxDistance == 0))
 				|| distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
 				|| distanceY < -1 - maxDistance) {
 			if (!player.hasWalkSteps()) {
@@ -3552,7 +3532,7 @@ public class PlayerCombat extends Action {
 				if (player.getPrayer().usingPrayer(0, 17))
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
 				else if (player.getPrayer().usingPrayer(1, 7)) {
-					int deflectedDamage = source instanceof Nex ? 0 : (int) (hit.getDamage() * 0.1);
+					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
 					if (deflectedDamage > 0) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
@@ -3564,7 +3544,7 @@ public class PlayerCombat extends Action {
 				if (player.getPrayer().usingPrayer(0, 18))
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
 				else if (player.getPrayer().usingPrayer(1, 8)) {
-					int deflectedDamage = source instanceof Nex ? 0 : (int) (hit.getDamage() * 0.1);
+					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
 					if (deflectedDamage > 0) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
@@ -3576,7 +3556,7 @@ public class PlayerCombat extends Action {
 				if (player.getPrayer().usingPrayer(0, 19))
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
 				else if (player.getPrayer().usingPrayer(1, 9)) {
-					int deflectedDamage = source instanceof Nex ? 0 : (int) (hit.getDamage() * 0.1);
+					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
 					if (deflectedDamage > 0) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));

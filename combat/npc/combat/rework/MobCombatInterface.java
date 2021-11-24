@@ -10,7 +10,6 @@ import com.rs.utils.Utils;
 
 import npc.NPC;
 import npc.combat.NPCCombatDefinitions;
-import npc.familiar.Steeltitan;
 import player.CombatDefinitions;
 import player.PlayerCombat;
 import skills.Skills;
@@ -36,10 +35,6 @@ public abstract class MobCombatInterface {
 							: attackStyle == NPCCombatDefinitions.MAGE ? CombatDefinitions.MAGIC_DEF
 									: CombatDefinitions.STAB_DEF]);
 			defence *= targetPlayer.getPrayer().getDefenceMultiplier();
-			if (attackStyle == NPCCombatDefinitions.MELEE) {
-				if (targetPlayer.getFamiliar() instanceof Steeltitan)
-					defence *= 1.15;
-			}
 		} else {
 			NPC mobTarget = (NPC) target;
 			defence = mobTarget.getBonuses() == null ? 0

@@ -27,17 +27,12 @@ import com.rs.game.task.impl.DrainPrayerTask;
 import com.rs.game.task.impl.PlayerOwnedObjectTask;
 import com.rs.game.task.impl.RestoreRunEnergyTask;
 import com.rs.game.task.impl.RestoreSpecialTask;
-import com.rs.game.task.impl.ShopRestockTask;
 import com.rs.game.task.impl.SummoningPassiveTask;
 import com.rs.utils.AntiFlood;
 import com.rs.utils.Logger;
 import com.rs.utils.Utils;
 
-import mysql.connection.ConnectionPool;
 import npc.NPC;
-import npc.dragons.KingBlackDragon;
-import npc.others.Bork;
-import npc.others.TormentedDemon;
 
 public final class World {
 
@@ -72,8 +67,6 @@ public final class World {
 		World.get().submit(new PlayerOwnedObjectTask());
 		World.get().submit(new RestoreSpecialTask());
 		World.get().submit(new DrainPrayerTask());
-		World.get().submit(new ShopRestockTask());
-		World.get().submit(new ShopRestockTask());
 		World.get().submit(new SummoningPassiveTask());
 		World.get().submit(new RestoreRunEnergyTask());
 		EXECUTOR_SERVICE.submit(new WorldThread());
@@ -499,11 +492,7 @@ public final class World {
 				|| (destX >= 3029 && destX <= 3374 && destY >= 3759 && destY <= 3903)// wild
 				|| (destX >= 2250 && destX <= 2280 && destY >= 4670 && destY <= 4720) || (destX >= 3198 && destX <= 3380 && destY >= 3904 && destY <= 3970) || (destX >= 3191 && destX <= 3326 && destY >= 3510 && destY <= 3759) || (destX >= 2987 && destX <= 3006 && destY >= 3912 && destY <= 3937) || (destX >= 2245 && destX <= 2295 && destY >= 4675 && destY <= 4720) || (destX >= 2450 && destX <= 3520 && destY >= 9450 && destY <= 9550) || (destX >= 3006 && destX <= 3071 && destY >= 3602 && destY <= 3710) || (destX >= 3134 && destX <= 3192 && destY >= 3519 && destY <= 3646) || (destX >= 2815 && destX <= 2966 && destY >= 5240 && destY <= 5375)// wild
 				|| (destX >= 2840 && destX <= 2950 && destY >= 5190 && destY <= 5230) // godwars
-				|| (destX >= 3547 && destX <= 3555 && destY >= 9690 && destY <= 9699) // zaros
-				// godwars
-				|| KingBlackDragon.atKBD(tile) // King Black Dragon lair
-				|| TormentedDemon.atTD(tile) // Tormented demon's area
-				|| Bork.atBork(tile) // Bork's area
+				|| (destX >= 3547 && destX <= 3555 && destY >= 9690 && destY <= 9699) // zaros  godwars
 				|| (destX >= 2970 && destX <= 3000 && destY >= 4365 && destY <= 4400)// corp
 				|| (destX >= 3195 && destX <= 3327 && destY >= 3520 && destY <= 3970 || (destX >= 2376 && 5127 >= destY && destX <= 2422 && 5168 <= destY)) || (destX >= 2374 && destY >= 5129 && destX <= 2424 && destY <= 5168) // pits
 				|| (destX >= 2622 && destY >= 5696 && destX <= 2573 && destY <= 5752) // torms
@@ -610,13 +599,6 @@ public final class World {
 				logouts.offer(player);
 			}
 		}
-	}
-	
-	/**
-	 * Gets the donation database connection pool.
-	 */
-	public static ConnectionPool getSQLPool() {
-		return Launcher.getDB().getPool();
 	}
 
 	public static boolean isTileFree(int plane, int x, int y, int size) {

@@ -472,8 +472,8 @@ public final class CombatDefinitions {
 	}
 
 	public void restoreSpecialAttack() {
-		if (player.getFamiliar() != null)
-			player.getFamiliar().restoreSpecialAttack(15);
+//		if (player.getFamiliar() != null)
+//			player.getFamiliar().restoreSpecialAttack(15);
 		if (specialAttackPercentage == 100)
 			return;
 		restoreSpecialAttack(10);

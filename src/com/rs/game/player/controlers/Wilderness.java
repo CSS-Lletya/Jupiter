@@ -11,7 +11,6 @@ import com.rs.game.task.Task;
 import com.rs.utils.Utils;
 
 import npc.NPC;
-import npc.others.Kalaboss;
 import player.Combat;
 import player.type.CombatEffectType;
 import skills.Skills;
@@ -220,11 +219,6 @@ public class Wilderness extends Controler {
 			player.setCanPvp(false);
 			removeIcon();
 			removeControler();
-		} else if (Kalaboss.isAtKalaboss(player)) {
-			removeIcon();
-			player.setCanPvp(false);
-			removeControler();
-			player.getControlerManager().startControler("Kalaboss");
 		}
 	}
 

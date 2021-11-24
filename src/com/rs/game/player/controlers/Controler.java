@@ -6,7 +6,6 @@ import com.rs.game.WorldTile;
 import com.rs.game.item.Item;
 import com.rs.game.player.Player;
 import com.rs.game.player.content.Foods.Food;
-import com.rs.game.player.content.Pots.Pot;
 
 import npc.NPC;
 
@@ -42,9 +41,9 @@ public abstract class Controler {
 		return true;
 	}
 
-	public boolean canPot(Pot pot) {
-		return true;
-	}
+//	public boolean canPot(Pot pot) {
+//		return true;
+//	}
 
 	/**
 	 * after the normal checks, extra checks, only called when you attacking

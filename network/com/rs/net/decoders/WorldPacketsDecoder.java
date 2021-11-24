@@ -7,8 +7,6 @@ import com.rs.game.Graphics;
 import com.rs.game.World;
 import com.rs.game.WorldObject;
 import com.rs.game.WorldTile;
-import com.rs.game.dialogue.DialogueEventListener;
-import com.rs.game.dialogue.impl.DestroyItemD;
 import com.rs.game.item.AutomaticGroundItem;
 import com.rs.game.item.FloorItem;
 import com.rs.game.item.Item;
@@ -35,12 +33,9 @@ import main.RSInterfaceDispatcher;
 import main.impl.rsinterface.BankPinInterfacePlugin;
 import main.impl.rsinterface.InventoryInterfacePlugin;
 import npc.NPC;
-import npc.familiar.Familiar;
-import npc.familiar.Familiar.SpecialAttack;
 import player.PlayerCombat;
 import skills.Skills;
 import skills.magic.Magic;
-import skills.summoning.Summoning;
 
 public final class WorldPacketsDecoder extends Decoder {
 
@@ -561,17 +556,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.getControlerManager().canAttack(npc)) {
 				return;
 			}
-			if (npc instanceof Familiar) {
-				Familiar familiar = (Familiar) npc;
-				if (familiar == player.getFamiliar()) {
-					player.getPackets().sendGameMessage("You can't attack your own familiar.");
-					return;
-				}
-				if (!familiar.canAttack(player)) {
-					player.getPackets().sendGameMessage("You can't attack this npc.");
-					return;
-				}
-			} else if (!npc.isForceMultiAttacked()) {
+			if (!npc.isForceMultiAttacked()) {
 				if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
 					if (player.getAttackedBy() != npc && player.getAttackedByDelay() > Utils.currentTimeMillis()) {
 						player.getPackets().sendGameMessage("You are already in combat.");
@@ -633,24 +618,11 @@ public final class WorldPacketsDecoder extends Decoder {
 			switch (interfaceId) {
 			case 662:
 			case 747:
-				if (player.getFamiliar() == null)
-					return;
 				player.resetWalkSteps();
 				if ((interfaceId == 747 && componentId == 15) || (interfaceId == 662 && componentId == 65) || (interfaceId == 662 && componentId == 74) || interfaceId == 747 && componentId == 18) {
-					if ((interfaceId == 662 && componentId == 74 || interfaceId == 747 && componentId == 24 || interfaceId == 747 && componentId == 18)) {
-						if (player.getFamiliar().getSpecialAttack() != SpecialAttack.ENTITY)
-							return;
-					}
 					if (!player.isCanPvp() || !p2.isCanPvp()) {
 						player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
 						return;
-					}
-					if (!player.getFamiliar().canAttack(p2)) {
-						player.getPackets().sendGameMessage("You can only use your familiar in a multi-zone area.");
-						return;
-					} else {
-						player.getFamiliar().setSpecial(interfaceId == 662 && componentId == 74 || interfaceId == 747 && componentId == 18);
-						player.getFamiliar().setTarget(p2);
 					}
 				}
 				break;
@@ -813,39 +785,6 @@ public final class WorldPacketsDecoder extends Decoder {
 					return;
 				InventoryInterfacePlugin.handleItemOnNPC(player, npc, item);
 				break;
-			case 1165:
-				Summoning.attackDreadnipTarget(npc, player);
-				break;
-			case 662:
-			case 747:
-				if (player.getFamiliar() == null)
-					return;
-				player.resetWalkSteps();
-				if ((interfaceId == 747 && componentId == 15) || (interfaceId == 662 && componentId == 65) || (interfaceId == 662 && componentId == 74) || interfaceId == 747 && componentId == 18 || interfaceId == 747 && componentId == 24) {
-					if ((interfaceId == 662 && componentId == 74 || interfaceId == 747 && componentId == 18)) {
-						if (player.getFamiliar().getSpecialAttack() != SpecialAttack.ENTITY)
-							return;
-					}
-					if (npc instanceof Familiar) {
-						Familiar familiar = (Familiar) npc;
-						if (familiar == player.getFamiliar()) {
-							player.getPackets().sendGameMessage("You can't attack your own familiar.");
-							return;
-						}
-						if (!player.getFamiliar().canAttack(familiar.getOwner())) {
-							player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
-							return;
-						}
-					}
-					if (!player.getFamiliar().canAttack(npc)) {
-						player.getPackets().sendGameMessage("You can only use your familiar in a multi-zone area.");
-						return;
-					} else {
-						player.getFamiliar().setSpecial(interfaceId == 662 && componentId == 74 || interfaceId == 747 && componentId == 18);
-						player.getFamiliar().setTarget(npc);
-					}
-				}
-				break;
 			case 193:
 				switch (componentId) {
 				case 28:
@@ -868,17 +807,7 @@ public final class WorldPacketsDecoder extends Decoder {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getHeight()));
 						if (!player.getControlerManager().canAttack(npc))
 							return;
-						if (npc instanceof Familiar) {
-							Familiar familiar = (Familiar) npc;
-							if (familiar == player.getFamiliar()) {
-								player.getPackets().sendGameMessage("You can't attack your own familiar.");
-								return;
-							}
-							if (!familiar.canAttack(player)) {
-								player.getPackets().sendGameMessage("You can't attack this npc.");
-								return;
-							}
-						} else if (!npc.isForceMultiAttacked()) {
+						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
 								if (player.getAttackedBy() != npc && player.getAttackedByDelay() > Utils.currentTimeMillis()) {
 									player.getPackets().sendGameMessage("You are already in combat.");
@@ -928,17 +857,7 @@ public final class WorldPacketsDecoder extends Decoder {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getHeight()));
 						if (!player.getControlerManager().canAttack(npc))
 							return;
-						if (npc instanceof Familiar) {
-							Familiar familiar = (Familiar) npc;
-							if (familiar == player.getFamiliar()) {
-								player.getPackets().sendGameMessage("You can't attack your own familiar.");
-								return;
-							}
-							if (!familiar.canAttack(player)) {
-								player.getPackets().sendGameMessage("You can't attack this npc.");
-								return;
-							}
-						} else if (!npc.isForceMultiAttacked()) {
+						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
 								if (player.getAttackedBy() != npc && player.getAttackedByDelay() > Utils.currentTimeMillis()) {
 									player.getPackets().sendGameMessage("You are already in combat.");
@@ -1149,9 +1068,6 @@ public final class WorldPacketsDecoder extends Decoder {
 				Logger.log(this, "Dialogue: " + interfaceId + ", " + buttonId + ", " + junk);
 			int componentId = interfaceHash - (interfaceId << 16);
 			BankPinInterfacePlugin.finishPinDialogue(player, interfaceId, componentId);
-			new DestroyItemD(DestroyItemD.INSTANCE.getItem()).executeDestroy(player, interfaceId, componentId);
-			if (DialogueEventListener.main(player, componentId))
-				return;
 		} else if (packetId == WORLD_MAP_CLICK) {
 			int coordinateHash = stream.readIntLE();
 			int x = coordinateHash >> 14;
@@ -1237,17 +1153,17 @@ public final class WorldPacketsDecoder extends Decoder {
 				else
 					player.getPriceCheckManager().addItem(pc_item_X_Slot, value);
 			} else if (player.getInterfaceManager().containsInterface(671) && player.getInterfaceManager().containsInterface(665)) {
-				if (player.getFamiliar() == null || player.getFamiliar().getBob() == null)
-					return;
-				if (value < 0)
-					return;
-				Integer bob_item_X_Slot = (Integer) player.getTemporaryAttributtes().remove("bob_item_X_Slot");
-				if (bob_item_X_Slot == null)
-					return;
-				if (player.getTemporaryAttributtes().remove("bob_isRemove") != null)
-					player.getFamiliar().getBob().removeItem(bob_item_X_Slot, value);
-				else
-					player.getFamiliar().getBob().addItem(bob_item_X_Slot, value);
+//				if (player.getFamiliar() == null || player.getFamiliar().getBob() == null)
+//					return;
+//				if (value < 0)
+//					return;
+//				Integer bob_item_X_Slot = (Integer) player.getTemporaryAttributtes().remove("bob_item_X_Slot");
+//				if (bob_item_X_Slot == null)
+//					return;
+//				if (player.getTemporaryAttributtes().remove("bob_isRemove") != null)
+//					player.getFamiliar().getBob().removeItem(bob_item_X_Slot, value);
+//				else
+//					player.getFamiliar().getBob().addItem(bob_item_X_Slot, value);
 			} else if (player.getInterfaceManager().containsInterface(335) && player.getInterfaceManager().containsInterface(336)) {
 				if (value < 0)
 					return;

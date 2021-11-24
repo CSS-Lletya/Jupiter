@@ -9,12 +9,10 @@ import com.rs.cores.BlockingExecutorService;
 import com.rs.cores.CoresManager;
 import com.rs.game.RegionBuilder;
 import com.rs.game.World;
-import com.rs.game.dialogue.DialogueEventRepository;
 import com.rs.game.item.AutomaticGroundItem;
 import com.rs.game.player.FriendChatsManager;
 import com.rs.game.player.controlers.ControlerHandler;
 import com.rs.json.GsonHandler;
-import com.rs.json.impl.MobDropTableLoader;
 import com.rs.net.ServerChannelHandler;
 import com.rs.net.host.HostListType;
 import com.rs.net.host.HostManager;
@@ -31,7 +29,6 @@ import com.rs.utils.NPCCombatDefinitionsL;
 import main.CommandDispatcher;
 import main.InventoryDispatcher;
 import main.NPCDispatcher;
-import main.ObjectDispatcher;
 import main.RSInterfaceDispatcher;
 import npc.combat.rework.NPCCombatDispatcher;
 import player.specials.WeaponSpecialDispatcher;
@@ -83,13 +80,11 @@ public class GameLoader {
 			ControlerHandler.init();
 			FriendChatsManager.init();
 			RegionBuilder.init();
-			DialogueEventRepository.init();
 		});
 		getBackgroundLoader().submit(() -> {
 			GsonHandler.initialize();
 			CommandDispatcher.load();
 			RSInterfaceDispatcher.load();
-			ObjectDispatcher.load();
 			NPCDispatcher.load();
 			NPCCombatDispatcher.load();
 			InventoryDispatcher.load();
@@ -98,7 +93,6 @@ public class GameLoader {
 			HostManager.deserialize(HostListType.STARTER_RECEIVED);
 			HostManager.deserialize(HostListType.BANNED_IP);
 			HostManager.deserialize(HostListType.MUTED_IP);
-			new MobDropTableLoader().load();
 			WeaponSpecialDispatcher.load();
 		});
 	}

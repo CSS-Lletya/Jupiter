@@ -10,14 +10,11 @@ import com.rs.cache.loaders.ObjectDefinitions;
 import com.rs.cores.CoresManager;
 import com.rs.game.Region;
 import com.rs.game.World;
-import com.rs.game.discord.DiscordBot;
 import com.rs.game.player.AccountCreation;
 import com.rs.json.impl.ObjectSpawnLoader;
 import com.rs.net.ServerChannelHandler;
 import com.rs.utils.Logger;
 import com.rs.utils.Utils;
-
-import mysql.Database;
 
 public final class Launcher {
 
@@ -29,12 +26,7 @@ public final class Launcher {
 		Settings.HOSTED = Boolean.parseBoolean(args[2]);
 		Settings.DEBUG = true;//Boolean.parseBoolean(args[1]);
 		long currentTime = Utils.currentTimeMillis();
-		if (Settings.discordRelay) {
-			bot = new DiscordBot();
-		}
-		if (Settings.mysqlEnabled) {
-			getDB().init();
-		}
+
 		GameLoader.get().getBackgroundLoader().waitForPendingTasks().shutdown();
 		new ObjectSpawnLoader().initialize();
 
@@ -106,17 +98,5 @@ public final class Launcher {
 		} catch (Throwable e) {
 			Logger.handle(e);
 		}
-	}
-
-	public static DiscordBot bot;
-	
-	public static DiscordBot getDiscordBot() {
-		return bot;
-	}
-	
-	public static Database dbInstance = new Database();
-	
-	public static Database getDB() {
-		return dbInstance;
 	}
 }

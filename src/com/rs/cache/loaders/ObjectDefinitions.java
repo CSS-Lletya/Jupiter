@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.rs.cache.Cache;
 import com.rs.cache.io.InputStream;
 
-import skills.dungeoneering.DungeonUtils;
-
 @SuppressWarnings("unused")
 public class ObjectDefinitions {
 
@@ -643,12 +641,10 @@ public class ObjectDefinitions {
 				def.projectileCliped = true;
 				if (def.clipType == 0)
 					def.clipType = 1;
-			} else if (DungeonUtils.isDoor(id)) {
-				def.notCliped = false;
-				def.projectileCliped = true;
-				if (def.clipType == 0)
-					def.clipType = 1;
-			}
+			} /*
+				 * else if (DungeonUtils.isDoor(id)) { def.notCliped = false;
+				 * def.projectileCliped = true; if (def.clipType == 0) def.clipType = 1; }
+				 */
 			if (def.notCliped) {
 				def.projectileCliped = false;
 				def.clipType = 0;

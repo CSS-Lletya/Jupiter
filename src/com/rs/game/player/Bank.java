@@ -6,7 +6,6 @@ import com.rs.game.item.Item;
 import com.rs.utils.ItemExamines;
 
 import main.impl.rsinterface.CombatBonusesInterfacePlugin;
-import npc.familiar.Familiar;
 
 public class Bank {
 
@@ -99,19 +98,19 @@ public class Bank {
 	}
 
 	public void depositAllBob(boolean banking) {
-		Familiar familiar = player.getFamiliar();
-		if (familiar == null || familiar.getBob() == null)
-			return;
-		int space = addItems(familiar.getBob().getBeastItems().getItems(), banking);
-		if (space != 0) {
-			for (int i = 0; i < space; i++)
-				familiar.getBob().getBeastItems().set(i, null);
-			familiar.getBob().sendInterItems();
-		}
-		if (space < familiar.getBob().getBeastItems().getSize()) {
-			player.getPackets().sendGameMessage("Not enough space in your bank.");
-			return;
-		}
+//		Familiar familiar = player.getFamiliar();
+//		if (familiar == null || familiar.getBob() == null)
+//			return;
+//		int space = addItems(familiar.getBob().getBeastItems().getItems(), banking);
+//		if (space != 0) {
+//			for (int i = 0; i < space; i++)
+//				familiar.getBob().getBeastItems().set(i, null);
+//			familiar.getBob().sendInterItems();
+//		}
+//		if (space < familiar.getBob().getBeastItems().getSize()) {
+//			player.getPackets().sendGameMessage("Not enough space in your bank.");
+//			return;
+//		}
 	}
 
 	public void depositAllEquipment(boolean banking) {

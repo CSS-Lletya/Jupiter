@@ -2,8 +2,6 @@ package com.rs.game.player.content;
 
 import com.rs.cache.loaders.ClientScriptMap;
 import com.rs.game.Animation;
-import com.rs.game.dialogue.DialogueEventListener;
-import com.rs.game.dialogue.DialogueFaceExpression;
 import com.rs.game.player.Player;
 
 public final class PlayerLook {
@@ -157,14 +155,14 @@ public final class PlayerLook {
 
 	public static void openThessaliasMakeOver(final Player player) {
 		if (player.getEquipment().wearingArmour()) {
-			player.dialog(new DialogueEventListener(player) {
-
-				@Override
-				public void start() {
-					npc(DialogueFaceExpression.sad,
-							"You're not able to try on my clothes with all that armour. Take it off and then speak to me again.");
-				}
-			}.begin());
+//			player.dialog(new DialogueEventListener(player) {
+//
+//				@Override
+//				public void start() {
+//					npc(DialogueFaceExpression.sad,
+//							"You're not able to try on my clothes with all that armour. Take it off and then speak to me again.");
+//				}
+//			}.begin());
 			return;
 		}
 		player.setNextAnimation(new Animation(11623));
@@ -177,13 +175,13 @@ public final class PlayerLook {
 
 			@Override
 			public void run() {
-				player.dialog(new DialogueEventListener(player) {
-
-					@Override
-					public void start() {
-						npc(DialogueFaceExpression.happy, "A marvellous choise. You look splendid!");
-					}
-				}.begin());
+//				player.dialog(new DialogueEventListener(player) {
+//
+//					@Override
+//					public void start() {
+//						npc(DialogueFaceExpression.happy, "A marvellous choise. You look splendid!");
+//					}
+//				}.begin());
 				player.setNextAnimation(new Animation(-1));
 				player.getAppearance().getAppeareanceBlocks();
 				player.getTemporaryAttributtes().remove("ThessaliasMakeOver");
@@ -194,25 +192,25 @@ public final class PlayerLook {
 
 	public static void openHairdresserSalon(final Player player) {
 		if (player.getEquipment().getHatId() != -1) {
-			player.dialog(new DialogueEventListener(player) {
-
-				@Override
-				public void start() {
-					npc(DialogueFaceExpression.sad,
-							"I'm afraid I can't see your head at the moment. Please remove your headgear first.");
-				}
-			}.begin());
+//			player.dialog(new DialogueEventListener(player) {
+//
+//				@Override
+//				public void start() {
+//					npc(DialogueFaceExpression.sad,
+//							"I'm afraid I can't see your head at the moment. Please remove your headgear first.");
+//				}
+//			}.begin());
 			return;
 		}
 		if (player.getEquipment().getWeaponId() != -1 || player.getEquipment().getShieldId() != -1) {
-			player.dialog(new DialogueEventListener(player) {
-
-				@Override
-				public void start() {
-					npc(DialogueFaceExpression.sad,
-							"I don't feel comfortable cutting hair when you are wielding something. Please remove what you are holding first.");
-				}
-			}.begin());
+//			player.dialog(new DialogueEventListener(player) {
+//
+//				@Override
+//				public void start() {
+//					npc(DialogueFaceExpression.sad,
+//							"I don't feel comfortable cutting hair when you are wielding something. Please remove what you are holding first.");
+//				}
+//			}.begin());
 			return;
 		}
 		player.setNextAnimation(new Animation(11623));
@@ -226,14 +224,14 @@ public final class PlayerLook {
 
 			@Override
 			public void run() {
-				player.dialog(new DialogueEventListener(player) {
-
-					@Override
-					public void start() {
-						npc(DialogueFaceExpression.sad,
-								"An excellent choise, " + (player.getAppearance().isMale() ? "sir" : "lady") + ".");
-					}
-				}.begin());
+//				player.dialog(new DialogueEventListener(player) {
+//
+//					@Override
+//					public void start() {
+//						npc(DialogueFaceExpression.sad,
+//								"An excellent choise, " + (player.getAppearance().isMale() ? "sir" : "lady") + ".");
+//					}
+//				}.begin());
 				player.setNextAnimation(new Animation(-1));
 				player.getAppearance().getAppeareanceBlocks();
 				player.getTemporaryAttributtes().remove("hairSaloon");

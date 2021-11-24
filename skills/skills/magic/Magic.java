@@ -11,7 +11,6 @@ import com.rs.game.task.LinkedTaskSequence;
 import com.rs.game.task.Task;
 import com.rs.utils.Utils;
 
-import npc.others.Kalaboss;
 import skills.Skills;
 
 /*
@@ -694,9 +693,7 @@ public class Magic {
 	}
 
 	public static void teleControlersCheck(Player player, WorldTile teleTile) {
-		if (Kalaboss.isAtKalaboss(teleTile))
-			player.getControlerManager().startControler("Kalaboss");
-		else if (Wilderness.isAtWild(teleTile))
+		if (Wilderness.isAtWild(teleTile))
 			player.getControlerManager().startControler("Wilderness");
 	}
 

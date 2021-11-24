@@ -16,8 +16,6 @@ import com.rs.utils.MutableNumber;
 import com.rs.utils.Utils;
 
 import npc.NPC;
-import npc.familiar.Familiar;
-import npc.qbd.TorturedSoul;
 import player.Combat;
 import player.type.CombatEffectType;
 import player.type.PoisonType;
@@ -312,13 +310,6 @@ public abstract class Entity extends WorldTile {
 			return;
 		}
 
-		if (this instanceof TorturedSoul) { // waste of process power personaly
-											// but meh.
-			if (((TorturedSoul) this).switchWalkStep()) {
-				return;
-			}
-		}
-
 		for (int stepCount = 0; stepCount < (run ? 2 : 1); stepCount++) {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
@@ -546,7 +537,7 @@ public abstract class Entity extends WorldTile {
 			if (npcIndexes != null) {
 				for (int npcIndex : npcIndexes) {
 					NPC target = World.getNPCs().get(npcIndex);
-					if (target == null || target == this || target.isDead() || target.hasFinished() || target.getHeight() != getHeight() || !target.isAtMultiArea() || (!(this instanceof Familiar) && target instanceof Familiar))
+					if (target == null || target == this || target.isDead() || target.hasFinished() || target.getHeight() != getHeight() || !target.isAtMultiArea())
 						continue;
 					int targetSize = target.getSize();
 					if (!checkUnder && target.getNextWalkDirection() == -1) { // means the walk hasnt been processed yet

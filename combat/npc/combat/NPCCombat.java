@@ -5,17 +5,12 @@ import java.util.concurrent.TimeUnit;
 import com.rs.Settings;
 import com.rs.game.Animation;
 import com.rs.game.Entity;
-import com.rs.game.ForceMovement;
-import com.rs.game.World;
-import com.rs.game.WorldTile;
 import com.rs.game.player.Player;
 import com.rs.utils.MapAreas;
 import com.rs.utils.Utils;
 
 import npc.NPC;
 import npc.combat.rework.NPCCombatDispatcher;
-import npc.familiar.Familiar;
-import npc.godwars.zaros.Nex;
 import player.Combat;
 
 public final class NPCCombat {
@@ -66,7 +61,7 @@ public final class NPCCombat {
 		int attackStyle = defs.getAttackStyle();
 		int maxDistance = attackStyle == NPCCombatDefinitions.MELEE || attackStyle == NPCCombatDefinitions.SPECIAL2 ? 0
 				: 7;
-		if ((!(npc instanceof Nex)) && !npc.clipedProjectile(target, maxDistance == 0))
+		if (!npc.clipedProjectile(target, maxDistance == 0))
 			return 0;
 		int distanceX = target.getX() - npc.getX();
 		int distanceY = target.getY() - npc.getY();
@@ -127,8 +122,6 @@ public final class NPCCombat {
 		}
 		if (!npc.isNoDistanceCheck() && !npc.isCantFollowUnderCombat()) {
 			maxDistance = 32;
-			if (!(npc instanceof Familiar)) {
-
 				if (npc.getMapAreaNameHash() != -1) {
 					// if out his area
 					if (!MapAreas.isAtArea(npc.getMapAreaNameHash(), npc) || (!npc.canBeAttackFromOutOfArea()
@@ -142,7 +135,7 @@ public final class NPCCombat {
 					npc.forceWalkRespawnTile();
 					return false;
 				}
-			}
+			
 			maxDistance = 16;
 			distanceX = target.getX() - npc.getX();
 			distanceY = target.getY() - npc.getY();
@@ -154,11 +147,7 @@ public final class NPCCombat {
 			distanceY = target.getY() - npc.getY();
 		}
 		// checks for no multi area :)
-		if (npc instanceof Familiar) {
-			Familiar familiar = (Familiar) npc;
-			if (!familiar.canAttack(target))
-				return false;
-		} else {
+
 			if (!npc.isForceMultiAttacked()) {
 				if (!target.isAtMultiArea() || !npc.isAtMultiArea()) {
 					if (npc.getAttackedBy() != target && npc.getAttackedByDelay() > Utils.currentTimeMillis())
@@ -166,7 +155,7 @@ public final class NPCCombat {
 					if (target.getAttackedBy() != npc && target.getAttackedByDelay() > Utils.currentTimeMillis())
 						return false;
 				}
-			}
+			
 		}
 		if (!npc.isCantFollowUnderCombat()) {
 			// if is under
@@ -202,33 +191,6 @@ public final class NPCCombat {
 			}
 
 			int attackStyle = npc.getCombatDefinitions().getAttackStyle();
-			if (npc instanceof Nex) {
-				Nex nex = (Nex) npc;
-				maxDistance = nex.isFollowTarget() ? 0 : 7;
-				if (nex.getFlyTime() == 0 && (distanceX > size + maxDistance || distanceX < -1 - maxDistance
-						|| distanceY > size + maxDistance || distanceY < -1 - maxDistance)) {
-					npc.resetWalkSteps();
-					npc.addWalkStepsInteract(target.getX(), target.getY(), 2, size, true);
-					if (!npc.hasWalkSteps()) {
-						int[][] dirs = Utils.getCoordOffsetsNear(size);
-						for (int dir = 0; dir < dirs[0].length; dir++) {
-							final WorldTile tile = new WorldTile(new WorldTile(target.getX() + dirs[0][dir],
-									target.getY() + dirs[1][dir], target.getHeight()));
-							if (World.canMoveNPC(tile.getHeight(), tile.getX(), tile.getY(), size)) { // if found done
-								nex.setFlyTime(4);
-								npc.setNextForceMovement(new ForceMovement(new WorldTile(npc), 0, tile, 1,
-										Utils.getMoveDirection(tile.getX() - npc.getX(), tile.getY() - npc.getY())));
-								npc.setNextAnimation(new Animation(6985));
-								npc.setNextWorldTile(tile);
-								return true;
-							}
-						}
-					}
-					return true;
-				} else
-					// if doesnt need to move more stop moving
-					npc.resetWalkSteps();
-			} else {
 				maxDistance = npc.isForceFollowClose() ? 0
 						: (attackStyle == NPCCombatDefinitions.MELEE || attackStyle == NPCCombatDefinitions.SPECIAL2)
 								? 0
@@ -244,7 +206,7 @@ public final class NPCCombat {
 				}
 				// if under target, moves
 
-			}
+			
 		}
 		return true && !agressive;
 	}

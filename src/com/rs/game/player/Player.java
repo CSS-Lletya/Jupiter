@@ -23,12 +23,14 @@ import com.rs.game.Hit;
 import com.rs.game.World;
 import com.rs.game.WorldObject;
 import com.rs.game.WorldTile;
-import com.rs.game.dialogue.DialogueEventListener;
 import com.rs.game.item.FloorItem;
 import com.rs.game.item.Item;
 import com.rs.game.player.actions.ActionManager;
-import com.rs.game.player.content.*;
-import com.rs.game.player.content.pet.PetManager;
+import com.rs.game.player.content.BankPin;
+import com.rs.game.player.content.EmotesManager;
+import com.rs.game.player.content.LodeStone;
+import com.rs.game.player.content.MusicsManager;
+import com.rs.game.player.content.PriceCheckManager;
 import com.rs.game.player.controlers.ControlerManager;
 import com.rs.game.player.controlers.Wilderness;
 import com.rs.game.route.CoordsEvent;
@@ -49,10 +51,6 @@ import com.rs.utils.MutableNumber;
 import com.rs.utils.Stopwatch;
 import com.rs.utils.Utils;
 
-import mysql.impl.SendStarter;
-import npc.corp.CorpBeastControler;
-import npc.familiar.Familiar;
-import npc.pet.Pet;
 import player.CombatDefinitions;
 import player.PlayerCombat;
 import player.type.AntifireDetails;
@@ -78,7 +76,6 @@ public class Player extends Entity {
 	private transient FriendChatsManager currentFriendChat;
 	private transient Trade trade;
 	private transient IsaacKeyPair isaacKeyPair;
-	private transient Pet pet;
 
 	//Stones
 	private transient boolean[] activatedLodestones;
@@ -173,9 +170,7 @@ public class Player extends Entity {
 	private MusicsManager musicsManager;
 	private EmotesManager emotesManager;
 	private FriendsIgnores friendsIgnores;
-	private Familiar familiar;
 	private AuraManager auraManager;
-	private PetManager petManager;
 	private double runEnergy;
 	private boolean allowChatEffects;
 	private boolean mouseButtons;
@@ -221,7 +216,6 @@ public class Player extends Entity {
 		friendsIgnores = new FriendsIgnores();
 		charges = new ChargesManager();
 		auraManager = new AuraManager();
-		petManager = new PetManager();
 		pin = new BankPin();
 		lodeStone = new LodeStone();
 		runEnergy = 100D;
@@ -236,8 +230,6 @@ public class Player extends Entity {
 		// temporary deleted after reset all chars
 		if (auraManager == null)
 			auraManager = new AuraManager();
-		if (petManager == null)
-			petManager = new PetManager();
 		if (details == null)
 			details = new PlayerDetails();
 		if(toolbelt == null)
@@ -287,7 +279,6 @@ public class Player extends Entity {
 		friendsIgnores.setPlayer(this);
 		auraManager.setPlayer(this);
 		charges.setPlayer(this);
-		petManager.setPlayer(this);
 		temporaryMovementType = -1;
 		logicPackets = new ConcurrentLinkedQueue<LogicPacket>();
 		switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
@@ -679,11 +670,11 @@ public class Player extends Entity {
 			if (currentFriendChat == null) // failed
 				currentFriendChatOwner = null;
 		}
-		if (getFamiliar() != null) {
-			getFamiliar().respawnFamiliar(this);
-		} else {
-			getPetManager().init();
-		}
+//		if (getFamiliar() != null) {
+//			getFamiliar().respawnFamiliar(this);
+//		} else {
+//			getPetManager().init();
+//		}
 		isActive = true;
 		updateMovementType = true;
 		getAppearance().getAppeareanceBlocks();
@@ -691,7 +682,6 @@ public class Player extends Entity {
 		OwnedObjectManager.linkKeys(this);
 		
 		if (!HostManager.contains(getUsername(), HostListType.STARTER_RECEIVED)) {
-			new SendStarter(World.getSQLPool(), this).submit();
 			HostManager.add(this, HostListType.STARTER_RECEIVED, true);
 		}
 		if (!getRun())
@@ -832,10 +822,6 @@ public class Player extends Entity {
 		friendsIgnores.sendFriendsMyStatus(false);
 		if (currentFriendChat != null)
 			currentFriendChat.leaveChat(this, true);
-		if (familiar != null && !familiar.isFinished())
-			familiar.dissmissFamiliar(true);
-		else if (pet != null)
-			pet.finish();
 		World.get().getTask().cancel(this);
 		setSkillAction(Optional.empty());
 		setFinished(true);
@@ -1103,11 +1089,11 @@ public class Player extends Entity {
 		if (containedItems.isEmpty())
 			return;
 		int keptAmount = 0;
-		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
+//		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
 			keptAmount = hasSkull() ? 0 : 3;
 			if (getPrayer().usingPrayer(0, 10) || getPrayer().usingPrayer(1, 0))
 				keptAmount++;
-		}
+//		}
 		CopyOnWriteArrayList<Item> keptItems = new CopyOnWriteArrayList<Item>();
 		Item lastItem = new Item(1, 1);
 		for (int i = 0; i < keptAmount; i++) {
@@ -1447,14 +1433,6 @@ public class Player extends Entity {
 		return teleblock;
 	}
 
-	public Familiar getFamiliar() {
-		return familiar;
-	}
-
-	public void setFamiliar(Familiar familiar) {
-		this.familiar = familiar;
-	}
-
 	public FriendChatsManager getCurrentFriendChat() {
 		return currentFriendChat;
 	}
@@ -1543,37 +1521,6 @@ public class Player extends Entity {
 		this.cantTrade = canTrade;
 	}
 
-	/**
-	 * Gets the pet.
-	 * @return The pet.
-	 */
-	public Pet getPet() {
-		return pet;
-	}
-
-	/**
-	 * Sets the pet.
-	 * @param pet The pet to set.
-	 */
-	public void setPet(Pet pet) {
-		this.pet = pet;
-	}
-	
-	/**
-	 * Gets the petManager.
-	 * @return The petManager.
-	 */
-	public PetManager getPetManager() {
-		return petManager;
-	}
-
-	/**
-	 * Sets the petManager.
-	 * @param petManager The petManager to set.
-	 */
-	public void setPetManager(PetManager petManager) {
-		this.petManager = petManager;
-	}
 
 	public double getHpBoostMultiplier() {
 		return hpBoostMultiplier;
@@ -1596,15 +1543,6 @@ public class Player extends Entity {
 		getPackets().sendItemsLook();
 	}
 
-	public void dialog(DialogueEventListener listener){ //temp
-		getTemporaryAttributtes().put("dialogue_event", listener.begin());
-	}
-	
-	public DialogueEventListener dialog(){
-		DialogueEventListener listener = (DialogueEventListener) getTemporaryAttributtes().get("dialogue_event");
-		return listener;
-	}
-	
 	/**
 	 * The current skill action that is going on for this player.
 	 */

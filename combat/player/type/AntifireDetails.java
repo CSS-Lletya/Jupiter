@@ -1,14 +1,11 @@
 package player.type;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rs.utils.MutableNumber;
 
 public final class AntifireDetails {
 	
-	@JsonProperty(value = "delay")
 	private final MutableNumber antifireDelay = new MutableNumber(600);
 	
-	@JsonProperty(value = "type")
 	private final AntifireType type;
 	
 	public AntifireDetails() {

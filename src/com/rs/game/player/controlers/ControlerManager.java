@@ -6,7 +6,6 @@ import com.rs.game.WorldTile;
 import com.rs.game.item.Item;
 import com.rs.game.player.Player;
 import com.rs.game.player.content.Foods.Food;
-import com.rs.game.player.content.Pots.Pot;
 
 import npc.NPC;
 
@@ -164,11 +163,11 @@ public final class ControlerManager {
 		return controler.canEat(food);
 	}
 
-	public boolean canPot(Pot pot) {
-		if (controler == null || !inited)
-			return true;
-		return controler.canPot(pot);
-	}
+//	public boolean canPot(Pot pot) {
+//		if (controler == null || !inited)
+//			return true;
+//		return controler.canPot(pot);
+//	}
 
 	public boolean useDialogueScript(Object key) {
 		if (controler == null || !inited)

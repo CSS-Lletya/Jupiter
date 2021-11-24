@@ -7,13 +7,11 @@ import com.rs.cache.io.InputStream;
 import com.rs.cores.WorldThread;
 import com.rs.game.World;
 import com.rs.game.WorldTile;
-import com.rs.game.dialogue.impl.DestroyItemD;
 import com.rs.game.item.FloorItem;
 import com.rs.game.item.Item;
 import com.rs.game.player.Inventory;
 import com.rs.game.player.Player;
 import com.rs.game.player.content.Foods;
-import com.rs.game.player.content.Pots;
 import com.rs.game.route.CoordsEvent;
 import com.rs.game.task.Task;
 import com.rs.net.decoders.WorldPacketsDecoder;
@@ -24,8 +22,6 @@ import main.InventoryDispatcher;
 import main.listener.RSInterface;
 import main.wrapper.RSInterfaceSignature;
 import npc.NPC;
-import npc.familiar.Familiar.SpecialAttack;
-import npc.pet.Pet;
 
 @RSInterfaceSignature(interfaceId = {679})
 public class InventoryInterfacePlugin implements RSInterface {
@@ -46,8 +42,6 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				player.stopAll(false);
 				if (Foods.eat(player, item, slotId))
-					return;
-				if (Pots.pot(player, item, slotId))
 					return;
 				InventoryDispatcher.execute(player, item, 1);
 				break;
@@ -104,13 +98,6 @@ public class InventoryInterfacePlugin implements RSInterface {
 					player.getToolbelt().addItem(slotId, item);
 					return;
 				}
-				if (item.getDefinitions().isDestroyItem()) {
-					DestroyItemD.INSTANCE.sendChatInterface(player, item);
-					return;
-				}
-				if (player.getPetManager().spawnPet(item.getId(), true)) {
-					return;
-				}
 				InventoryDispatcher.execute(player, item, 7);
 				player.getInventory().deleteItem(slotId, item);
 				if (player.getCharges().degradeCompletly(item))
@@ -138,17 +125,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			System.out.println(String.format("fromInter: %s, toInter: %s, fromSlot: %s, toSlot %s, item1: %s, item2: %s", interfaceId, interfaceId2, fromSlot, toSlot, itemUsedId, itemUsedWithId));
 		
 		//fromInter: 44498944, toInter: 44498944, fromSlot: 11694, toSlot 0, item1: 14484, item2: 8
-		
-		if ((interfaceId2 == 747 || interfaceId2 == 662) && interfaceId == Inventory.INVENTORY_INTERFACE) {
-			if (player.getFamiliar() != null) {
-				player.getFamiliar().setSpecial(true);
-				if (player.getFamiliar().getSpecialAttack() == SpecialAttack.ITEM) {
-					if (player.getFamiliar().hasSpecialOn())
-						player.getFamiliar().submitSpecial(toSlot);
-				}
-			}
-			return;
-		}
+
 		if (interfaceId == Inventory.INVENTORY_INTERFACE && interfaceId == interfaceId2
 				&& !player.getInterfaceManager().containsInventoryInter()) {
 			if (toSlot >= 28 || fromSlot >= 28)
@@ -173,11 +150,6 @@ public class InventoryInterfacePlugin implements RSInterface {
 			@Override
 			public void run() {
 				if (!player.getInventory().containsItem(item.getId(), item.getAmount())) {
-					return;
-				}
-				if (npc instanceof Pet) {
-					player.faceEntity(npc);
-					player.getPetManager().eat(item.getId(), (Pet) npc);
 					return;
 				}
 			}
