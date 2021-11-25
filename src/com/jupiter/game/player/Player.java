@@ -587,6 +587,7 @@ public class Player extends Entity {
 		OwnedObjectManager.linkKeys(this);
 		
 		if (!HostManager.contains(getUsername(), HostListType.STARTER_RECEIVED)) {
+			Settings.STATER_KIT.forEach(item -> getInventory().addItem(item));
 			HostManager.add(this, HostListType.STARTER_RECEIVED, true);
 		}
 	}
