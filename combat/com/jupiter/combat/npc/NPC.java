@@ -8,6 +8,7 @@ import com.jupiter.combat.npc.combat.NPCCombat;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
+import com.jupiter.game.EntityType;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -68,7 +69,7 @@ public class NPC extends Entity {
 	 * creates and adds npc
 	 */
 	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea, boolean spawned) {
-		super(tile);
+		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
 		this.mapAreaNameHash = mapAreaNameHash;
@@ -92,7 +93,7 @@ public class NPC extends Entity {
 	}
 	
 	public NPC(int id, WorldTile tile) {
-		super(tile);
+		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
 		this.mapAreaNameHash = -1;

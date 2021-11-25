@@ -5,8 +5,8 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"ban"}, rights = {Rights.ADMINISTRATOR}, syntax = "Ban a specified Player")
 public final class BanCommand implements Command {

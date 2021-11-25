@@ -1,12 +1,16 @@
 package com.jupiter.game;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
+import com.google.common.base.Preconditions;
 import com.jupiter.Settings;
 import com.jupiter.cache.loaders.AnimationDefinitions;
 import com.jupiter.cache.loaders.ObjectDefinitions;
@@ -31,11 +35,14 @@ import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.MutableNumber;
 import com.jupiter.utils.Utils;
 
+import lombok.Getter;
+
 public abstract class Entity extends WorldTile {
 
 	// creates Entity and saved classes
-	public Entity(WorldTile tile) {
+	public Entity(WorldTile tile, EntityType type) {
 		super(tile);
+		this.type = requireNonNull(type);
 	}
 	
 	// transient stuff
@@ -115,16 +122,7 @@ public abstract class Entity extends WorldTile {
 	public void applyHit(Hit hit) {
 		if (isDead())
 			return;
-		if (this instanceof Player) {
-			Player player = (Player) this;
-			if (player.getUsername().equalsIgnoreCase("apache_ah64") || player.getUsername().equalsIgnoreCase("emperor")) {
-				// return;
-			}
-		}
-		// todo damage for who gets drop
-		receivedHits.add(hit); // added hit first because, soaking added after,
-								// if applyhit used right there shouldnt be any
-								// problem
+		receivedHits.add(hit); 
 		handleIngoingHit(hit);
 	}
 
@@ -1338,43 +1336,7 @@ public abstract class Entity extends WorldTile {
 		attributes.put(key, value);
 		return value;
 	}
-	
-	/**
-	 * Verifies if this entity is a player
-	 *
-	 * @return A {@code Boolean} flag
-	 */
-	public boolean isPlayer() {
-		return toPlayer() != null;
-	}
-	
-	/**
-	 * Converts this node to a {@code Player} {@code Object}
-	 *
-	 * @return A {@code Player}
-	 */
-	public Player toPlayer() {
-		return null;
-	}
-	
-	/**
-	 * Verifies if this node is an npc
-	 *
-	 * @return A {@code Boolean} flag
-	 */
-	public boolean isNPC() {
-		return toNPC() != null;
-	}
-	
-	/**
-	 * Converts this entity to a {@code NPC} {@code Object}
-	 *
-	 * @return A {@code NPC}
-	 */
-	public NPC toNPC() {
-		return null;
-	}
-	
+
 	/**
 	 * Gets the center location.
 	 *
@@ -1383,5 +1345,74 @@ public abstract class Entity extends WorldTile {
 	public WorldTile getCenterLocation() {
 		int offset = getSize() >> 1;
 		return this.getLastWorldTile().transform(offset, offset, 0);
+	}
+	
+	/**
+	 * The type of node that this node is.
+	 */
+	@Getter
+	private final EntityType type;
+
+	/**
+	 * Determines if this entity is a {@link Player}.
+	 * 
+	 * @return {@code true} if this entity is a {@link Player}, {@code false}
+	 *         otherwise.
+	 */
+	public final boolean isPlayer() {
+		return getType() == EntityType.PLAYER;
+	}
+
+	/**
+	 * Executes the specified action if the underlying node is a player.
+	 * 
+	 * @param action the action to execute.
+	 */
+	public final void ifPlayer(Consumer<Player> action) {
+		if (!this.isPlayer()) {
+			return;
+		}
+		action.accept(this.toPlayer());
+	}
+
+	/**
+	 * Casts the {@link Actor} to a {@link Player}.
+	 * 
+	 * @return an instance of this {@link Actor} as a {@link Player}.
+	 */
+	public final Player toPlayer() {
+		Preconditions.checkArgument(isPlayer(), "Cannot cast this entity to player.");
+		return (Player) this;
+	}
+
+	/**
+	 * Determines if this entity is a {@link Mob}.
+	 * 
+	 * @return {@code true} if this entity is a {@link Mob}, {@code false}
+	 *         otherwise.
+	 */
+	public final boolean isNPC() {
+		return getType() == EntityType.NPC;
+	}
+
+	/**
+	 * Executes the specified action if the underlying node is a player.
+	 * 
+	 * @param action the action to execute.
+	 */
+	public final void ifNpc(Consumer<NPC> action) {
+		if (!this.isNPC())
+			return;
+		action.accept(this.toNPC());
+	}
+
+	/**
+	 * Casts the {@link Actor} to a {@link Mob}.
+	 * 
+	 * @return an instance of this {@link Actor} as a {@link Mob}.
+	 */
+	public final NPC toNPC() {
+		Preconditions.checkArgument(isNPC(), "Cannot cast this entity to npc.");
+		return (NPC) this;
 	}
 }

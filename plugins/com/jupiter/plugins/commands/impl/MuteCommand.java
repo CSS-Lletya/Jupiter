@@ -5,8 +5,8 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 import com.jupiter.utils.Utils;
 
 @CommandSignature(alias = {"mute"}, rights = {Rights.ADMINISTRATOR}, syntax = "Mute a specified Player")

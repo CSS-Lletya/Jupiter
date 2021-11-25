@@ -1,4 +1,4 @@
-package com.jupiter.plugins.listener;
+package com.jupiter.plugins.npc;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.player.Player;

@@ -21,10 +21,10 @@ import com.jupiter.net.Session;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.plugins.CommandDispatcher;
-import com.jupiter.plugins.NPCDispatcher;
 import com.jupiter.plugins.ObjectDispatcher;
-import com.jupiter.plugins.RSInterfaceDispatcher;
+import com.jupiter.plugins.commands.CommandDispatcher;
+import com.jupiter.plugins.npc.NPCDispatcher;
+import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.plugins.rsinterface.impl.InventoryInterfacePlugin;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
@@ -889,24 +889,15 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() > currentTime)
-				// || player.getFreezeDelay() >= currentTime)
+			if (player.getLockDelay() > currentTime || player.getFreezeDelay() >= currentTime)
 				return;
 
-//			int y = stream.readUnsignedShort();
-//			int x = stream.readUnsignedShortLE();
-//			final int id = stream.readUnsignedShort();
-//			boolean forceRun = stream.read128Byte() == 1;
-			
-			
 			final int id = stream.readShortLE128();
 			boolean forceRun =  stream.readUnsignedByteC() == 1; 
 			int y = stream.readUnsignedShort();
 			int x = stream.readUnsignedShort128();
 			
 			System.out.println(x+", "+ y +", "+id +", "+forceRun);
-			//0, 4153, 3503, 3216
-			//3216, 3503, 0, 4153
 			
 			final WorldTile tile = new WorldTile(x, y, player.getPlane());
 			final int regionId = tile.getRegionId();
@@ -916,7 +907,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			final FloorItem item = World.getRegion(regionId).getGroundItem(id, tile, player);
 			if (item == null)
 				return;
-			System.out.println(item.getId());
 			player.stopAll(false);
 			if (forceRun)
 				player.setRun(forceRun);
@@ -931,7 +921,6 @@ public final class WorldPacketsDecoder extends Decoder {
 					 * player.getPackets().sendGameMessage("This item was dropped by [Username] "+item.getOwner().getUsername()+
 					 * " [DiplayName] "+item.getOwner().getDisplayName());
 					 */ player.setNextFaceWorldTile(tile);
-					
 					player.addWalkSteps(tile.getX(), tile.getY(), 1);
 					FloorItem.removeGroundItem(player, item);
 				}

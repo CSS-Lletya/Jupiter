@@ -1,8 +1,8 @@
 package com.jupiter.plugins.rsinterface.impl;
 
 import com.jupiter.game.player.Player;
-import com.jupiter.plugins.listener.RSInterface;
-import com.jupiter.plugins.wrapper.RSInterfaceSignature;
+import com.jupiter.plugins.rsinterface.RSInterface;
+import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
 
 @RSInterfaceSignature(interfaceId = { 320, 449, 1218 })

@@ -1,4 +1,4 @@
-package com.jupiter.plugins.wrapper;
+package com.jupiter.plugins.inventory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,11 +7,12 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RSInterfaceSignature {
-
+public @interface InventoryWrapper {
+	
 	/**
-	 * This Interface id we're interacting with
+	 * The Object ID we're interacting with
 	 * @return
 	 */
-	int[] interfaceId();
+	int[] itemId();
+	
 }

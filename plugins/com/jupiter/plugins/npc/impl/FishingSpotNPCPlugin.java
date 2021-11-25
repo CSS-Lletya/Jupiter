@@ -2,8 +2,8 @@ package com.jupiter.plugins.npc.impl;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.player.Player;
-import com.jupiter.plugins.listener.NPCType;
-import com.jupiter.plugins.wrapper.NPCSignature;
+import com.jupiter.plugins.npc.NPCSignature;
+import com.jupiter.plugins.npc.NPCType;
 import com.jupiter.skills.fishing.Fishing;
 import com.jupiter.skills.fishing.Tool;
 

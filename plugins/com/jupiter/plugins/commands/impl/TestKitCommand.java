@@ -4,8 +4,8 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"testkit"}, rights = {Rights.ADMINISTRATOR}, syntax = "Spawns test bank items")
 public final class TestKitCommand implements Command {

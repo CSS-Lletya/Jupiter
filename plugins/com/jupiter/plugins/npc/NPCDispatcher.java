@@ -1,4 +1,4 @@
-package com.jupiter.plugins;
+package com.jupiter.plugins.npc;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
@@ -14,8 +14,6 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.route.strategy.RouteEvent;
-import com.jupiter.plugins.listener.NPCType;
-import com.jupiter.plugins.wrapper.NPCSignature;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
 

@@ -250,7 +250,7 @@ public class LodeStone {
 	 * 
 	 */
 	private void sendReward() {
-		if (player.getInventory().getFreeSlots() < 1) {
+		if (player.getInventory().isFull()) {
 			player.getPackets().sendGameMessage("You have no free spaces in your inventory. Your reward is on the ground.");
 			FloorItem.createGroundItem(new Item(995, 10_000), (WorldTile)player, player, false, 180, false);
 			return;

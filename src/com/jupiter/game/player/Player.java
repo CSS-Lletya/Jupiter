@@ -19,6 +19,7 @@ import com.jupiter.combat.player.type.AntifireDetails;
 import com.jupiter.combat.player.type.CombatEffect;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
+import com.jupiter.game.EntityType;
 import com.jupiter.game.dialogue.Conversation;
 import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.item.FloorItem;
@@ -145,11 +146,6 @@ public class Player extends Entity {
 	private MusicsManager musicsManager;
 	private FriendsIgnores friendsIgnores;
 	private AuraManager auraManager;
-	private double runEnergy;
-	private boolean allowChatEffects;
-	private boolean mouseButtons;
-	private byte privateChatSetup;
-	private byte friendChatSetup;
 	
 	public transient VarManager varsManager;
 	
@@ -159,7 +155,7 @@ public class Player extends Entity {
 
 	// creates Player and saved classes
 	public Player(String password) {
-		super(Settings.START_PLAYER_LOCATION);
+		super(Settings.START_PLAYER_LOCATION, EntityType.PLAYER);
 		setHitpoints(100);
 		playerDetails = new PlayerDetails();
 		getPlayerDetails().setPassword(password);
@@ -177,9 +173,6 @@ public class Player extends Entity {
 		friendsIgnores = new FriendsIgnores();
 		auraManager = new AuraManager();
 		lodeStone = new LodeStone();
-		runEnergy = 100D;
-		allowChatEffects = true;
-		mouseButtons = true;
 	}
 
 	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
@@ -780,11 +773,11 @@ public class Player extends Entity {
 	}
 
 	public void drainRunEnergy() {
-		setRunEnergy(runEnergy - 1);
+		setRunEnergy(getPlayerDetails().getRunEnergy() - 1);
 	}
 
 	public void setRunEnergy(double runEnergy) {
-		this.runEnergy = runEnergy;
+		getPlayerDetails().setRunEnergy(runEnergy);
 		getPackets().sendRunEnergy();
 	}
 
@@ -989,29 +982,29 @@ public class Player extends Entity {
 	}
 	
 	public void switchMouseButtons() {
-		mouseButtons = !mouseButtons;
+		getPlayerDetails().setMouseButtons(getPlayerDetails().isMouseButtons());
 		refreshMouseButtons();
 	}
 
 	public void switchAllowChatEffects() {
-		allowChatEffects = !allowChatEffects;
+		getPlayerDetails().setAllowChatEffects(getPlayerDetails().isAllowChatEffects());
 		refreshAllowChatEffects();
 	}
 
 	public void refreshAllowChatEffects() {
-		getPackets().sendConfig(171, allowChatEffects ? 0 : 1);
+		getPackets().sendConfig(171, getPlayerDetails().isAllowChatEffects() ? 0 : 1);
 	}
 
 	public void refreshMouseButtons() {
-		getPackets().sendConfig(170, mouseButtons ? 0 : 1);
+		getPackets().sendConfig(170, getPlayerDetails().isMouseButtons() ? 0 : 1);
 	}
 
 	public void refreshPrivateChatSetup() {
-		getPackets().sendConfig(287, privateChatSetup);
+		getPackets().sendConfig(287, getPlayerDetails().getPrivateChatSetup());
 	}
 
 	public void refreshOtherChatsSetup() {
-		int value = friendChatSetup << 6;
+		int value = getPlayerDetails().getFriendChatSetup() << 6;
 		getPackets().sendConfig(1438, value);
 	}
 

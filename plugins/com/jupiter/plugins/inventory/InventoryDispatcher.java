@@ -1,4 +1,4 @@
-package com.jupiter.plugins;
+package com.jupiter.plugins.inventory;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
-import com.jupiter.plugins.listener.InventoryType;
-import com.jupiter.plugins.wrapper.InventoryWrapper;
 import com.jupiter.utils.Utils;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;

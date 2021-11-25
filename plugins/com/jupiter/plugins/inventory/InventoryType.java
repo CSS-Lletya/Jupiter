@@ -1,4 +1,4 @@
-package com.jupiter.plugins.listener;
+package com.jupiter.plugins.inventory;
 
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;

@@ -2,8 +2,8 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.content.Emotes;
-import com.jupiter.plugins.listener.RSInterface;
-import com.jupiter.plugins.wrapper.RSInterfaceSignature;
+import com.jupiter.plugins.rsinterface.RSInterface;
+import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 
 @RSInterfaceSignature(interfaceId = {590})
 public class EmotesTabInterfacePlugin implements RSInterface {

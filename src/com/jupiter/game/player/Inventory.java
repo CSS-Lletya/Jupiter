@@ -1,12 +1,18 @@
 package com.jupiter.game.player;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
 
+import lombok.Getter;
+
 public final class Inventory {
 
+	@Getter
 	private ItemsContainer<Item> items;
 
 	private transient Player player;
@@ -129,12 +135,8 @@ public final class Inventory {
 		refresh(finalChangedSlots);
 	}
 
-	public ItemsContainer<Item> getItems() {
-		return items;
-	}
-
 	public boolean hasFreeSlots() {
-		return items.getFreeSlot() != -1;
+		return getFreeSlots() != -1;
 	}
 
 	public int getFreeSlots() {
@@ -152,7 +154,22 @@ public final class Inventory {
 	public int getItemsContainerSize() {
 		return items.getSize();
 	}
+	
+	public boolean isFull() {
+		return getFreeSlots() == 0;
+	}
 
+	public boolean ifHasFreeSpace(int amount, Consumer<Player> consumer) {
+		if (items.getFreeSlots() < amount) {
+			player.getPackets().sendGameMessage("Not enough space in your inventory.");
+			if (player.getActionManager().getAction() != null)
+				player.getActionManager().forceStop();
+			return false;
+		}
+		consumer.accept(player);
+		return true;
+	}
+	
 	public boolean containsItems(Item[] item) {
 		for (int i = 0; i < item.length; i++)
 			if (!items.contains(item[i]))
@@ -183,11 +200,7 @@ public final class Inventory {
 	}
 	
 	public boolean addItems(Item... list) {
-		for (Item item : list) {
-			if (item == null)
-				continue;
-			addItem(item);
-		}
+		Arrays.stream(list).forEach(item -> addItem(item));
 		return true;
 	}
 
@@ -210,10 +223,6 @@ public final class Inventory {
 		if (item == null)
 			return;
 		player.getPackets().sendInventoryMessage(0, slotId, ItemExamines.getExamine(item));
-	}
-
-	public void refresh() {
-		player.getPackets().sendItems(93, items);
 	}
 
 	public boolean hasRoomFor(Item[] deleting, Item... adding) {

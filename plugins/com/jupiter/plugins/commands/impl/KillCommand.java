@@ -5,8 +5,8 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.Hit.HitLook;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"kill"}, rights = {Rights.ADMINISTRATOR}, syntax = "Kill a specified Player")
 public final class KillCommand implements Command {
