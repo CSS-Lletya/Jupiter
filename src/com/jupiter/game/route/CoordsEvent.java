@@ -1,6 +1,6 @@
 package com.jupiter.game.route;
 
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 
 public final class CoordsEvent {
@@ -34,7 +34,7 @@ public final class CoordsEvent {
 	 * returns if done
 	 */
 	public boolean processEvent(Player player) {
-		if (player.getHeight() != tile.getHeight())
+		if (player.getPlane() != tile.getPlane())
 			return true;
 		int distanceX = player.getX() - tile.getX();
 		int distanceY = player.getY() - tile.getY();

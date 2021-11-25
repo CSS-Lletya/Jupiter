@@ -1,12 +1,12 @@
 package com.jupiter.game.player.content;
 
-import com.jupiter.game.Graphics;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.HomeTeleport;
+import com.jupiter.net.encoders.other.Graphics;
 
 public class LodeStone {
 	private static final int[] CONFIG_IDS = new int[] { 10900, 10901, 10902,

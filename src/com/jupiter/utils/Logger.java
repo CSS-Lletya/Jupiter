@@ -1,6 +1,6 @@
 package com.jupiter.utils;
 
-import com.rs.net.ServerChannelHandler;
+import com.jupiter.net.ServerChannelHandler;
 
 public final class Logger {
 

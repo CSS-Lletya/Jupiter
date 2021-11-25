@@ -82,7 +82,7 @@ public class ItemConstants {
 	}
 
 	public static boolean canWear(Item item, Player player) {
-		if (player.getRights() == Rights.ADMINISTRATOR)
+		if (player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			return true;
 		/**
 		 * Specific condition checks can be execute here.

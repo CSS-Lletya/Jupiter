@@ -1,8 +1,8 @@
 package com.jupiter.game.player.content;
 
 import com.jupiter.cache.loaders.ClientScriptMap;
-import com.jupiter.game.Animation;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
 
 public final class PlayerLook {
 
@@ -90,35 +90,35 @@ public final class PlayerLook {
 		} else if (buttonId == 10) {
 			Boolean hairSalon = (Boolean) player.getTemporaryAttributtes().get("hairSaloon");
 			if (hairSalon != null && hairSalon)
-				player.getAppearance().setHairStyle((byte) ClientScriptMap
-						.getMap(player.getAppearance().isMale() ? 2339 : 2342).getKeyForValue(slotId / 2));
-			else if (player.getAppearance().isMale())
-				player.getAppearance().setBeardStyle((byte) ClientScriptMap.getMap(703).getIntValue(slotId / 2));
+				player.getAppearence().setHairStyle((byte) ClientScriptMap
+						.getMap(player.getAppearence().isMale() ? 2339 : 2342).getKeyForValue(slotId / 2));
+			else if (player.getAppearence().isMale())
+				player.getAppearence().setBeardStyle((byte) ClientScriptMap.getMap(703).getIntValue(slotId / 2));
 		} else if (buttonId == 16)
-			player.getAppearance().setHairColor(ClientScriptMap.getMap(2345).getIntValue(slotId / 2));
+			player.getAppearence().setHairColor(ClientScriptMap.getMap(2345).getIntValue(slotId / 2));
 	}
 
 	public static void openMageMakeOver(Player player) {
 		player.getInterfaceManager().sendInterface(900);
 		player.getPackets().sendIComponentText(900, 33, "Confirm");
-		player.getPackets().sendConfigByFile(6098, player.getAppearance().isMale() ? 0 : 1);
-		player.getPackets().sendConfigByFile(6099, player.getAppearance().getSkinColor());
-		player.getTemporaryAttributtes().put("MageMakeOverGender", player.getAppearance().isMale());
-		player.getTemporaryAttributtes().put("MageMakeOverSkin", player.getAppearance().getSkinColor());
+		player.getPackets().sendConfigByFile(6098, player.getAppearence().isMale() ? 0 : 1);
+		player.getPackets().sendConfigByFile(6099, player.getAppearence().getSkinColor());
+		player.getTemporaryAttributtes().put("MageMakeOverGender", player.getAppearence().isMale());
+		player.getTemporaryAttributtes().put("MageMakeOverSkin", player.getAppearence().getSkinColor());
 	}
 
 	public static void handleThessaliasMakeOverButtons(Player player, int buttonId, int slotId) {
 		if (buttonId == 6)
 			player.getTemporaryAttributtes().put("ThessaliasMakeOver", 0);
 		else if (buttonId == 7) {
-			if (ClientScriptMap.getMap(player.getAppearance().isMale() ? 690 : 1591)
-					.getKeyForValue(player.getAppearance().getTopStyle()) >= 32) {
+			if (ClientScriptMap.getMap(player.getAppearence().isMale() ? 690 : 1591)
+					.getKeyForValue(player.getAppearence().getTopStyle()) >= 32) {
 				player.getTemporaryAttributtes().put("ThessaliasMakeOver", 1);
 			} else
 				player.getPackets().sendGameMessage("You can't select different arms to go with that top.");
 		} else if (buttonId == 8) {
-			if (ClientScriptMap.getMap(player.getAppearance().isMale() ? 690 : 1591)
-					.getKeyForValue(player.getAppearance().getTopStyle()) >= 32) {
+			if (ClientScriptMap.getMap(player.getAppearence().isMale() ? 690 : 1591)
+					.getKeyForValue(player.getAppearence().getTopStyle()) >= 32) {
 				player.getTemporaryAttributtes().put("ThessaliasMakeOver", 2);
 			} else
 				player.getPackets().sendGameMessage("You can't select different wrists to go with that top.");
@@ -129,27 +129,27 @@ public final class PlayerLook {
 		} else if (buttonId == 12) { // set part
 			Integer stage = (Integer) player.getTemporaryAttributtes().get("ThessaliasMakeOver");
 			if (stage == null || stage == 0) {
-				player.getAppearance().setTopStyle((byte) ClientScriptMap
-						.getMap(player.getAppearance().isMale() ? 690 : 1591).getIntValue(slotId / 2));
-				if (!player.getAppearance().isMale())
-					player.getAppearance().setBeardStyle((byte) player.getAppearance().getTopStyle());
-				player.getAppearance().setArmsStyle((byte) (player.getAppearance().isMale() ? 26 : 65)); // default
-				player.getAppearance().setWristsStyle((byte) (player.getAppearance().isMale() ? 34 : 68)); // default
+				player.getAppearence().setTopStyle((byte) ClientScriptMap
+						.getMap(player.getAppearence().isMale() ? 690 : 1591).getIntValue(slotId / 2));
+				if (!player.getAppearence().isMale())
+					player.getAppearence().setBeardStyle((byte) player.getAppearence().getTopStyle());
+				player.getAppearence().setArmsStyle((byte) (player.getAppearence().isMale() ? 26 : 65)); // default
+				player.getAppearence().setWristsStyle((byte) (player.getAppearence().isMale() ? 34 : 68)); // default
 			} else if (stage == 1) // arms
-				player.getAppearance().setArmsStyle((byte) ClientScriptMap
-						.getMap(player.getAppearance().isMale() ? 711 : 693).getIntValue(slotId / 2));
+				player.getAppearence().setArmsStyle((byte) ClientScriptMap
+						.getMap(player.getAppearence().isMale() ? 711 : 693).getIntValue(slotId / 2));
 			else if (stage == 2) // wrists
-				player.getAppearance().setWristsStyle((byte) ClientScriptMap.getMap(751).getIntValue(slotId / 2));
+				player.getAppearence().setWristsStyle((byte) ClientScriptMap.getMap(751).getIntValue(slotId / 2));
 			else
-				player.getAppearance().setLegsStyle((byte) ClientScriptMap
-						.getMap(player.getAppearance().isMale() ? 1586 : 1607).getIntValue(slotId / 2));
+				player.getAppearence().setLegsStyle((byte) ClientScriptMap
+						.getMap(player.getAppearence().isMale() ? 1586 : 1607).getIntValue(slotId / 2));
 
 		} else if (buttonId == 17) {// color
 			Integer stage = (Integer) player.getTemporaryAttributtes().get("ThessaliasMakeOver");
 			if (stage == null || stage == 0 || stage == 1)
-				player.getAppearance().setTopColor(ClientScriptMap.getMap(3282).getIntValue(slotId / 2));
+				player.getAppearence().setTopColor(ClientScriptMap.getMap(3282).getIntValue(slotId / 2));
 			else if (stage == 3)
-				player.getAppearance().setLegsColor(ClientScriptMap.getMap(3284).getIntValue(slotId / 2));
+				player.getAppearence().setLegsColor(ClientScriptMap.getMap(3284).getIntValue(slotId / 2));
 		}
 	}
 
@@ -183,7 +183,7 @@ public final class PlayerLook {
 //					}
 //				}.begin());
 				player.setNextAnimation(new Animation(-1));
-				player.getAppearance().getAppeareanceBlocks();
+				player.getAppearence().getAppeareanceBlocks();
 				player.getTemporaryAttributtes().remove("ThessaliasMakeOver");
 			}
 
@@ -216,7 +216,7 @@ public final class PlayerLook {
 		player.setNextAnimation(new Animation(11623));
 		player.getInterfaceManager().sendInterface(309);
 		player.getPackets().sendAccessMask(309, 10, 0,
-				ClientScriptMap.getMap(player.getAppearance().isMale() ? 2339 : 2342).getSize() * 2, 0);
+				ClientScriptMap.getMap(player.getAppearence().isMale() ? 2339 : 2342).getSize() * 2, 0);
 		player.getPackets().sendAccessMask(309, 16, 0, ClientScriptMap.getMap(2345).getSize() * 2, 0);
 		player.getPackets().sendIComponentText(309, 20, "Free!");
 		player.getTemporaryAttributtes().put("hairSaloon", true);
@@ -233,7 +233,7 @@ public final class PlayerLook {
 //					}
 //				}.begin());
 				player.setNextAnimation(new Animation(-1));
-				player.getAppearance().getAppeareanceBlocks();
+				player.getAppearence().getAppeareanceBlocks();
 				player.getTemporaryAttributtes().remove("hairSaloon");
 			}
 

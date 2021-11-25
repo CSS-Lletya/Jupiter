@@ -387,7 +387,7 @@ public class Skills {
 //			player.getDialogueManager().startDialogue("LevelUp", skill);
 			//TODO: Levelup dialogue
 			if (skill == SUMMONING || (skill >= ATTACK && skill <= MAGIC)) {
-				player.getAppearance().generateAppearenceData();
+				player.getAppearence().generateAppearenceData();
 				if (skill == HITPOINTS)
 					player.heal(levelDiff * 10);
 				else if (skill == PRAYER)

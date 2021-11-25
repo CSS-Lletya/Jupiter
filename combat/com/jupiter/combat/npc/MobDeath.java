@@ -1,10 +1,10 @@
 package com.jupiter.combat.npc;
 
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
-import com.jupiter.game.Animation;
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.ActorDeathTask;
+import com.jupiter.net.encoders.other.Animation;
 
 public class MobDeath extends ActorDeathTask<NPC> {
 

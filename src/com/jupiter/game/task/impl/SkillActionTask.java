@@ -56,7 +56,7 @@ public final class SkillActionTask extends Task {
 			return;
 		}
 		if(action.instant()) {
-			if(!player.getSkillActionTask().isPresent()) {
+			if(!player.getAction().isPresent()) {
 				this.cancel();
 				return;
 			}
@@ -76,12 +76,12 @@ public final class SkillActionTask extends Task {
 	
 	@Override
 	public void execute() {
-		if(!player.getSkillActionTask().isPresent()) {
+		if(!player.getAction().isPresent()) {
 			this.cancel();
 			return;
 		}
 		
-		if(player.getSkillActionTask().isPresent()) {
+		if(player.getAction().isPresent()) {
 			action.onSequence(this);
 		}
 		
@@ -93,7 +93,7 @@ public final class SkillActionTask extends Task {
 		});
 		
 		if(++counter >= action.delay()) {
-			if(!player.getSkillActionTask().isPresent()) {
+			if(!player.getAction().isPresent()) {
 				this.cancel();
 				return;
 			}
@@ -120,7 +120,7 @@ public final class SkillActionTask extends Task {
 		if(executed) {
 			action.onStop();
 		}
-		player.setSkillAction(Optional.empty());
+		player.setAction(Optional.empty());
 	}
 	
 	public final SkillHandler getAction() {

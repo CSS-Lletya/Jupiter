@@ -6,10 +6,10 @@ import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.player.type.CombatEffect;
 import com.jupiter.combat.player.type.PoisonType;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Hit;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 

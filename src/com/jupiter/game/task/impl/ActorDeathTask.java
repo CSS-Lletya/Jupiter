@@ -2,7 +2,7 @@ package com.jupiter.game.task.impl;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.Entity;
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 

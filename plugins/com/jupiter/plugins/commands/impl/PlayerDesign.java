@@ -207,7 +207,7 @@ public class PlayerDesign {
         player.getTemporaryAttributtes().put("player_design", 0);
         player.getPackets().sendWindowsPane(1028, 0);
         player.getPackets().sendConfig(1158, 352);
-        player.getPackets().sendConfig(1363, player.getAppearance().isMale() ? 8249 : 12345);
+        player.getPackets().sendConfig(1363, player.getAppearence().isMale() ? 8249 : 12345);
         player.getPackets().sendAccessMask(player, 0, 11, 1028, 65, 2);
         player.getPackets().sendAccessMask(player, 0, 204, 1028, 132, 2);
         player.getPackets().sendAccessMask(player, 0, 33, 1028, 128, 2);
@@ -231,7 +231,7 @@ public class PlayerDesign {
         }
         if (buttonId == 138) {
             player.getTemporaryAttributtes().remove("player_design");
-            player.getAppearance().generateAppearenceData();
+            player.getAppearence().generateAppearenceData();
             player.getPackets().sendWindowsPane(player.getInterfaceManager().hasRezizableScreen() ? 746 : 548, 0);
             return;
         }
@@ -249,7 +249,7 @@ public class PlayerDesign {
                 return;
             }
             if (buttonId == 65) {
-                player.getAppearance().setBodyColor(4, SKIN_COLORS[slot]);
+                player.getAppearence().setBodyColor(4, SKIN_COLORS[slot]);
                 return;
             }
             Integer style = (Integer) player.getTemporaryAttributtes().get("DESIGN_STYLE");
@@ -260,87 +260,87 @@ public class PlayerDesign {
             int subIndex = 0;
             if ((buttonId >= 103) && (buttonId <= 105))
                 subIndex = buttonId - 103;
-            PlayerDesign[] set = player.getAppearance().isMale() ? getMaleSet(style.intValue()) : getFemaleSet(style.intValue());
-            player.getAppearance().setLooks(set[subIndex].looks);
-            player.getAppearance().copyColors(set[subIndex].colors);
+            PlayerDesign[] set = player.getAppearence().isMale() ? getMaleSet(style.intValue()) : getFemaleSet(style.intValue());
+            player.getAppearence().setLooks(set[subIndex].looks);
+            player.getAppearence().copyColors(set[subIndex].colors);
             return;
         }
         if (screen.intValue() == 1) {
             if ((slot < 0) || (slot >= SKIN_COLORS.length))
                 return;
-            player.getAppearance().setBodyColor(4, SKIN_COLORS[slot]);
+            player.getAppearence().setBodyColor(4, SKIN_COLORS[slot]);
             return;
         }
         if (screen.intValue() == 2) {
             if (buttonId == 128) {
-                player.getAppearance().setHairStyle(player.getAppearance().isMale() ? MALE_HAIR_STYLES[slot] : FEMALE_HAIR_STYLES[slot]);
+                player.getAppearence().setHairStyle(player.getAppearence().isMale() ? MALE_HAIR_STYLES[slot] : FEMALE_HAIR_STYLES[slot]);
             } else if (buttonId == 132)
-                player.getAppearance().setBodyColor(0, HAIR_COLORS[slot]);
+                player.getAppearence().setBodyColor(0, HAIR_COLORS[slot]);
             return;
         }
         if (screen.intValue() == 3) {
             if (buttonId == 128) {
-                if (player.getAppearance().isMale()) {
-                    player.getAppearance().setBodyStyle(2, MALE_TORSOS[slot][0]);
+                if (player.getAppearence().isMale()) {
+                    player.getAppearence().setBodyStyle(2, MALE_TORSOS[slot][0]);
                     int arms = MALE_TORSOS[slot][1];
-                    player.getAppearance().setBodyStyle(3, (short) (arms == -1 ? 1000 : arms));
-                    player.getAppearance().setBodyStyle(4, MALE_TORSOS[slot][2]);
+                    player.getAppearence().setBodyStyle(3, (short) (arms == -1 ? 1000 : arms));
+                    player.getAppearence().setBodyStyle(4, MALE_TORSOS[slot][2]);
                 } else {
-                    player.getAppearance().setBodyStyle(2, FEMALE_TORSOS[slot][0]);
+                    player.getAppearence().setBodyStyle(2, FEMALE_TORSOS[slot][0]);
                     int arms = FEMALE_TORSOS[slot][1];
-                    player.getAppearance().setBodyStyle(3, (short) (arms == -1 ? 1000 : arms));
-                    player.getAppearance().setBodyStyle(4, FEMALE_TORSOS[slot][2]);
+                    player.getAppearence().setBodyStyle(3, (short) (arms == -1 ? 1000 : arms));
+                    player.getAppearence().setBodyStyle(4, FEMALE_TORSOS[slot][2]);
                 }
             } else if (buttonId == 132)
-                player.getAppearance().setTopColor(ClientScriptMap.getMap(3282).getIntValue(slot));
+                player.getAppearence().setTopColor(ClientScriptMap.getMap(3282).getIntValue(slot));
             return;
         }
         if (screen.intValue() == 4) {
             if (buttonId == 128) {
-                player.getAppearance().setLegsStyle(!player.getAppearance().isMale() ? FEMALE_LEGS[slot] : MALE_LEGS[slot]);
+                player.getAppearence().setLegsStyle(!player.getAppearence().isMale() ? FEMALE_LEGS[slot] : MALE_LEGS[slot]);
             } else if (buttonId == 132)
-                player.getAppearance().setBodyColor(2, TORSO_AND_LEG_COLORS[slot]);
+                player.getAppearence().setBodyColor(2, TORSO_AND_LEG_COLORS[slot]);
             return;
         }
         if (screen.intValue() == 5) {
             if (buttonId == 128) {
-                player.getAppearance().setBodyStyle(6, !player.getAppearance().isMale() ? FEMALE_BOOTS[slot] : MALE_BOOTS[slot]);
+                player.getAppearence().setBodyStyle(6, !player.getAppearence().isMale() ? FEMALE_BOOTS[slot] : MALE_BOOTS[slot]);
             } else if (buttonId == 132)
-                player.getAppearance().setBodyColor(3, BOOT_COLORS[slot]);
+                player.getAppearence().setBodyColor(3, BOOT_COLORS[slot]);
             return;
         }
         if (screen.intValue() == 6) {
-            if (!player.getAppearance().isMale())
+            if (!player.getAppearence().isMale())
                 return;
             if (buttonId == 128)
-                player.getAppearance().setBodyStyle(1, MALE_BEARDS[slot]);
+                player.getAppearence().setBodyStyle(1, MALE_BEARDS[slot]);
             else if (buttonId == 132)
-                player.getAppearance().setBodyColor(0, HAIR_COLORS[slot]);
+                player.getAppearence().setBodyColor(0, HAIR_COLORS[slot]);
             return;
         }
         System.err.println("Invalid character design screen: " + screen);
     }
 
     private static void changeGender(Player player, boolean male) {
-        if (male == player.getAppearance().isMale())
+        if (male == player.getAppearence().isMale())
             return;
         player.getPackets().sendConfig(1158, 352);
         if (male) {
             PlayerDesign[] set = getMaleSet(1);
-            player.getAppearance().setLooks(set[0].looks);
-            player.getAppearance().copyColors(set[0].colors);
-            player.getAppearance().setBodyStyle(0, (short) 5);
-            player.getAppearance().setBodyStyle(1, (short) 14);
+            player.getAppearence().setLooks(set[0].looks);
+            player.getAppearence().copyColors(set[0].colors);
+            player.getAppearence().setBodyStyle(0, (short) 5);
+            player.getAppearence().setBodyStyle(1, (short) 14);
         } else {
             PlayerDesign[] set = getFemaleSet(1);
-            player.getAppearance().setLooks(set[0].looks);
-            player.getAppearance().copyColors(set[0].colors);
-            player.getAppearance().setBodyStyle(0, (byte) 141);
-            player.getAppearance().setBodyStyle(1, (short) 57);
+            player.getAppearence().setLooks(set[0].looks);
+            player.getAppearence().copyColors(set[0].colors);
+            player.getAppearence().setBodyStyle(0, (byte) 141);
+            player.getAppearence().setBodyStyle(1, (short) 57);
         }
         player.getPackets().sendConfig(1363, male ? 8249 : 12345);
-        player.getAppearance().setMale(male);
-        player.getAppearance().generateAppearenceData();
+        player.getAppearence().setMale(male);
+        player.getAppearence().generateAppearenceData();
     }
 
 

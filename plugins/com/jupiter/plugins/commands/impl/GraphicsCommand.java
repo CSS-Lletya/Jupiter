@@ -1,8 +1,8 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.Graphics;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;
 

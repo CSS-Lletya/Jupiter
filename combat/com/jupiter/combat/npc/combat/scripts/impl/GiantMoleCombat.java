@@ -4,12 +4,12 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.Utils;
 
 @MobCombatSignature(mobId = {}, mobName = {"Giant Mole"})
@@ -40,21 +40,21 @@ public class GiantMoleCombat extends MobCombatInterface {
 						return;
 					World.sendGraphics(npc, new Graphics(572), middle);
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX(), middle.getY() - 1, middle.getHeight()));
+							new WorldTile(middle.getX(), middle.getY() - 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX(), middle.getY() + 1, middle.getHeight()));
+							new WorldTile(middle.getX(), middle.getY() + 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() - 1, middle.getY() - 1, middle.getHeight()));
+							new WorldTile(middle.getX() - 1, middle.getY() - 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() - 1, middle.getY() + 1, middle.getHeight()));
+							new WorldTile(middle.getX() - 1, middle.getY() + 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() + 1, middle.getY() - 1, middle.getHeight()));
+							new WorldTile(middle.getX() + 1, middle.getY() - 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() + 1, middle.getY() + 1, middle.getHeight()));
+							new WorldTile(middle.getX() + 1, middle.getY() + 1, middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() - 1, middle.getY(), middle.getHeight()));
+							new WorldTile(middle.getX() - 1, middle.getY(), middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
-							new WorldTile(middle.getX() + 1, middle.getY(), middle.getHeight()));
+							new WorldTile(middle.getX() + 1, middle.getY(), middle.getPlane()));
 					npc.setNextWorldTile(new WorldTile(COORDS[Utils.random(COORDS.length)]));
 					npc.setNextAnimation(new Animation(3315));
 					this.cancel();

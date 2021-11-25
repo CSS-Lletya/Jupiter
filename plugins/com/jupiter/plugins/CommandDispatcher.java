@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;
@@ -90,10 +90,10 @@ public final class CommandDispatcher {
 	private static boolean hasPrivileges(Player player, Command command) {
 		Annotation annotation = command.getClass().getAnnotation(CommandSignature.class);
 		CommandSignature sig = (CommandSignature) annotation;
-		if (player.getRights().isStaff()) {
+		if (player.getPlayerDetails().getRights().isStaff()) {
 			return true;
 		}
-		return Arrays.stream(sig.rights()).anyMatch(right -> player.getRights().equals(right));
+		return Arrays.stream(sig.rights()).anyMatch(right -> player.getPlayerDetails().getRights().equals(right));
 	}
 	
 	/**

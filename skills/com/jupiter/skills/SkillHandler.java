@@ -3,13 +3,13 @@ package com.jupiter.skills;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import com.jupiter.game.Animation;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.SkillActionTask;
-import com.rs.net.encoders.WorldPacketsEncoder;
+import com.jupiter.net.encoders.WorldPacketsEncoder;
+import com.jupiter.net.encoders.other.Animation;
 
 /**
  * Handler for Skills
@@ -151,20 +151,20 @@ public abstract class SkillHandler {
 	 * Starts this skill action by submitting a new skill action task.
 	 */
 	public final void start() {
-		if(player.getSkillActionTask().isPresent() && player.getSkillActionTask().get().getAction().isPrioritized() && !this.isPrioritized()) {
+		if(player.getAction().isPresent() && player.getAction().get().getAction().isPrioritized() && !this.isPrioritized()) {
 			getPlayer().getPackets().sendGameMessage("You currently cannot do this.");
 			return;
 		}
-		player.getSkillActionTask().ifPresent(action -> action.getAction().onSkillAction(this));
+		player.getAction().ifPresent(action -> action.getAction().onSkillAction(this));
 		
 		/** This will cancel previous skill, if you're mining and you try to fletch,
 		 * mining will get stopped, and fletching will start.*/
-		if(player.getSkillActionTask().isPresent())
+		if(player.getAction().isPresent())
 			stop();
 		
 		
 		SkillActionTask task = new SkillActionTask(this);
-		getPlayer().setSkillAction(task);
+		getPlayer().setAction(Optional.of(task));
 		World.get().submit(task);
 	}
 	
@@ -172,9 +172,9 @@ public abstract class SkillHandler {
 	 * Stops this skill action effectively.
 	 */
 	public final void stop() {
-		SkillActionTask task = player.getSkillActionTask().get();
+		SkillActionTask task = player.getAction().get();
 		task.setRunning(false);
 		task.getAction().onStop();
-		task.getAction().getPlayer().setSkillAction(Optional.empty());
+		task.getAction().getPlayer().setAction(Optional.empty());
 	}
 }

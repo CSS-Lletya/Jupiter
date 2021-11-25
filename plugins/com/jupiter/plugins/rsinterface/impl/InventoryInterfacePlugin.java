@@ -6,21 +6,21 @@ import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.WorldThread;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.content.Foods;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.InventoryDispatcher;
 import com.jupiter.plugins.listener.RSInterface;
 import com.jupiter.plugins.wrapper.RSInterfaceSignature;
+import com.jupiter.skills.cooking.Foods;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 @RSInterfaceSignature(interfaceId = {679})
 public class InventoryInterfacePlugin implements RSInterface {
@@ -37,7 +37,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			switch(packetId) {
 			case WorldPacketsDecoder.ACTION_BUTTON1_PACKET:
 				long time = Utils.currentTimeMillis();
-				if (player.getLockDelay() >= time || player.getEmotesManager().getNextEmoteEnd() >= time)
+				if (player.getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
 				player.stopAll(false);
 				if (Foods.eat(player, item, slotId))
@@ -45,9 +45,9 @@ public class InventoryInterfacePlugin implements RSInterface {
 				InventoryDispatcher.execute(player, item, 1);
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
-				if (player.isEquipDisabled())
+				if (player.isDisableEquip())
 					return;
-				long passedTime = Utils.currentTimeMillis() - WorldThread.LAST_CYCLE_CTM;
+				long passedTime = Utils.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
 					
 					@Override
@@ -81,7 +81,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON8_PACKET:
 				long dropTime = Utils.currentTimeMillis();
-				if (player.getLockDelay() >= dropTime || player.getEmotesManager().getNextEmoteEnd() >= dropTime)
+				if (player.getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
 				if (!player.getControlerManager().canDropItem(item))
 					return;
@@ -99,8 +99,6 @@ public class InventoryInterfacePlugin implements RSInterface {
 				}
 				InventoryDispatcher.execute(player, item, 7);
 				player.getInventory().deleteItem(slotId, item);
-				if (player.getCharges().degradeCompletly(item))
-					return;
 				FloorItem.createGroundItem(item, new WorldTile(player), player, false, 180, true);
 				player.getPackets().sendSound(2739, 0, 1);
 				break;

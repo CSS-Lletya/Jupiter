@@ -8,6 +8,7 @@ import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.listener.RSInterface;
 import com.jupiter.plugins.wrapper.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
@@ -15,7 +16,6 @@ import com.jupiter.utils.ChatColors;
 import com.jupiter.utils.ItemBonuses;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 @RSInterfaceSignature(interfaceId = { 667, 670 })
 public class CombatBonusesInterfacePlugin implements RSInterface {
@@ -126,7 +126,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		String itemName = item.getDefinitions() == null ? "" : item.getDefinitions().getName().toLowerCase();
 		if (item == null || item.getId() != itemId)
 			return false;
-		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearance().isMale())) {
+		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearence().isMale())) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return true;
 		}
@@ -213,11 +213,8 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 		player.getPackets().sendSound(2240, 0, 1);
-		if (targetSlot == 3)
-			player.getCombatDefinitions().decreaseSpecialAttack(0);
-		player.getCharges().wear(targetSlot);
 		return true;
 	}
 
@@ -228,12 +225,12 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;
-		if ((itemId == 4565 || itemId == 4084) && !player.getRights().equal(Rights.ADMINISTRATOR)) {
+		if ((itemId == 4565 || itemId == 4084) && !player.getPlayerDetails().getRights().equal(Rights.ADMINISTRATOR)) {
 			player.getPackets().sendGameMessage("You've to be a administrator to wear this item.");
 			return true;
 		}
 		if (item.getDefinitions().isNoted()
-				|| !item.getDefinitions().isWearItem(player.getAppearance().isMale()) && itemId != 4084) {
+				|| !item.getDefinitions().isWearItem(player.getAppearence().isMale()) && itemId != 4084) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return false;
 		}
@@ -315,9 +312,6 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		if (targetSlot == 3)
-			player.getCombatDefinitions().decreaseSpecialAttack(0);
-		player.getCharges().wear(targetSlot);
 		return true;
 	}
 
@@ -335,7 +329,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		player.getInventory().refreshItems(copy);
 		if (worn) {
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 			player.getPackets().sendSound(2240, 0, 1);
 		}
 	}

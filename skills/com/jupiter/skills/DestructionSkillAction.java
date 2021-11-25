@@ -1,8 +1,8 @@
 package com.jupiter.skills;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 
@@ -42,7 +42,7 @@ public abstract class DestructionSkillAction extends SkillHandler {
 	
 	@Override
 	public final void execute(Task t) {
-		if(getPlayer().getInventory().getNumerOf(destructItem().getAmount()) >= 0) {
+		if(getPlayer().getInventory().getNumberOf(destructItem().getAmount()) >= 0) {
 			onDestruct(t, true);
 			player.getSkills().addXp(getSkillId(), experience());
 			return;

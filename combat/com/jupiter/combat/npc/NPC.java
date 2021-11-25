@@ -2,27 +2,23 @@ package com.jupiter.combat.npc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.npc.combat.NPCCombat;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.cores.CoresManager;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.Hit;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
-import com.jupiter.game.Hit.HitLook;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.task.Task;
-import com.jupiter.json.GsonHandler;
-import com.jupiter.json.impl.NPCAutoSpawn;
-import com.jupiter.utils.Logger;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
@@ -93,8 +89,6 @@ public class NPC extends Entity {
 		// npc is started on creating instance
 		loadMapRegions();
 		checkMultiArea();
-		GsonHandler.waitForLoad();
-		setDirection(((NPCAutoSpawn) GsonHandler.getJsonLoader(NPCAutoSpawn.class)).getDirection(this).ordinal());
 	}
 	
 	public NPC(int id, WorldTile tile) {
@@ -119,8 +113,6 @@ public class NPC extends Entity {
 		// npc is started on creating instance
 		loadMapRegions();
 		checkMultiArea();
-		GsonHandler.waitForLoad();
-		setDirection(((NPCAutoSpawn) GsonHandler.getJsonLoader(NPCAutoSpawn.class)).getDirection(this).ordinal());
 	}
 
 	@Override
@@ -217,7 +209,7 @@ public class NPC extends Entity {
 			if (getFreezeDelay() < Utils.currentTimeMillis()) {
 				if (getX() != forceWalk.getX() || getY() != forceWalk.getY()) {
 					if (!hasWalkSteps()) {
-						int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, getX(), getY(), getHeight(), getSize(), new FixedTileStrategy(forceWalk.getX(), forceWalk.getY()), true);
+						int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, getX(), getY(), getPlane(), getSize(), new FixedTileStrategy(forceWalk.getX(), forceWalk.getY()), true);
 						int[] bufferX = RouteFinder.getLastPathBufferX();
 						int[] bufferY = RouteFinder.getLastPathBufferY();
 						for (int i = steps - 1; i >= 0; i--) {
@@ -509,23 +501,18 @@ public class NPC extends Entity {
 	}
 
 	public void setRespawnTask() {
+		setRespawnTask(-1);
+	}
+	
+	public void setRespawnTask(int time) {
 		if (!hasFinished()) {
 			reset();
 			setLocation(respawnTile);
 			finish();
 		}
-		CoresManager.slowExecutor.schedule(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					spawn();
-				} catch (Throwable e) {
-					Logger.handle(e);
-				}
-			}
-		}, getCombatDefinitions().getRespawnDelay() * 600, TimeUnit.MILLISECONDS);
+		CoresManager.schedule(() -> spawn(), time < 0 ? getCombatDefinitions().getRespawnDelay() : time);
 	}
-
+	
 	public void deserialize() {
 		if (combat == null)
 			combat = new NPCCombat(this);
@@ -717,7 +704,7 @@ public class NPC extends Entity {
 
 	@Override
 	public String toString() {
-		return getDefinitions().name + " - " + id + " - " + getX() + " " + getY() + " " + getHeight();
+		return getDefinitions().name + " - " + id + " - " + getX() + " " + getY() + " " + getPlane();
 	}
 
 	public boolean isForceAgressive() {
@@ -800,7 +787,7 @@ public class NPC extends Entity {
 
 	public WorldTile getMiddleWorldTile() {
 		int size = getSize();
-		return new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getHeight());
+		return new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getPlane());
 	}
 
 	public boolean isSpawned() {

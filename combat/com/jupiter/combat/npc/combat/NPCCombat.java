@@ -3,9 +3,9 @@ package com.jupiter.combat.npc.combat;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.scripts.NPCCombatDispatcher;
 import com.jupiter.combat.player.Combat;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 
@@ -102,7 +102,7 @@ public final class NPCCombat {
 		if (target == null)
 			return false;
 		if (npc.isDead() || npc.hasFinished() || npc.isForceWalking() || target.isDead() || target.hasFinished()
-				|| npc.getHeight() != target.getHeight())
+				|| npc.getPlane() != target.getPlane())
 			return false;
 		if (npc.getFreezeDelay() >= Utils.currentTimeMillis())
 			return true; // if freeze cant move ofc

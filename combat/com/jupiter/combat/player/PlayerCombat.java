@@ -7,21 +7,21 @@ import java.util.Random;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.specials.WeaponSpecialDispatcher;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.ForceTalk;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.Hit;
-import com.jupiter.game.Region;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.Region;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Action;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.ForceTalk;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.MapAreas;
@@ -166,7 +166,7 @@ public class PlayerCombat extends Action {
 						continue;
 					for (int playerIndex : playerIndexes) {
 						Player p2 = World.getPlayers().get(playerIndex);
-						if (p2 == null || p2 == player || p2 == target || p2.isDead() || !p2.hasStarted()
+						if (p2 == null || p2 == player || p2 == target || p2.isDead() || !p2.isStarted()
 								|| p2.hasFinished() || !p2.isCanPvp() || !p2.isAtMultiArea()
 								|| !p2.withinDistance(target, maxDistance) || !player.getControlerManager().canHit(p2))
 							continue;
@@ -1366,7 +1366,7 @@ public class PlayerCombat extends Action {
 						player.setNextGraphics(new Graphics(2140));
 						player.getEquipment().getItems().set(3, null);
 						player.getEquipment().refresh((byte) 3);
-						player.getAppearance().generateAppearenceData();
+						player.getAppearence().generateAppearenceData();
 						player.applyHit(new Hit(player, Utils.getRandom(150) + 10, HitLook.REGULAR_DAMAGE));
 						player.setNextAnimation(new Animation(12175));
 						return combatDelay;
@@ -1512,7 +1512,7 @@ public class PlayerCombat extends Action {
 				player.getEquipment().removeAmmo(weaponId, quantity);
 				FloorItem.updateGroundItem(new Item(weaponId, quantity),
 						new WorldTile(target.getCoordFaceX(target.getSize()), target.getCoordFaceY(target.getSize()),
-								target.getHeight()),
+								target.getPlane()),
 						player);
 			}
 		} else {
@@ -1528,7 +1528,7 @@ public class PlayerCombat extends Action {
 			if (ammoId != -1) {
 				player.getEquipment().removeAmmo(ammoId, quantity);
 				FloorItem.updateGroundItem(new Item(ammoId, quantity), new WorldTile(target.getCoordFaceX(target.getSize()),
-						target.getCoordFaceY(target.getSize()), target.getHeight()), player);
+						target.getCoordFaceY(target.getSize()), target.getPlane()), player);
 			}
 		}
 	}
@@ -1674,7 +1674,6 @@ public class PlayerCombat extends Action {
 				if (target instanceof Player) {
 					final Player other = (Player) target;
 					other.lock();
-					other.getWatchMap().get("FOOD").reset();
 					other.setDisableEquip(true);
 					World.get().submit(new Task(5) {
 						@Override
@@ -2861,7 +2860,7 @@ public class PlayerCombat extends Action {
 		int distanceY = player.getY() - target.getY();
 		int size = target.getSize();
 		int maxDistance = 16;
-		if (player.getHeight() != target.getHeight() || distanceX > size + maxDistance || distanceX < -1 - maxDistance
+		if (player.getPlane() != target.getPlane() || distanceX > size + maxDistance || distanceX < -1 - maxDistance
 				|| distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 			return false;
 		}
@@ -3506,7 +3505,6 @@ public class PlayerCombat extends Action {
 			player.setNextAnimation(new Animation(12804));
 			player.setNextGraphics(new Graphics(2319));// 2320
 			player.setNextGraphics(new Graphics(2321));
-			player.getWatchMap().get("DRINKS").elapsed(60000);
 			player.getCombatDefinitions().decreaseSpecialAttack(specAmt);
 			break;
 		}

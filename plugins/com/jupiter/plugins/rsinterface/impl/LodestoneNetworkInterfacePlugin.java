@@ -8,6 +8,6 @@ import com.jupiter.plugins.wrapper.RSInterfaceSignature;
 public class LodestoneNetworkInterfacePlugin implements RSInterface {
     @Override
     public void execute(Player player, int interfaceId, int componentId, int packetId, byte slotId, int slotId2) throws Exception {
-        player.getLodeStones().handleButtons(componentId);
+        player.getLodeStone().handleButtons(componentId);
     }
 }

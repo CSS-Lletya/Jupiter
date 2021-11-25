@@ -3,8 +3,8 @@ package com.jupiter.skills;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 import com.jupiter.utils.Utils;

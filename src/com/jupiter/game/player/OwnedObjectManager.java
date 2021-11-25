@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.jupiter.game.World;
-import com.jupiter.game.WorldObject;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.task.Task;
 import com.jupiter.utils.Utils;
 
@@ -36,7 +36,7 @@ public class OwnedObjectManager {
 				continue;
 			}
 			if (manager.getCurrentObject().getX() == object.getX() && manager.getCurrentObject().getY() == object.getY()
-					&& manager.getCurrentObject().getHeight() == object.getHeight()
+					&& manager.getCurrentObject().getPlane() == object.getPlane()
 					&& manager.getCurrentObject().getId() == object.getId())
 				return true;
 		}
@@ -53,7 +53,7 @@ public class OwnedObjectManager {
 		for (OwnedObjectManager manager : ownedObjects.values()) {
 			if (manager.getCurrentObject().getX() == toObject.getX()
 					&& manager.getCurrentObject().getY() == toObject.getY()
-					&& manager.getCurrentObject().getHeight() == toObject.getHeight()
+					&& manager.getCurrentObject().getPlane() == toObject.getPlane()
 					&& manager.getCurrentObject().getId() == object.getId()) {
 				if (event != null && !event.canConvert(manager.player))
 					return false;
@@ -72,7 +72,7 @@ public class OwnedObjectManager {
 				continue;
 			}
 			if (manager.getCurrentObject().getX() == object.getX() && manager.getCurrentObject().getY() == object.getY()
-					&& manager.getCurrentObject().getHeight() == object.getHeight()
+					&& manager.getCurrentObject().getPlane() == object.getPlane()
 					&& manager.getCurrentObject().getId() == object.getId()) {
 				World.get().submit(new Task(0, true) {
 					@Override

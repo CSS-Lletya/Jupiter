@@ -13,7 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 
 public final class MapAreas {
 
@@ -38,7 +38,7 @@ public final class MapAreas {
 			return false;
 		int index = 0;
 		while (index < coordsList.length) {
-			if (tile.getHeight() == coordsList[index] && tile.getX() >= coordsList[index + 1]
+			if (tile.getPlane() == coordsList[index] && tile.getX() >= coordsList[index + 1]
 					&& tile.getX() <= coordsList[index + 2] && tile.getY() >= coordsList[index + 3]
 					&& tile.getY() <= coordsList[index + 4])
 				return true;

@@ -1,9 +1,9 @@
 package com.jupiter.game.player.actions;
 
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.Utils;
 
@@ -44,7 +44,7 @@ public class HomeTeleport extends Action {
 			player.getControlerManager().magicTeleported(Magic.MAGIC_TELEPORT);
 			if (player.getControlerManager().getControler() == null)
 				Magic.teleControlersCheck(player, tile);
-			player.setNextFaceWorldTile(new WorldTile(tile.getX(), tile.getY(), tile.getHeight()));
+			player.setNextFaceWorldTile(new WorldTile(tile.getX(), tile.getY(), tile.getPlane()));
 			player.setDirection(6);
 		} else if (currentTime == 19) {
 			player.setNextGraphics(new Graphics(HOME_GRAPHIC + 1));

@@ -7,8 +7,8 @@ import com.jupiter.cache.loaders.ClientScriptMap;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.cache.loaders.ItemsEquipIds;
 import com.jupiter.cache.loaders.NPCDefinitions;
-import com.jupiter.game.World;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.World;
 import com.jupiter.utils.Utils;
 
 public class Appearance {

@@ -4,12 +4,12 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.Utils;
 
 @MobCombatSignature(mobId = {6222}, mobName = {})
@@ -33,7 +33,7 @@ public class KreearaCombat extends MobCombatInterface {
 				WorldTile teleTile = t;
 				for (int trycount = 0; trycount < 10; trycount++) {
 					teleTile = new WorldTile(t, 2);
-					if (World.canMoveNPC(t.getHeight(), teleTile.getX(), teleTile.getY(), t.getSize()))
+					if (World.canMoveNPC(t.getPlane(), teleTile.getX(), teleTile.getY(), t.getSize()))
 						break;
 				}
 				t.setNextWorldTile(teleTile);

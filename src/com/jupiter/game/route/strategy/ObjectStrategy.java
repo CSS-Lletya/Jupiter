@@ -1,6 +1,6 @@
 package com.jupiter.game.route.strategy;
 
-import com.jupiter.game.WorldObject;
+import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.route.RouteStrategy;
 
 public class ObjectStrategy extends RouteStrategy {

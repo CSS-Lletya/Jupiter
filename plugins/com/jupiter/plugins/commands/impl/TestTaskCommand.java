@@ -1,9 +1,9 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.ForceTalk;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.task.LinkedTaskSequence;
+import com.jupiter.net.encoders.other.ForceTalk;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;
 

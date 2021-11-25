@@ -1,10 +1,10 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.Hit;
-import com.jupiter.game.World;
-import com.jupiter.game.Hit.HitLook;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;
 

@@ -118,7 +118,7 @@ public class Bank {
 			for (int i = 0; i < space; i++)
 				player.getEquipment().getItems().set(i, null);
 			player.getEquipment().init();
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 		}
 		if (space < player.getEquipment().getItems().getSize()) {
 			player.getPackets().sendGameMessage("Not enough space in your bank.");
@@ -231,14 +231,6 @@ public class Bank {
 	}
 
 	public void openBank() {
-		if((System.currentTimeMillis() - player.lastOpenedWithPin) > (24 * 60 * 60 * 1000))
-			player.hasPinOpenedToday = false;
-		if(!player.getSession().getIP().equalsIgnoreCase(player.lastIPBankWasOpened)) {
-			player.hasPinOpenedToday = false;
-			player.lastIPBankWasOpened = player.getSession().getIP();
-		}
-
-		if(!player.setPin || player.hasPinOpenedToday) {
 			player.getInterfaceManager().sendInterface(762);
 			player.getInterfaceManager().sendInventoryInterface(763);
 			refreshViewingTab();
@@ -246,11 +238,6 @@ public class Bank {
 			unlockButtons();
 			sendItems();
 			refreshLastX();
-		} else if(player.setPin && !player.hasPinOpenedToday) {
-			player.getBankPin().openBankPin();
-			player.getTemporaryAttributtes().put("open_bank", player);
-		}
-
 	}
 
 	public void openEquipmentBonuses(boolean banking) {

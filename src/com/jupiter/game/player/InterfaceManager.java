@@ -2,6 +2,8 @@ package com.jupiter.game.player;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.jupiter.game.player.content.Emotes;
+
 public class InterfaceManager {
 
 	public static final int FIXED_WINDOW_ID = 548;
@@ -61,11 +63,10 @@ public class InterfaceManager {
 			resizableScreen = false;
 			sendFixedInterfaces();
 		}
-		player.getPackets().sendIComponentText(1139, 6, Integer.toString(player.getPlayerDetails().getSpins()));
 		player.getSkills().sendInterfaces();
 		player.getCombatDefinitions().sendUnlockAttackStylesButtons();
 		player.getMusicsManager().unlockMusicPlayer();
-		player.getEmotesManager().unlockEmotesBook();
+		Emotes.unlockEmotesBook(player);
 		player.getInventory().unlockInventoryOptions();
 		player.getPrayer().unlockPrayerBookButtons();
 //		if (player.getFamiliar() != null && player.isActive())
