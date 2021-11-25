@@ -1,54 +1,50 @@
 package com.jupiter.cores;
 
+import java.util.concurrent.TimeUnit;
+
 import com.jupiter.Settings;
 import com.jupiter.game.World;
 import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+
+import io.vavr.control.Try;
+import lombok.SneakyThrows;
 
 public final class WorldThread extends Thread {
 
-	public WorldThread() {
+	public static volatile long WORLD_CYCLE;
+
+	protected WorldThread() {
 		setPriority(Thread.MAX_PRIORITY);
 		setName("World Thread");
+		this.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			public void uncaughtException(Thread th, Throwable ex) {
+				Logger.handle(ex);
+			}
+		});
+	}
+
+	public static void init() {
+		WORLD_CYCLE = System.currentTimeMillis() / 600L;
+		CoresManager.getWorldExecutor().scheduleAtFixedRate(new WorldThread(), 0, Settings.WORLD_CYCLE_MS, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
+	@SneakyThrows(Throwable.class)
 	public final void run() {
-		while (!CoresManager.shutdown) {
-			long currentTime = Utils.currentTimeMillis();
-			try {
-				World.get().taskManager.sequence();
-				World.get().dequeueLogout();
-				World.players().forEach(p -> {
-					if (currentTime - p.getPacketsDecoderPing() > Settings.MAX_PACKETS_DECODER_PING_DELAY
-							&& p.getSession().getChannel().isOpen())
-						p.getSession().getChannel().close();
-					p.processEntity();
-				});
-				World.npcs().forEach(mob -> mob.processEntity());
-			} catch (Throwable e) {
-				Logger.handle(e);
-			}
-			try {
-				World.players().forEach(p -> {
-					p.getPackets().sendLocalPlayersUpdate();
-					p.getPackets().sendLocalNPCsUpdate();
-				});
-			} catch (Throwable e) {
-				Logger.handle(e);
-			}
-			World.entities().parallel().forEach((e) -> e.resetMasks());
-			LAST_CYCLE_CTM = Utils.currentTimeMillis();
-			long sleepTime = Settings.WORLD_CYCLE_TIME + currentTime - LAST_CYCLE_CTM;
-			if (sleepTime <= 0)
-				continue;
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+		WORLD_CYCLE++;
+		Try.run(() -> {
+			World.players().forEach(player -> {
+				player.getPackets().sendLocalPlayersUpdate();
+				player.getPackets().sendLocalNPCsUpdate();
+			});
 
-	public static long LAST_CYCLE_CTM;
+			World.players().forEach(player -> player.processEntity());
+			World.npcs().forEach(npc -> npc.processEntity());
+
+			World.entities().parallel().forEach((e) -> e.resetMasks());
+
+			World.get().taskManager.sequence();
+			World.get().dequeueLogout();
+		}).onFailure(fail -> fail.printStackTrace());
+	}
 }

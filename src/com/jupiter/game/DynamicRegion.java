@@ -60,7 +60,7 @@ public class DynamicRegion extends Region {
 			setLoadMapStage(1);
 			// lets use slow executor, if we take 1-3sec to load objects who
 			// cares? what maters are the players on the loaded regions lul
-			CoresManager.slowExecutor.execute(new Runnable() {
+			CoresManager.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {

@@ -10,8 +10,6 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.Bar;
 import com.jupiter.game.Hit;
 import com.jupiter.game.World;
-import com.jupiter.json.GsonHandler;
-import com.jupiter.json.impl.NPCAutoSpawn;
 import com.jupiter.utils.Utils;
 
 public final class LocalNPCUpdate {
@@ -79,7 +77,6 @@ public final class LocalNPCUpdate {
 	}
 
 	private void addInScreenNPCs(OutputStream stream, OutputStream updateBlockData, boolean largeSceneView) {
-		GsonHandler.waitForLoad();
 		for (int regionId : player.getMapRegionsIds()) {
 			List<Integer> indexes = World.getRegion(regionId).getNPCsIndexes();
 			if (indexes == null)
@@ -108,9 +105,7 @@ public final class LocalNPCUpdate {
 				}
 				stream.writeBits(1, needUpdate ? 1 : 0);
 				stream.writeBits(largeSceneView ? 8 : 5, y);
-				stream.writeBits(3, ((NPCAutoSpawn) GsonHandler
-						.getJsonLoader(NPCAutoSpawn.class)).getDirection(n)
-						.getValue());
+				stream.writeBits(3, (n.getDirection() >> 11) - 4);
 				stream.writeBits(15, n.getId());
 				stream.writeBits(largeSceneView ? 8 : 5, x);
 				stream.writeBits(1, n.hasTeleported() ? 1 : 0);

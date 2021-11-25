@@ -1,78 +1,55 @@
 package com.jupiter.game.player.content;
 
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-import com.jupiter.cores.CoresManager;
 import com.jupiter.game.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
 
 public final class FadingScreen {
 
-	@Deprecated
-	public static void fade(final Player player, long fadeTime, final Runnable event) {
-		unfade(player, fade(player, fadeTime), event);
+	public static void fade(final Player player, int ticks, final Runnable event) {
+		unfade(player, fade(player, ticks), event);
 	}
 
 	public static void fade(final Player player, final Runnable event) {
-		player.lock();
 		unfade(player, fade(player), event);
 	}
 
-	public static void unfade(final Player player, long startTime, final Runnable event) {
-		player.lock();
-		unfade(player, 2500, startTime, event);
+	public static void unfade(final Player player, int ticks, final Runnable event) {
+		unfade(player, 4, ticks, event);
 	}
 
-	public static void unfade(final Player player, long endTime, long startTime, final Runnable event) {
-		long leftTime = endTime - (Utils.currentTimeMillis() - startTime);
-		if (leftTime > 0) {
-			CoresManager.slowExecutor.schedule(new TimerTask() {
+	public static void unfade(final Player player, int startDelay, int delay, final Runnable event) {
+		int leftTime = startDelay + delay;
+		if (startDelay > 0) {
+			World.get().submit(new Task(leftTime) {
 				@Override
-				public void run() {
-					try {
-						unfade(player, event);
-					} catch (Throwable e) {
-						Logger.handle(e);
-					}
+				protected void execute() {
+					unfade(player, event);
+					this.cancel();
 				}
-
-			}, leftTime, TimeUnit.MILLISECONDS);
+			});
 		} else
 			unfade(player, event);
 	}
 
 	public static void unfade(final Player player, Runnable event) {
 		event.run();
-		World.get().submit(new Task(0) {
+		player.getInterfaceManager().sendFadingInterface(170);
+		World.get().submit(new Task(4) {
 			@Override
 			protected void execute() {
-				player.getInterfaceManager().sendFadingInterface(170);
-				CoresManager.slowExecutor.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						try {
-							player.getInterfaceManager().closeFadingInterface();
-							player.unlock();
-						} catch (Throwable e) {
-							Logger.handle(e);
-						}
-					}
-				}, 2, TimeUnit.SECONDS);
+				player.getInterfaceManager().closeFadingInterface();
 				this.cancel();
 			}
 		});
 	}
 
-	public static long fade(Player player, long fadeTime) {
+	public static int fade(Player player, int fadeTicks) {
 		player.getInterfaceManager().sendFadingInterface(115);
-		return Utils.currentTimeMillis() + fadeTime;
+		return fadeTicks;
 	}
 
-	public static long fade(Player player) {
+	public static int fade(Player player) {
 		return fade(player, 0);
 	}
 }

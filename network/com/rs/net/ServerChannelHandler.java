@@ -1,6 +1,7 @@
 package com.rs.net;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -15,7 +16,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
-import com.jupiter.cores.CoresManager;
+import com.jupiter.cores.DecoderThreadFactory;
 import com.jupiter.utils.Logger;
 import com.rs.net.decoders.WorldPacketsDecoder;
 
@@ -37,8 +38,9 @@ public final class ServerChannelHandler extends SimpleChannelHandler {
 	 */
 	private ServerChannelHandler() {
 		channels = new DefaultChannelGroup();
-		bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(CoresManager.serverBossChannelExecutor,
-				CoresManager.serverWorkerChannelExecutor, CoresManager.serverWorkersCount));
+		bootstrap = new ServerBootstrap(
+				new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(new DecoderThreadFactory()),
+						Executors.newSingleThreadExecutor(new DecoderThreadFactory()), 1));
 		bootstrap.getPipeline().addLast("handler", this);
 		bootstrap.setOption("reuseAddress", true); // reuses adress for bind
 		bootstrap.setOption("child.tcpNoDelay", true);

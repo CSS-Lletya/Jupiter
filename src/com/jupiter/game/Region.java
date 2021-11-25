@@ -9,16 +9,11 @@ import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ClientScriptMap;
 import com.jupiter.cache.loaders.ObjectDefinitions;
-import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
-import com.jupiter.json.GsonHandler;
-import com.jupiter.json.impl.NPCAutoSpawn;
-import com.jupiter.json.impl.ObjectSpawnLoader;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapArchiveKeys;
-import com.jupiter.utils.NPCSpawning;
 import com.jupiter.utils.Utils;
 
 public class Region {
@@ -570,7 +565,7 @@ public class Region {
 			setLoadMapStage(1);
 			// lets use slow executor, if we take 1-3sec to load objects who
 			// cares? what maters are the players on the loaded regions lul
-			CoresManager.slowExecutor.execute(new Runnable() {
+			CoresManager.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -597,7 +592,7 @@ public class Region {
 //	}
 
 	void loadObjectSpawns() {
-		ObjectSpawnLoader.loadObjectSpawns(regionId);
+//		ObjectSpawnLoader.loadObjectSpawns(regionId);
 	}
 
 	public int getRegionId() {
@@ -1017,24 +1012,8 @@ public class Region {
 		this.loadedNPCSpawns = loadedNPCSpawns;
 	}
 
-	public static final void loadNPCSpawns(int regionId) {
-		NPCAutoSpawn autoSpawn = GsonHandler.getJsonLoader(NPCAutoSpawn.class);
-		List<NPCSpawning> spawns = autoSpawn.getSpawns(regionId);
-		if (spawns == null) {
-			return;
-		}
-		for (NPCSpawning spawn : spawns) {
-			NPC.spawnNPC(spawn.getId(), spawn.getTile(), -1, true);
-		}
-	}
 	
 	public void loadNPCSpawns() {
-		loadNPCSpawns(regionId);
+//		loadNPCSpawns(regionId);
 	}
-
-	public void spawnObject(WorldObject object, int plane, int xInRegion, int yInRegion, boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

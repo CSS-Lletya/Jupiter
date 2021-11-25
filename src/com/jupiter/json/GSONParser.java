@@ -15,18 +15,18 @@ import com.jupiter.game.player.Player;
 import com.jupiter.utils.Logger;
 
 /**
-* @author Melvin 27 jan. 2020
-* @project Game
-* 
-*/
+ * @author Melvin 27 jan. 2020
+ * @project Game
+ * 
+ */
 
 public class GSONParser {
 
 	private static Gson GSON;
 
 	static {
-		GSON = new GsonBuilder().setPrettyPrinting().disableInnerClassSerialization().enableComplexMapKeySerialization().setDateFormat(DateFormat.LONG)
-				.setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
+		GSON = new GsonBuilder().setPrettyPrinting().disableInnerClassSerialization().enableComplexMapKeySerialization()
+				.setDateFormat(DateFormat.LONG).setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
 	}
 
 	public static Player load(String dir, Type type) {

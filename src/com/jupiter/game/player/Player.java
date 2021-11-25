@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.jupiter.Settings;
@@ -186,13 +185,11 @@ public class Player extends Entity {
 	private transient ArrayList<String> passwordList = new ArrayList<String>();
 	private transient ArrayList<String> ipList = new ArrayList<String>();
 
-	private ChargesManager charges;
 
 	private String currentFriendChatOwner;
 	private byte summoningLeftClickOption;
 	private List<String> ownedObjectsManagerKeys;
 	
-	private SquealOfFortune sof;
 
 	// creates Player and saved classes
 	public Player(String password) {
@@ -212,7 +209,6 @@ public class Player extends Entity {
 		musicsManager = new MusicsManager();
 		emotesManager = new EmotesManager();
 		friendsIgnores = new FriendsIgnores();
-		charges = new ChargesManager();
 		auraManager = new AuraManager();
 		pin = new BankPin();
 		lodeStone = new LodeStone();
@@ -259,7 +255,6 @@ public class Player extends Entity {
 		localPlayerUpdate = new LocalPlayerUpdate(this);
 		localNPCUpdate = new LocalNPCUpdate(this);
 		actionManager = new ActionManager(this);
-		sof = new SquealOfFortune(this);
 		trade = new Trade(this);
 		lodeStone.setPlayer(this);
 		pin.setPlayer(this);
@@ -276,7 +271,6 @@ public class Player extends Entity {
 		emotesManager.setPlayer(this);
 		friendsIgnores.setPlayer(this);
 		auraManager.setPlayer(this);
-		charges.setPlayer(this);
 		temporaryMovementType = -1;
 		logicPackets = new ConcurrentLinkedQueue<LogicPacket>();
 		switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
@@ -294,11 +288,7 @@ public class Player extends Entity {
 			ipList = new ArrayList<String>();
 		updateIPnPass();
 	}
-
-	public SquealOfFortune getSquealOfFortune() {
-		return sof;
-	}
-
+	
 	public boolean hasSkull() {
 		return getSkullTimer().get() > 0;
 	}
@@ -507,7 +497,6 @@ public class Player extends Entity {
         if (healTick % (usingRenewal ? 2 : isResting() ? 2 : usingRapidHeal ? 5 : 10) == 0)
             restoreHitPoints();
 
-		charges.process();
 		auraManager.process();
 		actionManager.process();
 		controlerManager.process();
@@ -780,18 +769,15 @@ public class Player extends Entity {
 		long currentTime = Utils.currentTimeMillis();
 		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
 				|| getEmotesManager().getNextEmoteEnd() >= currentTime || lockDelay >= currentTime) {
-			CoresManager.slowExecutor.schedule(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						packetsDecoderPing = Utils.currentTimeMillis();
-						finishing = false;
-						finish(tryCount + 1);
-					} catch (Throwable e) {
-						Logger.handle(e);
-					}
+			CoresManager.schedule(() -> {
+				try {
+					packetsDecoderPing = Utils.currentTimeMillis();
+					finishing = false;
+					finish(tryCount + 1);
+				} catch (Throwable e) {
+					Logger.handle(e);
 				}
-			}, 10, TimeUnit.SECONDS);
+			}, 10);
 			return;
 		}
 		realFinish();
@@ -1058,7 +1044,6 @@ public class Player extends Entity {
 	public void sendItemsOnDeath(Player killer) {
 //		if (getRights().isStaff())
 //			return;
-		getCharges().die();
 		getAuraManager().removeAura();
 		CopyOnWriteArrayList<Item> containedItems = new CopyOnWriteArrayList<Item>();
 		for (int i = 0; i < 14; i++) {
@@ -1308,10 +1293,6 @@ public class Player extends Entity {
 
 	public void setCloseInterfacesEvent(Runnable closeInterfacesEvent) {
 		this.closeInterfacesEvent = closeInterfacesEvent;
-	}
-
-	public ChargesManager getCharges() {
-		return charges;
 	}
 
 	public void setPassword(String password) {

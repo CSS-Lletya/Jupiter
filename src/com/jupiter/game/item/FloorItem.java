@@ -1,7 +1,5 @@
 package com.jupiter.game.item;
 
-import java.util.concurrent.TimeUnit;
-
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Region;
 import com.jupiter.game.World;
@@ -89,7 +87,7 @@ public class FloorItem extends Item {
 		if (invisible && hiddenTime != -1) {
 			if (owner != null)
 				owner.getPackets().sendGroundItem(floorItem);
-			CoresManager.slowExecutor.schedule(new Runnable() {
+			CoresManager.schedule(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -116,7 +114,7 @@ public class FloorItem extends Item {
 						Logger.handle(e);
 					}
 				}
-			}, hiddenTime, TimeUnit.SECONDS);
+			}, (int) hiddenTime);
 			return;
 		}
 		int regionId = tile.getRegionId();
@@ -144,7 +142,7 @@ public class FloorItem extends Item {
 		if (publicTime < 0) {
 			return;
 		}
-		CoresManager.slowExecutor.schedule(new Runnable() {
+		CoresManager.schedule(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -159,7 +157,7 @@ public class FloorItem extends Item {
 					Logger.handle(e);
 				}
 			}
-		}, publicTime, TimeUnit.SECONDS);
+		}, (int) publicTime);
 	}
 
 	public static final boolean removeGroundItem(Player player, FloorItem floorItem) {

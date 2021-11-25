@@ -9,7 +9,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -31,6 +30,8 @@ import com.jupiter.game.task.impl.RestoreSpecialTask;
 import com.jupiter.utils.AntiFlood;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
 public final class World {
 
@@ -54,7 +55,7 @@ public final class World {
 	
 	private static final EntityList<Player> players = new EntityList<Player>(Settings.PLAYERS_LIMIT);
 	private static final EntityList<NPC> npcs = new EntityList<NPC>(Settings.NPCS_LIMIT);
-	private static final Map<Integer, Region> regions = Collections.synchronizedMap(new HashMap<Integer, Region>());
+	private static final Object2ObjectArrayMap<Integer, Region> regions = new Object2ObjectArrayMap<Integer, Region>();
 	
 	/**
 	 * The queue of {@link Player}s waiting to be logged out.
@@ -66,7 +67,6 @@ public final class World {
 		World.get().submit(new RestoreSpecialTask());
 		World.get().submit(new DrainPrayerTask());
 		World.get().submit(new RestoreRunEnergyTask());
-		EXECUTOR_SERVICE.submit(new WorldThread());
 	}
 	
 	public static final Map<Integer, Region> getRegions() {
@@ -389,20 +389,17 @@ public final class World {
 		exiting_start = Utils.currentTimeMillis();
 		exiting_delay = delay;
 		players().forEach(p -> p.getPackets().sendSystemUpdate(delay));
-		CoresManager.slowExecutor.schedule(new Runnable() {
+		CoresManager.schedule(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					players().forEach(p -> p.realFinish());
-					if (restart)
-						Launcher.restart();
-					else
-						Launcher.shutdown();
+					Launcher.shutdown();
 				} catch (Throwable e) {
 					Logger.handle(e);
 				}
 			}
-		}, delay, TimeUnit.SECONDS);
+		}, delay);
 	}
 
 	public static final void sendGraphics(Entity creator, Graphics graphics, WorldTile tile) {

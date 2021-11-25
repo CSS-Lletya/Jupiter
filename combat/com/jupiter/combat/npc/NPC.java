@@ -2,7 +2,6 @@ package com.jupiter.combat.npc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.npc.combat.NPCCombat;
@@ -12,17 +11,14 @@ import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
 import com.jupiter.game.Graphics;
 import com.jupiter.game.Hit;
+import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.World;
 import com.jupiter.game.WorldTile;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.task.Task;
-import com.jupiter.json.GsonHandler;
-import com.jupiter.json.impl.NPCAutoSpawn;
-import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
@@ -93,8 +89,6 @@ public class NPC extends Entity {
 		// npc is started on creating instance
 		loadMapRegions();
 		checkMultiArea();
-		GsonHandler.waitForLoad();
-		setDirection(((NPCAutoSpawn) GsonHandler.getJsonLoader(NPCAutoSpawn.class)).getDirection(this).ordinal());
 	}
 	
 	public NPC(int id, WorldTile tile) {
@@ -119,8 +113,6 @@ public class NPC extends Entity {
 		// npc is started on creating instance
 		loadMapRegions();
 		checkMultiArea();
-		GsonHandler.waitForLoad();
-		setDirection(((NPCAutoSpawn) GsonHandler.getJsonLoader(NPCAutoSpawn.class)).getDirection(this).ordinal());
 	}
 
 	@Override
@@ -509,23 +501,18 @@ public class NPC extends Entity {
 	}
 
 	public void setRespawnTask() {
+		setRespawnTask(-1);
+	}
+	
+	public void setRespawnTask(int time) {
 		if (!hasFinished()) {
 			reset();
 			setLocation(respawnTile);
 			finish();
 		}
-		CoresManager.slowExecutor.schedule(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					spawn();
-				} catch (Throwable e) {
-					Logger.handle(e);
-				}
-			}
-		}, getCombatDefinitions().getRespawnDelay() * 600, TimeUnit.MILLISECONDS);
+		CoresManager.schedule(() -> spawn(), time < 0 ? getCombatDefinitions().getRespawnDelay() : time);
 	}
-
+	
 	public void deserialize() {
 		if (combat == null)
 			combat = new NPCCombat(this);

@@ -69,9 +69,10 @@ public final class Settings {
 	public static final byte XP_RATE = 1;
 
 	/**
-	 * World settings (Tick rate in milliseconds)
+	 * World settings
 	 */
-	public static final short WORLD_CYCLE_TIME = 600;
+	public static final long WORLD_CYCLE_NS = 600000000L;
+	public static final long WORLD_CYCLE_MS = WORLD_CYCLE_NS / 1000000L;
 
 	/**
 	 * Memory settings
@@ -130,5 +131,6 @@ public final class Settings {
 			"Zed", Rights.ADMINISTRATOR,
 			"Jawarrior1", Rights.ADMINISTRATOR
 	);
+
 
 }

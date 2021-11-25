@@ -47,7 +47,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
 				if (player.isEquipDisabled())
 					return;
-				long passedTime = Utils.currentTimeMillis() - WorldThread.LAST_CYCLE_CTM;
+				long passedTime = Utils.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
 					
 					@Override
@@ -99,8 +99,6 @@ public class InventoryInterfacePlugin implements RSInterface {
 				}
 				InventoryDispatcher.execute(player, item, 7);
 				player.getInventory().deleteItem(slotId, item);
-				if (player.getCharges().degradeCompletly(item))
-					return;
 				FloorItem.createGroundItem(item, new WorldTile(player), player, false, 180, true);
 				player.getPackets().sendSound(2739, 0, 1);
 				break;

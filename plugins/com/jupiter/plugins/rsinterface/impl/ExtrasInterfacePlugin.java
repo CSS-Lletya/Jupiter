@@ -15,8 +15,8 @@ public class ExtrasInterfacePlugin implements RSInterface {
 				break;
 			case 7://Squeal Of Fortune
 				if(player.getPlayerDetails().getSpins() > 0)
-					player.getSquealOfFortune().start();
-				else
+//					player.getSquealOfFortune().start();
+//				else
 					player.getPackets().sendGameMessage("No spins available");
 				break;
 			case 16:
