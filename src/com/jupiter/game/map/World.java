@@ -21,8 +21,11 @@ import com.jupiter.game.route.Flags;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.TaskManager;
 import com.jupiter.game.task.impl.DrainPrayerTask;
+import com.jupiter.game.task.impl.DrainSkillsTask;
 import com.jupiter.game.task.impl.PlayerOwnedObjectTask;
+import com.jupiter.game.task.impl.RestoreHitpointsTask;
 import com.jupiter.game.task.impl.RestoreRunEnergyTask;
+import com.jupiter.game.task.impl.RestoreSkillsTask;
 import com.jupiter.game.task.impl.RestoreSpecialTask;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.AntiFlood;
@@ -65,6 +68,9 @@ public final class World {
 		World.get().submit(new RestoreSpecialTask());
 		World.get().submit(new DrainPrayerTask());
 		World.get().submit(new RestoreRunEnergyTask());
+		World.get().submit(new DrainSkillsTask());
+		World.get().submit(new RestoreHitpointsTask());
+		World.get().submit(new RestoreSkillsTask());
 	}
 	
 	public static final Map<Integer, Region> getRegions() {

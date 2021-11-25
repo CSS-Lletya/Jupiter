@@ -26,6 +26,7 @@ import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapArchiveKeys;
 import com.jupiter.utils.MapAreas;
+import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
 
 import io.vavr.control.Try;
@@ -57,7 +58,7 @@ public class GameLoader {
 			NPCCombatDefinitionsL.init();
 		});
 		getBackgroundLoader().submit(() -> {
-//			NPCBonuses.init();
+			NPCBonuses.init();
 			ItemExamines.init();
 			ItemBonuses.init();
 //			MusicHints.init();

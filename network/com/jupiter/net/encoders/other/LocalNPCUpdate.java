@@ -7,7 +7,7 @@ import java.util.List;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.OutputStream;
 import com.jupiter.combat.npc.NPC;
-import com.jupiter.game.Bar;
+import com.jupiter.game.HitBar;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
@@ -249,60 +249,38 @@ public final class LocalNPCUpdate {
 	}
 
 	private void applyHitMask(NPC n, OutputStream data) {
-		int count = n.getNextHits().size();
-		data.writeByte128(count);
-		if (count > 0) {
-			for (Hit hit : n.getNextHits()) {
-				if (hit == null) {
-					continue;
-				}
-				boolean interactingWith = hit.interactingWith(player, n);
-				if (hit.missed() && !interactingWith){
-					data.writeSmart(32766);
-					data.writeByteC(hit.getDamage());
-				}
-				else {
-					if (hit.getSoaking() != null) {
-						data.writeSmart(32767);
-						data.writeSmart(hit.getMark(player, n));
-						data.writeSmart(hit.getDamage());
-						data.writeSmart(hit.getSoaking().getMark(player, n));
-						data.writeSmart(hit.getSoaking().getDamage());
-					} else {
-						data.writeSmart(hit.getMark(player, n));
-						data.writeSmart(hit.getDamage());
-					}
-				}
-				/*int hitType = hit.getMark(player, n);
-				data.writeSmart(hitType);
-				if (hitType == 32767) {
-					data.writeSmart(hitType);
+		data.writeByte128(n.getNextHits().size());
+		for (Hit hit : n.getNextHits().toArray(new Hit[n.getNextHits().size()])) {
+			boolean interactingWith = hit.interactingWith(player, n);
+			if (hit.missed() && !interactingWith) {
+				data.writeSmart(32766);
+				data.writeByte(hit.getDamage());
+			} else {
+				if (hit.getSoaking() != null) {
+					data.writeSmart(32767);
+					data.writeSmart(hit.getMark(player, n));
 					data.writeSmart(hit.getDamage());
 					data.writeSmart(hit.getSoaking().getMark(player, n));
 					data.writeSmart(hit.getSoaking().getDamage());
-				} else if (32766 != hitType) {
-					data.writeSmart(hit.getDamage());
 				} else {
-					data.writeByte(hit.getDamage());
-				}*/
-				data.writeSmart(hit.getDelay());
+					data.writeSmart(hit.getMark(player, n));
+					data.writeSmart(hit.getDamage());
+				}
 			}
+			data.writeSmart(hit.getDelay());
 		}
-		data.writeByte128(count);
-		if (count > 0) {
-			for (Bar bar : n.getNextBars()) {
-				if (bar == null) {
-					continue;
-				}
-				data.writeSmart(bar.getBarType());
-				int maxPercentage = bar.getMaxPercentage();
-				int percentage = bar.getPercentage(n);
-				data.writeSmart(maxPercentage != percentage ? 1 : 0);
-				data.writeSmart(0);
-				data.write128Byte(maxPercentage);
-				if (maxPercentage != percentage) {
-					data.writeByte128(bar.getPercentage(n));
-				}
+		data.writeByte128(n.getNextBars().size());
+		for (HitBar bar : n.getNextBars()) {
+			data.writeSmart(bar.getType());
+			int perc = bar.getPercentage();
+			int toPerc = bar.getToPercentage();
+			boolean display = bar.display(player);
+			data.writeSmart(display ? perc != toPerc ? bar.getTimer() : 0 : 32767);
+			if (display) {
+				data.writeSmart(bar.getDelay());
+				data.write128Byte(perc);
+				if (toPerc != perc)
+					data.writeByte128(toPerc);
 			}
 		}
 	}

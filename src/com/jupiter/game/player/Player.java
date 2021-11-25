@@ -215,6 +215,7 @@ public class Player extends Entity {
 		inventory.setPlayer(this);
 		equipment.setPlayer(this);
 		skills.setPlayer(this);
+		toolbelt.setPlayer(this);
 		combatDefinitions.setPlayer(this);
 		prayer.setPlayer(this);
 		bank.setPlayer(this);
@@ -404,20 +405,21 @@ public class Player extends Entity {
 		while ((packet = logicPackets.poll()) != null)
 			WorldPacketsDecoder.decodeLogicPacket(this, packet);
 	}
-
-	private transient byte miscTick = 0;
-	private transient byte healTick = 0;
 	
 	@Override
 	public void processEntity() {
-		if (!isActive())
+		if (isDead() || !isActive()) {
 			return;
-		super.processEntity();
+		}
+		if (finishing)
+			finish(0);
 		processLogicPackets();
+		super.processEntity();
 		if (coordsEvent != null && coordsEvent.processEvent(this))
 			coordsEvent = null;
 		if (routeEvent != null && routeEvent.processEvent(this))
 			routeEvent = null;
+		
 		if (musicsManager.musicEnded())
 			musicsManager.replayMusic();
 		
@@ -425,19 +427,6 @@ public class Player extends Entity {
 				&& !Wilderness.isAtWildSafe(this)) {
 			getControlerManager().startControler("Wilderness");
 		}
-		
-		miscTick++;
-		boolean usingBerserk = Prayer.usingBerserker(this);
-		if (miscTick % (usingBerserk ? 110 : 96) == 0)
-			drainSkills();
-		boolean usingRapidRestore = Prayer.usingRapidRestore(this);
-		if (miscTick % (usingRapidRestore ? 48 : 96) == 0)
-			restoreSkills();
-		healTick++;
-        boolean usingRenewal = Prayer.usingRapidRenewal(this);
-        boolean usingRapidHeal = Prayer.usingRapidHeal(this);
-        if (healTick % (usingRenewal ? 2 : isResting() ? 2 : usingRapidHeal ? 5 : 10) == 0)
-            restoreHitPoints();
 
 		auraManager.process();
 		actionManager.process();
@@ -468,7 +457,7 @@ public class Player extends Entity {
         }
     }
     
-    private void drainSkills() {
+    public void drainSkills() {
         for (int skill = 0; skill < 25; skill++) {
             if (skill == Skills.HITPOINTS)
                 continue;
@@ -559,7 +548,6 @@ public class Player extends Entity {
 		getPackets().sendGameMessage("Welcome to " + Settings.SERVER_NAME + ".");
 		getPackets().sendGameMessage(Settings.LASTEST_UPDATE);
 
-		toolbelt.setPlayer(this);
 		toolbelt.init();
 
 		sendDefaultPlayersOptions();
@@ -601,8 +589,6 @@ public class Player extends Entity {
 		if (!HostManager.contains(getUsername(), HostListType.STARTER_RECEIVED)) {
 			HostManager.add(this, HostListType.STARTER_RECEIVED, true);
 		}
-		if (!getRun())
-			toogleRun(true);
 	}
 
 	@SuppressWarnings("unused")

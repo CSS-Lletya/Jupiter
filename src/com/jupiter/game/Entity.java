@@ -68,7 +68,7 @@ public abstract class Entity extends WorldTile {
 	private transient Graphics nextGraphics3;
 	private transient Graphics nextGraphics4;
 	private transient ArrayList<Hit> nextHits;
-	private transient ArrayList<Bar> nextBars;
+	private transient ArrayList<HitBar> nextBars;
 	private transient ForceMovement nextForceMovement;
 	private transient ForceTalk nextForceTalk;
 	private transient int nextFaceEntity;
@@ -102,7 +102,7 @@ public abstract class Entity extends WorldTile {
 		temporaryAttributes = new ConcurrentHashMap<Object, Object>();
 		this.attributes = new ConcurrentHashMap<>();
 		nextHits = new ArrayList<Hit>();
-		nextBars = new ArrayList<Bar>();
+		nextBars = new ArrayList<HitBar>();
 		nextWalkDirection = nextRunDirection - 1;
 		lastFaceEntity = -1;
 		nextFaceEntity = -2;
@@ -166,7 +166,18 @@ public abstract class Entity extends WorldTile {
 			return;
 		removeHitpoints(hit);
 		nextHits.add(hit);
-		nextBars.add(Bar.HITPOINTS);
+		if (nextBars.isEmpty())
+			addHitBars();
+	}
+
+	public void fakeHit(Hit hit) {
+		nextHits.add(hit);
+		if (nextBars.isEmpty())
+			addHitBars();
+	}
+
+	public void addHitBars() {
+		nextBars.add(new EntityHitBar(this));
 	}
 
 	public void removeHitpoints(Hit hit) {
@@ -1181,11 +1192,11 @@ public abstract class Entity extends WorldTile {
 		return step;
 	}
 
-	public ArrayList<Bar> getNextBars() {
+	public ArrayList<HitBar> getNextBars() {
 		return nextBars;
 	}
 
-	public void setNextBars(ArrayList<Bar> nextBars) {
+	public void setNextBars(ArrayList<HitBar> nextBars) {
 		this.nextBars = nextBars;
 	}
 

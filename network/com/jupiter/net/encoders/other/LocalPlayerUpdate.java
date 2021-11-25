@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 
 import com.jupiter.Settings;
 import com.jupiter.cache.io.OutputStream;
-import com.jupiter.game.Bar;
+import com.jupiter.game.HitBar;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
@@ -368,66 +368,38 @@ public final class LocalPlayerUpdate {
 	}
 	
 	private void applyHitsMask(Player p, OutputStream data) {
-		int count = p.getNextHits().size();
-		data.write128Byte(count);
-		 if (count > 0) {
-	            for (Hit hit : p.getNextHits()) {
-	                if (hit == null) {
-	                    continue;
-	                }
-	                
-	                //start old matrix method
-	                boolean interactingWith = hit.interactingWith(player, p);
-					if (hit.missed() && !interactingWith){
-						data.writeSmart(32766);
-						data.writeByteC(hit.getDamage()); //added line - new to 727
-					}
-					else {
-						if (hit.getSoaking() != null) {
-							data.writeSmart(32767);
-							data.writeSmart(hit.getMark(player, p));
-							data.writeSmart(hit.getDamage());
-							data.writeSmart(hit.getSoaking().getMark(player, p));
-							data.writeSmart(hit.getSoaking().getDamage());
-						} else {
-							data.writeSmart(hit.getMark(player, p));
-							data.writeSmart(hit.getDamage());
-						}
-					}
-					//end old matrix method
-	               /* 
-	                int hitType = hit.getMark(player, p); // new method @Jordan
-	                data.writeSmart(hitType);
-	                if (hitType == 32767) {
-	                    data.writeSmart(hitType);
-	                    data.writeSmart(hit.getDamage());
-	                    data.writeSmart(hit.getSoaking().getMark(player, p));
-	                    data.writeSmart(hit.getSoaking().getDamage());
-	                } else if (32766 != hitType) {
-	                    data.writeSmart(hit.getDamage());
-	                } else {
-	                    data.writeByteC(hit.getDamage());
-	                }*/
-	                data.writeSmart(hit.getDelay());
-	            }
-	        }
-		data.writeByte(count);
-		if (count > 0) {
-			for (Bar bar : p.getNextBars()) {
-				if (bar == null) {
-					continue;
+		data.write128Byte(p.getNextHits().size());
+		for (Hit hit : p.getNextHits()) {
+			boolean interactingWith = hit.interactingWith(player, p);
+			if (hit.missed() && !interactingWith) {
+				data.writeSmart(32766);
+				data.writeByteC(hit.getDamage());
+			} else {
+				if (hit.getSoaking() != null) {
+					data.writeSmart(32767);
+					data.writeSmart(hit.getMark(player, p));
+					data.writeSmart(hit.getDamage());
+					data.writeSmart(hit.getSoaking().getMark(player, p));
+					data.writeSmart(hit.getSoaking().getDamage());
+				} else {
+					data.writeSmart(hit.getMark(player, p));
+					data.writeSmart(hit.getDamage());
 				}
-			
-				data.writeSmart(bar.getBarType());
-				int maxPercentage = bar.getMaxPercentage();
-				int percentage = bar.getPercentage(p);
-				data.writeSmart(maxPercentage != percentage ? 1 : 0);
-				data.writeSmart(0);
-				data.write128Byte(maxPercentage);
-				if (maxPercentage != percentage) {
-					data.writeByte128(bar.getPercentage(p));
-				}
-				
+			}
+			data.writeSmart(hit.getDelay());
+		}
+		data.writeByte(p.getNextBars().size());
+		for (HitBar bar : p.getNextBars()) {
+			data.writeSmart(bar.getType());
+			int perc = bar.getPercentage();
+			int toPerc = bar.getToPercentage();
+			boolean display = bar.display(player);
+			data.writeSmart(display ? perc != toPerc ? bar.getTimer() : 0 : 32767);
+			if (display) {
+				data.writeSmart(bar.getDelay());
+				data.write128Byte(perc);
+				if (toPerc != perc)
+					data.writeByte128(toPerc);
 			}
 		}
 	}

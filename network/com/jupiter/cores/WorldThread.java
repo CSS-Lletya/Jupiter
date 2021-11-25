@@ -33,14 +33,15 @@ public final class WorldThread extends Thread {
 	public final void run() {
 		WORLD_CYCLE++;
 		Try.run(() -> {
-			World.players().forEach(player -> {
-				player.getPackets().sendLocalPlayersUpdate();
-				player.getPackets().sendLocalNPCsUpdate();
-			});
 
 			World.players().forEach(player -> player.processEntity());
 			World.npcs().forEach(npc -> npc.processEntity());
 
+			World.players().forEach(player -> {
+				player.getPackets().sendLocalPlayersUpdate();
+				player.getPackets().sendLocalNPCsUpdate();
+			});
+			
 			World.entities().parallel().forEach((e) -> e.resetMasks());
 
 			World.get().taskManager.sequence();
