@@ -2,6 +2,7 @@ package com.jupiter.game.player.actions;
 
 import com.jupiter.game.Animation;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.content.Emotes;
 import com.jupiter.utils.Utils;
 
 public class Rest extends Action {
@@ -45,7 +46,7 @@ public class Rest extends Action {
 	public void stop(Player player) {
 		player.setResting(false);
 		player.setNextAnimation(new Animation(REST_DEFS[index][2]));
-		player.getEmotesManager().setNextEmoteEnd();
+		Emotes.setNextEmoteEnd(player);
 		player.getAppearance().setRenderEmote((short) -1);
 	}
 

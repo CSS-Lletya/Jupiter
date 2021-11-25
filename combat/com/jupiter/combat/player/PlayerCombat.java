@@ -12,12 +12,12 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.ForceTalk;
 import com.jupiter.game.Graphics;
 import com.jupiter.game.Hit;
-import com.jupiter.game.Region;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.Region;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Action;
@@ -1512,7 +1512,7 @@ public class PlayerCombat extends Action {
 				player.getEquipment().removeAmmo(weaponId, quantity);
 				FloorItem.updateGroundItem(new Item(weaponId, quantity),
 						new WorldTile(target.getCoordFaceX(target.getSize()), target.getCoordFaceY(target.getSize()),
-								target.getHeight()),
+								target.getPlane()),
 						player);
 			}
 		} else {
@@ -1528,7 +1528,7 @@ public class PlayerCombat extends Action {
 			if (ammoId != -1) {
 				player.getEquipment().removeAmmo(ammoId, quantity);
 				FloorItem.updateGroundItem(new Item(ammoId, quantity), new WorldTile(target.getCoordFaceX(target.getSize()),
-						target.getCoordFaceY(target.getSize()), target.getHeight()), player);
+						target.getCoordFaceY(target.getSize()), target.getPlane()), player);
 			}
 		}
 	}
@@ -2861,7 +2861,7 @@ public class PlayerCombat extends Action {
 		int distanceY = player.getY() - target.getY();
 		int size = target.getSize();
 		int maxDistance = 16;
-		if (player.getHeight() != target.getHeight() || distanceX > size + maxDistance || distanceX < -1 - maxDistance
+		if (player.getPlane() != target.getPlane() || distanceX > size + maxDistance || distanceX < -1 - maxDistance
 				|| distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 			return false;
 		}

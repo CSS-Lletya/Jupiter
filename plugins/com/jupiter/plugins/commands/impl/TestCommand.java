@@ -16,5 +16,6 @@ public final class TestCommand implements Command {
 	
 	@Override
 	public void execute(Player player, String[] cmd, String command) throws Exception {
+		player.getVarsManager().sendVarBit(5151, 3, true);
 	}
 }

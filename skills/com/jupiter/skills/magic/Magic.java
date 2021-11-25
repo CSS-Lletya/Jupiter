@@ -3,8 +3,8 @@ package com.jupiter.skills.magic;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.Animation;
 import com.jupiter.game.Graphics;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.task.LinkedTaskSequence;
@@ -616,7 +616,7 @@ public class Magic {
 						// attemps to randomize tile by 4x4 area
 						for (int trycount = 0; trycount < 10; trycount++) {
 							teleTile = new WorldTile(tile, 2);
-							if (World.canMoveNPC(tile.getHeight(), teleTile.getX(), teleTile.getY(), player.getSize()))
+							if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
 								break;
 							teleTile = tile;
 						}
@@ -634,7 +634,7 @@ public class Magic {
 					if (teleType == MAGIC_TELEPORT) {
 						player.getPackets().sendSound(5524, 0, 2);
 						player.setNextFaceWorldTile(
-								new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getHeight()));
+								new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
 						player.setDirection(6);
 					}
 					removeDamage = true;
@@ -672,7 +672,7 @@ public class Magic {
 			// attemps to randomize tile by 4x4 area
 			for (int trycount = 0; trycount < 10; trycount++) {
 				teleTile = new WorldTile(tile, 2);
-				if (World.canMoveNPC(tile.getHeight(), teleTile.getX(), teleTile.getY(), player.getSize()))
+				if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
 					break;
 				teleTile = tile;
 			}
@@ -681,7 +681,7 @@ public class Magic {
 			if (player.getControlerManager().getControler() == null)
 				teleControlersCheck(player, teleTile);
 			player.setNextFaceWorldTile(
-					new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getHeight()));
+					new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
 			player.setDirection(6);
 			player.setNextAnimation(new Animation(-1));
 			player.resetReceivedDamage();

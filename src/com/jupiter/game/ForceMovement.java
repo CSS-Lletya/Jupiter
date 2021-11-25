@@ -1,5 +1,6 @@
 package com.jupiter.game;
 
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.utils.Utils;
 
 public class ForceMovement {

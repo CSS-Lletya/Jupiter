@@ -1,9 +1,9 @@
 package com.jupiter.game.item;
 
 import com.jupiter.cores.CoresManager;
-import com.jupiter.game.Region;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.Region;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Logger;
 
@@ -60,7 +60,7 @@ public class FloorItem extends Item {
 		final Region region = World.getRegion(tile.getRegionId());
 		region.forceGetFloorItems().add(floorItem);
 		int regionId = tile.getRegionId();
-		World.players().filter(p -> tile.getHeight() == p.getHeight() && p.getMapRegionsIds().contains(regionId)).forEach(p -> p.getPackets().sendGroundItem(floorItem));
+		World.players().filter(p -> tile.getPlane() == p.getPlane() && p.getMapRegionsIds().contains(regionId)).forEach(p -> p.getPackets().sendGroundItem(floorItem));
 	}
 
 	public static final void createGroundItem(final Item item, final WorldTile tile, final Player owner/* null for default */, final boolean underGrave, long hiddenTime/* default 3minutes */, boolean invisible) {
@@ -97,7 +97,7 @@ public class FloorItem extends Item {
 						if (underGrave || !ItemConstants.isTradeable(floorItem) || item.getName().contains("Dr nabanik")) {
 							region.forceGetFloorItems().remove(floorItem);
 							if (owner != null) {
-								if (owner.getMapRegionsIds().contains(regionId) && owner.getHeight() == tile.getHeight())
+								if (owner.getMapRegionsIds().contains(regionId) && owner.getPlane() == tile.getPlane())
 									owner.getPackets().sendRemoveGroundItem(floorItem);
 							}
 							return;
@@ -105,7 +105,7 @@ public class FloorItem extends Item {
 
 						floorItem.setInvisible(false);
 						for (Player player : World.getPlayers()) {
-							if (player == null || player == owner || !player.hasStarted() || player.hasFinished() || player.getHeight() != tile.getHeight() || !player.getMapRegionsIds().contains(regionId))
+							if (player == null || player == owner || !player.hasStarted() || player.hasFinished() || player.getPlane() != tile.getPlane() || !player.getMapRegionsIds().contains(regionId))
 								continue;
 							player.getPackets().sendGroundItem(floorItem);
 						}
@@ -119,7 +119,7 @@ public class FloorItem extends Item {
 		}
 		int regionId = tile.getRegionId();
 		for (Player player : World.getPlayers()) {
-			if (player == null || !player.hasStarted() || player.hasFinished() || player.getHeight() != tile.getHeight() || !player.getMapRegionsIds().contains(regionId))
+			if (player == null || !player.hasStarted() || player.hasFinished() || player.getPlane() != tile.getPlane() || !player.getMapRegionsIds().contains(regionId))
 				continue;
 			player.getPackets().sendGroundItem(floorItem);
 		}
@@ -151,7 +151,7 @@ public class FloorItem extends Item {
 					if (!region.forceGetFloorItems().contains(floorItem))
 						return;
 					region.forceGetFloorItems().remove(floorItem);
-					World.players().filter(p -> p.getHeight() != floorItem.getTile().getHeight() || !p.getMapRegionsIds().contains(regionId)) .forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
+					World.players().filter(p -> p.getPlane() != floorItem.getTile().getPlane() || !p.getMapRegionsIds().contains(regionId)) .forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
 					
 				} catch (Throwable e) {
 					Logger.handle(e);
@@ -178,7 +178,7 @@ public class FloorItem extends Item {
 			player.getPackets().sendRemoveGroundItem(floorItem);
 			return true;
 		} else {
-			World.players().filter(p -> p.getHeight() != floorItem.getTile().getHeight() || !p.getMapRegionsIds().contains(regionId)).forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
+			World.players().filter(p -> p.getPlane() != floorItem.getTile().getPlane() || !p.getMapRegionsIds().contains(regionId)).forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
 			return true;
 		}
 	}

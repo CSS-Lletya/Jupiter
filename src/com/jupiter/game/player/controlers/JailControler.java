@@ -1,8 +1,8 @@
 package com.jupiter.game.player.controlers;
 
 import com.jupiter.game.Animation;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.utils.Utils;

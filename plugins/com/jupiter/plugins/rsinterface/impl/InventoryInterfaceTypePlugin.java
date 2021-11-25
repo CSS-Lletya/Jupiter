@@ -7,10 +7,10 @@ import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.listener.RSInterface;
 import com.jupiter.plugins.wrapper.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 @RSInterfaceSignature(interfaceId = {})
 public class InventoryInterfaceTypePlugin implements RSInterface {

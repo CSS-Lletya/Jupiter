@@ -7,9 +7,9 @@ import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
+import com.jupiter.net.ServerChannelHandler;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
-import com.rs.net.ServerChannelHandler;
 
 import io.vavr.control.Try;
 

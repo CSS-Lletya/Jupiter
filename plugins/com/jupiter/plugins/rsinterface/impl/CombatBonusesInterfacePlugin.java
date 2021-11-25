@@ -8,6 +8,7 @@ import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.listener.RSInterface;
 import com.jupiter.plugins.wrapper.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
@@ -15,7 +16,6 @@ import com.jupiter.utils.ChatColors;
 import com.jupiter.utils.ItemBonuses;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 @RSInterfaceSignature(interfaceId = { 667, 670 })
 public class CombatBonusesInterfacePlugin implements RSInterface {

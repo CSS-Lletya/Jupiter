@@ -12,8 +12,8 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.Graphics;
 import com.jupiter.game.Hit;
 import com.jupiter.game.Hit.HitLook;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.route.RouteFinder;
@@ -209,7 +209,7 @@ public class NPC extends Entity {
 			if (getFreezeDelay() < Utils.currentTimeMillis()) {
 				if (getX() != forceWalk.getX() || getY() != forceWalk.getY()) {
 					if (!hasWalkSteps()) {
-						int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, getX(), getY(), getHeight(), getSize(), new FixedTileStrategy(forceWalk.getX(), forceWalk.getY()), true);
+						int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, getX(), getY(), getPlane(), getSize(), new FixedTileStrategy(forceWalk.getX(), forceWalk.getY()), true);
 						int[] bufferX = RouteFinder.getLastPathBufferX();
 						int[] bufferY = RouteFinder.getLastPathBufferY();
 						for (int i = steps - 1; i >= 0; i--) {
@@ -704,7 +704,7 @@ public class NPC extends Entity {
 
 	@Override
 	public String toString() {
-		return getDefinitions().name + " - " + id + " - " + getX() + " " + getY() + " " + getHeight();
+		return getDefinitions().name + " - " + id + " - " + getX() + " " + getY() + " " + getPlane();
 	}
 
 	public boolean isForceAgressive() {
@@ -787,7 +787,7 @@ public class NPC extends Entity {
 
 	public WorldTile getMiddleWorldTile() {
 		int size = getSize();
-		return new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getHeight());
+		return new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getPlane());
 	}
 
 	public boolean isSpawned() {

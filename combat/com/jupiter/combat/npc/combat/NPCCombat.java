@@ -102,7 +102,7 @@ public final class NPCCombat {
 		if (target == null)
 			return false;
 		if (npc.isDead() || npc.hasFinished() || npc.isForceWalking() || target.isDead() || target.hasFinished()
-				|| npc.getHeight() != target.getHeight())
+				|| npc.getPlane() != target.getPlane())
 			return false;
 		if (npc.getFreezeDelay() >= Utils.currentTimeMillis())
 			return true; // if freeze cant move ofc

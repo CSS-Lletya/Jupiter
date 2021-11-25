@@ -2,7 +2,7 @@ package com.jupiter.game.task;
 
 import java.util.Optional;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 
 /**
  * An abstraction model that contains functions that enable units of work to be carried out in cyclic intervals.

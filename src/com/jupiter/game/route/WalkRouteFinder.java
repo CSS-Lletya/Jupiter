@@ -1,8 +1,8 @@
 package com.jupiter.game.route;
 
-import com.jupiter.game.Region;
-import com.jupiter.game.RegionMap;
-import com.jupiter.game.World;
+import com.jupiter.game.map.Region;
+import com.jupiter.game.map.RegionMap;
+import com.jupiter.game.map.World;
 
 /**
  * Walking route finder working on third flag range, designed for walking

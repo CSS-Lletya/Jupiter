@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.jupiter.game.Entity;
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.task.impl.CombatEffectTask;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;

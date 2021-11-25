@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.skills.Skills;
 

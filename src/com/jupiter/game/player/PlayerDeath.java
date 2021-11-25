@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import com.jupiter.Settings;
 import com.jupiter.game.Animation;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.task.impl.ActorDeathTask;
+import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
-import com.rs.net.host.HostManager;
 
 public class PlayerDeath extends ActorDeathTask<Player> {
 

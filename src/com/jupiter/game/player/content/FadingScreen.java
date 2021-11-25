@@ -1,6 +1,6 @@
 package com.jupiter.game.player.content;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 

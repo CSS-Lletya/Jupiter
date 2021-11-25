@@ -6,7 +6,7 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.Animation;
 import com.jupiter.game.Graphics;
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 import com.jupiter.utils.Utils;

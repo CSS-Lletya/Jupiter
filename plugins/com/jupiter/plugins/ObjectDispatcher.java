@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ObjectDefinitions;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.plugins.listener.ObjectType;
@@ -124,7 +124,7 @@ public final class ObjectDispatcher {
 		if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 			return;
 		long currentTime = Utils.currentTimeMillis();
-		if (player.getLockDelay() >= currentTime || player.getEmotesManager().getNextEmoteEnd() >= currentTime)
+		if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 			return;
 
 
@@ -142,7 +142,7 @@ public final class ObjectDispatcher {
 		
 		int rotation = 0;
 		if (player.isAtDynamicRegion()) {
-			rotation = World.getRotation(player.getHeight(), x, y);
+			rotation = World.getRotation(player.getPlane(), x, y);
 			if (rotation == 1) {
 				ObjectDefinitions defs = ObjectDefinitions.getObjectDefinitions(id);
 				y += defs.getSizeY() - 1;
@@ -151,7 +151,7 @@ public final class ObjectDispatcher {
 				x += defs.getSizeY() - 1;
 			}
 		}
-		final WorldTile tile = new WorldTile(x, y, player.getHeight());
+		final WorldTile tile = new WorldTile(x, y, player.getPlane());
 		final int regionId = tile.getRegionId();
 		if (!player.getMapRegionsIds().contains(regionId))
 			return;
@@ -159,12 +159,12 @@ public final class ObjectDispatcher {
 
 		if (mapObject == null || mapObject.getId() != id)
 			return;
-		if (player.isAtDynamicRegion() && World.getRotation(player.getHeight(), x, y) != 0) { // temp fix
+		if (player.isAtDynamicRegion() && World.getRotation(player.getPlane(), x, y) != 0) { // temp fix
 			ObjectDefinitions defs = ObjectDefinitions.getObjectDefinitions(id);
 			if (defs.getSizeX() > 1 || defs.getSizeY() > 1) {
 				for (int xs = 0; xs < defs.getSizeX() + 1 && (mapObject == null || mapObject.getId() != id); xs++) {
 					for (int ys = 0; ys < defs.getSizeY() + 1 && (mapObject == null || mapObject.getId() != id); ys++) {
-						tile.setLocation(x + xs, y + ys, tile.getHeight());
+						tile.setLocation(x + xs, y + ys, tile.getPlane());
 						mapObject = World.getRegion(regionId).getObject(id, tile);
 					}
 				}
@@ -174,7 +174,7 @@ public final class ObjectDispatcher {
 		}
 		final WorldObject object = !player.isAtDynamicRegion() ? mapObject
 				: new WorldObject(id, mapObject.getType(), (byte) (mapObject.getRotation() + rotation % 4), x, y,
-						player.getHeight());
+						player.getPlane());
 		player.stopAll(false);
 		if (forceRun)
 			player.setRun(forceRun);
@@ -218,8 +218,9 @@ public final class ObjectDispatcher {
 
 				Logger.log("ObjectHandler",
 						"examined object id : " + object.getId() + ", " + object.getX() + ", " + object.getY() + ", "
-								+ object.getHeight() + ", " + object.getType() + ", " + object.getRotation() + ", "
-								+ object.getDefinitions().name);
+								+ object.getPlane() + ", " + object.getType() + ", " + object.getRotation() + ", "
+								+ object.getDefinitions().name + ", varbit: " + object.getConfigByFile() + ", var: "
+								+ object.getConfig());
 	}
 	
 	@SuppressWarnings("unused")

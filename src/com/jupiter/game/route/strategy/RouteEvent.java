@@ -2,9 +2,9 @@ package com.jupiter.game.route.strategy;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.Entity;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.FloorItem;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.RouteStrategy;
@@ -110,7 +110,7 @@ public class RouteEvent {
 		if (last != null && match(strategies, last) && !player.hasWalkSteps()) {
 			for (int i = 0; i < strategies.length; i++) {
 				RouteStrategy strategy = strategies[i];
-				int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, player.getX(), player.getY(), player.getHeight(), player.getSize(), strategy, i == (strategies.length - 1));
+				int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, player.getX(), player.getY(), player.getPlane(), player.getSize(), strategy, i == (strategies.length - 1));
 				if (steps == -1)
 					continue;
 				if (this.instanceOfEntity() && this.object instanceof NPC) {
@@ -135,7 +135,7 @@ public class RouteEvent {
 
 			for (int i = 0; i < strategies.length; i++) {
 				RouteStrategy strategy = strategies[i];
-				int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, player.getX(), player.getY(), player.getHeight(), player.getSize(), strategy, i == (strategies.length - 1));
+				int steps = RouteFinder.findRoute(RouteFinder.WALK_ROUTEFINDER, player.getX(), player.getY(), player.getPlane(), player.getSize(), strategy, i == (strategies.length - 1));
 				if (steps == -1)
 					continue;
 				if (this.instanceOfEntity() && this.object instanceof NPC) {
@@ -152,7 +152,7 @@ public class RouteEvent {
 				int[] bufferX = RouteFinder.getLastPathBufferX();
 				int[] bufferY = RouteFinder.getLastPathBufferY();
 
-				WorldTile last = new WorldTile(bufferX[0], bufferY[0], player.getHeight());
+				WorldTile last = new WorldTile(bufferX[0], bufferY[0], player.getPlane());
 				player.resetWalkSteps();
 				player.getPackets().sendMinimapFlag(last.getLocalX(player.getLastLoadedMapRegionTile(), player.getMapSize()), last.getLocalY(player.getLastLoadedMapRegionTile(), player.getMapSize()));
 				if (player.getFreezeDelay() > Utils.currentTimeMillis())
@@ -176,11 +176,11 @@ public class RouteEvent {
 		if (object == null) {
 			return false;
 		} else if (object instanceof Entity) {
-			return player.getHeight() == ((Entity) object).getHeight();
+			return player.getPlane() == ((Entity) object).getPlane();
 		} else if (object instanceof WorldObject) {
-			return player.getHeight() == ((WorldObject) object).getHeight();
+			return player.getPlane() == ((WorldObject) object).getPlane();
 		} else if (object instanceof FloorItem) {
-			return player.getHeight() == ((FloorItem) object).getTile().getHeight();
+			return player.getPlane() == ((FloorItem) object).getTile().getPlane();
 		}
 
 		else {

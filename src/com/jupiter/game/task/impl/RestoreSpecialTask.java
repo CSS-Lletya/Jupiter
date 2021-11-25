@@ -1,6 +1,6 @@
 package com.jupiter.game.task.impl;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.task.Task;
 
 /**

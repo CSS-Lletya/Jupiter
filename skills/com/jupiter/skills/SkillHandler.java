@@ -4,12 +4,12 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 import com.jupiter.game.Animation;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.SkillActionTask;
-import com.rs.net.encoders.WorldPacketsEncoder;
+import com.jupiter.net.encoders.WorldPacketsEncoder;
 
 /**
  * Handler for Skills

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.plugins.listener.NPCType;
@@ -149,7 +149,7 @@ public final class NPCDispatcher {
 			return;
 		if (player.getRights().isStaff()) {
 			player.getPackets().sendGameMessage("NPC - [id=" + npc.getId() + ", loc=[" + npc.getX() + ", " + npc.getY()
-					+ ", " + npc.getHeight() + "]].");
+					+ ", " + npc.getPlane() + "]].");
 		}
 		player.getPackets().sendNPCMessage(0, npc, "It's a " + npc.getDefinitions().name + ".");
 		

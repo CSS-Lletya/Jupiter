@@ -3,7 +3,7 @@ package com.jupiter;
 import java.math.BigInteger;
 
 import com.google.common.collect.ImmutableMap;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Rights;
 
 /**
@@ -50,7 +50,7 @@ public final class Settings {
 	 * Launching settings
 	 * (Startup)
 	 */
-	public static boolean DEBUG;
+	public static boolean DEBUG = true;
 
 	/**
 	 * Player settings

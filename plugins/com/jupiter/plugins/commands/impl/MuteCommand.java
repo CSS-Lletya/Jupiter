@@ -1,13 +1,13 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.host.HostListType;
+import com.jupiter.net.host.HostManager;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;
 import com.jupiter.utils.Utils;
-import com.rs.net.host.HostListType;
-import com.rs.net.host.HostManager;
 
 @CommandSignature(alias = {"mute"}, rights = {Rights.ADMINISTRATOR}, syntax = "Mute a specified Player")
 public final class MuteCommand implements Command {

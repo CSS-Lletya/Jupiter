@@ -2,9 +2,9 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.listener.RSInterface;
 import com.jupiter.plugins.wrapper.RSInterfaceSignature;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 @RSInterfaceSignature(interfaceId = {11})
 public class DepositBoxInterfacePlugin implements RSInterface {

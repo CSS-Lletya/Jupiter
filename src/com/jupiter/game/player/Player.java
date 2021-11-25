@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import com.jupiter.Settings;
+import com.jupiter.cache.loaders.VarManager;
 import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.type.AntifireDetails;
@@ -23,17 +24,21 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.Graphics;
 import com.jupiter.game.HintIconsManager;
 import com.jupiter.game.Hit;
-import com.jupiter.game.World;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.LocalNPCUpdate;
+import com.jupiter.game.LocalPlayerUpdate;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.actions.ActionManager;
-import com.jupiter.game.player.content.BankPin;
-import com.jupiter.game.player.content.EmotesManager;
+import com.jupiter.game.player.content.AuraManager;
+import com.jupiter.game.player.content.Emotes;
+import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
+import com.jupiter.game.player.content.Toolbelt;
 import com.jupiter.game.player.controlers.ControlerManager;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.route.CoordsEvent;
@@ -41,19 +46,25 @@ import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.CombatEffectTask;
 import com.jupiter.game.task.impl.SkillActionTask;
+import com.jupiter.net.Session;
+import com.jupiter.net.decoders.LogicPacket;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.net.encoders.WorldPacketsEncoder;
+import com.jupiter.net.host.HostListType;
+import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
+import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utils.IsaacKeyPair;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MutableNumber;
 import com.jupiter.utils.Stopwatch;
 import com.jupiter.utils.Utils;
-import com.rs.net.Session;
-import com.rs.net.decoders.LogicPacket;
-import com.rs.net.decoders.WorldPacketsDecoder;
-import com.rs.net.encoders.WorldPacketsEncoder;
-import com.rs.net.host.HostListType;
-import com.rs.net.host.HostManager;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = false) // what plugin is this
 public class Player extends Entity {
 
 	public static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
@@ -79,19 +90,8 @@ public class Player extends Entity {
 	private transient LodeStone lodeStone;
 
 	//Pins
-	private transient BankPin pin;
 	public transient String lastIPBankWasOpened;
 	public transient boolean bypass;
-	private transient int pinpinpin;
-	public transient boolean hasPinOpenedToday = false;
-	public transient long lastOpenedWithPin = -1;
-	public transient boolean setPin = false;
-	public transient boolean openPin = false;
-	public transient boolean startpin = false;
-	private transient int[] bankpins = new int[] { 0, 0, 0, 0 };
-	private transient int[] confirmpin = new int[] { 0, 0, 0, 0 };
-	private transient int[] openBankPin = new int[] { 0, 0, 0, 0 };
-	private transient int[] changeBankPin = new int[] { 0, 0, 0, 0 };
 
 	// used for packets logic
 	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
@@ -123,6 +123,11 @@ public class Player extends Entity {
 	private transient double hpBoostMultiplier;
 	private transient boolean largeSceneView;
 	private transient RouteEvent routeEvent;
+	
+	/**
+	 * Represents a Player's last Emote delay (used for various things)
+	 */
+	private transient long nextEmoteEnd;
 
 	// interface
 
@@ -165,7 +170,6 @@ public class Player extends Entity {
 	private Bank bank;
 	private ControlerManager controlerManager;
 	private MusicsManager musicsManager;
-	private EmotesManager emotesManager;
 	private FriendsIgnores friendsIgnores;
 	private AuraManager auraManager;
 	private double runEnergy;
@@ -173,6 +177,8 @@ public class Player extends Entity {
 	private boolean mouseButtons;
 	private byte privateChatSetup;
 	private byte friendChatSetup;
+	
+	public transient VarManager varsManager;
 	
 	private boolean forceNextMapLoadRefresh;
 
@@ -197,6 +203,7 @@ public class Player extends Entity {
 		setHitpoints(100);
 		this.password = password;
 		this.toolbelt = new Toolbelt();
+		varsManager = new VarManager(this);
 		appearence = new Appearance();
 		inventory = new Inventory();
 		equipment = new Equipment();
@@ -207,10 +214,8 @@ public class Player extends Entity {
 		details = new PlayerDetails();
 		controlerManager = new ControlerManager();
 		musicsManager = new MusicsManager();
-		emotesManager = new EmotesManager();
 		friendsIgnores = new FriendsIgnores();
 		auraManager = new AuraManager();
-		pin = new BankPin();
 		lodeStone = new LodeStone();
 		runEnergy = 100D;
 		allowChatEffects = true;
@@ -232,17 +237,8 @@ public class Player extends Entity {
 			lodeStone = new LodeStone();
 		if (activatedLodestones == null)
 			activatedLodestones = new boolean[16];
-		if (pin == null)
-			pin = new BankPin();
-
-		if (pinpinpin != 1) {
-			pinpinpin = 1;
-			bankpins = new int[] { 0, 0, 0, 0 };
-			confirmpin = new int[] { 0, 0, 0, 0 };
-			openBankPin = new int[] { 0, 0, 0, 0 };
-			changeBankPin = new int[] { 0, 0, 0, 0 };
-		}
-
+		if (varsManager == null)
+			varsManager = new VarManager(this);
 		this.session = session;
 		this.username = username;
 		this.displayMode = displayMode;
@@ -257,7 +253,6 @@ public class Player extends Entity {
 		actionManager = new ActionManager(this);
 		trade = new Trade(this);
 		lodeStone.setPlayer(this);
-		pin.setPlayer(this);
 		// loads player on saved instances
 		appearence.setPlayer(this);
 		inventory.setPlayer(this);
@@ -268,7 +263,6 @@ public class Player extends Entity {
 		bank.setPlayer(this);
 		controlerManager.setPlayer(this);
 		musicsManager.setPlayer(this);
-		emotesManager.setPlayer(this);
 		friendsIgnores.setPlayer(this);
 		auraManager.setPlayer(this);
 		temporaryMovementType = -1;
@@ -300,7 +294,7 @@ public class Player extends Entity {
 				continue;
 			for (FloorItem item : floorItems) {
 				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getHeight() != getHeight())
+						|| item.getTile().getPlane() != getPlane())
 					continue;
 				getPackets().sendRemoveGroundItem(item);
 			}
@@ -311,7 +305,7 @@ public class Player extends Entity {
 				continue;
 			for (FloorItem item : floorItems) {
 				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getHeight() != getHeight())
+						|| item.getTile().getPlane() != getPlane())
 					continue;
 				getPackets().sendGroundItem(item);
 			}
@@ -323,44 +317,16 @@ public class Player extends Entity {
 			List<WorldObject> spawnedObjects = World.getRegion(regionId).getSpawnedObjects();
 			if (spawnedObjects != null) {
 				for (WorldObject object : spawnedObjects)
-					if (object.getHeight() == getHeight())
+					if (object.getPlane() == getPlane())
 						getPackets().sendSpawnedObject(object);
 			}
 			List<WorldObject> removedObjects = World.getRegion(regionId).getRemovedObjects();
 			if (removedObjects != null) {
 				for (WorldObject object : removedObjects)
-					if (object.getHeight() == getHeight())
+					if (object.getPlane() == getPlane())
 						getPackets().sendDestroyObject(object);
 			}
 		}
-	}
-
-	public BankPin getBankPin() {
-		return pin;
-	}
-
-	public boolean getSetPin() {
-		return setPin;
-	}
-
-	public boolean getOpenedPin() {
-		return openPin;
-	}
-
-	public int[] getPin() {
-		return bankpins;
-	}
-
-	public int[] getConfirmPin() {
-		return confirmpin;
-	}
-
-	public int[] getOpenBankPin() {
-		return openBankPin;
-	}
-
-	public int[] getChangeBankPin() {
-		return changeBankPin;
 	}
 
 	// now that we inited we can start showing game
@@ -612,6 +578,7 @@ public class Player extends Entity {
 			if (getUsername().equalsIgnoreCase(staff.getKey()))
 				setRights(staff.getValue());
 		});
+		getDetails().getVarBitList().entrySet().forEach(varbit -> getVarsManager().forceSendVarBit(varbit.getKey(), varbit.getValue()));
 		sendRunButtonConfig();
 		getPackets().sendGameMessage("Welcome to " + Settings.SERVER_NAME + ".");
 		getPackets().sendGameMessage(Settings.LASTEST_UPDATE);
@@ -636,7 +603,7 @@ public class Player extends Entity {
 		getCombatDefinitions().sendUnlockAttackStylesButtons();
 		getPackets().sendGameBarStages();
 		getMusicsManager().init();
-		getEmotesManager().refreshListConfigs();
+		Emotes.refreshListConfigs(this);
 		if(this.rights == Rights.ADMINISTRATOR)
 			lodeStone.unlockAllLodestones();
 		if (getCurrentFriendChatOwner() != null) {
@@ -768,7 +735,7 @@ public class Player extends Entity {
 		stopAll(false, true, !(actionManager.getAction() instanceof PlayerCombat));
 		long currentTime = Utils.currentTimeMillis();
 		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
-				|| getEmotesManager().getNextEmoteEnd() >= currentTime || lockDelay >= currentTime) {
+				|| getNextEmoteEnd() >= currentTime || lockDelay >= currentTime) {
 			CoresManager.schedule(() -> {
 				try {
 					packetsDecoderPing = Utils.currentTimeMillis();
@@ -1297,10 +1264,6 @@ public class Player extends Entity {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public EmotesManager getEmotesManager() {
-		return emotesManager;
 	}
 
 	public String getLastHostname() {

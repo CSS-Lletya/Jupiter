@@ -1,6 +1,6 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.plugins.listener.Command;

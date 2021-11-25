@@ -2,11 +2,11 @@ package com.jupiter.game.player.controlers;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.Entity;
-import com.jupiter.game.WorldObject;
-import com.jupiter.game.WorldTile;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.WorldObject;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.content.Foods.Food;
+import com.jupiter.skills.cooking.Foods.Food;
 
 public final class ControlerManager {
 

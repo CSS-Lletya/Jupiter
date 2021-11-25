@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.jupiter.game.WorldTile;
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.plugins.listener.Command;
 import com.jupiter.plugins.wrapper.CommandSignature;

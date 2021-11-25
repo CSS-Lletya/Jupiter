@@ -3,10 +3,9 @@ package com.jupiter.game.player.content;
 import java.util.ArrayList;
 
 import com.jupiter.cache.loaders.ClientScriptMap;
-import com.jupiter.game.Region;
-import com.jupiter.game.World;
+import com.jupiter.game.map.Region;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.MusicHints;
 import com.jupiter.utils.Utils;
 
 public final class MusicsManager  {
@@ -205,12 +204,12 @@ public final class MusicsManager  {
 	}
 
 	public void sendHint(int musicIndex) {
-		int musicId = ClientScriptMap.getMap(1351).getIntValue(musicIndex);
-		if (musicId != -1) {
-			player.getPackets()
-					.sendGameMessage("This track " + (unlockedMusics.contains(musicId) ? "was unlocked" : "unlocks")
-							+ " " + MusicHints.getHint(musicId));
-		}
+//		int musicId = ClientScriptMap.getMap(1351).getIntValue(musicIndex);
+//		if (musicId != -1) {
+//			player.getPackets()
+//					.sendGameMessage("This track " + (unlockedMusics.contains(musicId) ? "was unlocked" : "unlocks")
+//							+ " " + MusicHints.getHint(musicId));
+//		}
 	}
 
 	public void playAnotherMusic(int musicIndex) {

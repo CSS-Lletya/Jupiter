@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.jupiter.game.World;
+import com.jupiter.game.map.World;
+import com.jupiter.game.player.content.FriendChatsManager;
+import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.utils.Utils;
-import com.rs.net.decoders.WorldPacketsDecoder;
 
 public class FriendsIgnores {
 

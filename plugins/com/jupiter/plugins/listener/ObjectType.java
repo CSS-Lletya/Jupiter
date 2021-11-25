@@ -1,6 +1,6 @@
 package com.jupiter.plugins.listener;
 
-import com.jupiter.game.WorldObject;
+import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.player.Player;
 
 /**
