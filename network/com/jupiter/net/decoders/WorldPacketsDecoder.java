@@ -1063,6 +1063,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (Settings.DEBUG)
 				Logger.log(this, "Dialogue: " + interfaceId + ", " + buttonId + ", " + junk);
 			int componentId = interfaceHash - (interfaceId << 16);
+			player.getConversation().process(interfaceId, componentId);
 			//TODO: new conversation system
 		} else if (packetId == WORLD_MAP_CLICK) {
 			int coordinateHash = stream.readIntLE();

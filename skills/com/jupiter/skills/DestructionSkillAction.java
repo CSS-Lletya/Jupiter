@@ -42,7 +42,7 @@ public abstract class DestructionSkillAction extends SkillHandler {
 	
 	@Override
 	public final void execute(Task t) {
-		if(getPlayer().getInventory().getNumerOf(destructItem().getAmount()) >= 0) {
+		if(getPlayer().getInventory().getNumberOf(destructItem().getAmount()) >= 0) {
 			onDestruct(t, true);
 			player.getSkills().addXp(getSkillId(), experience());
 			return;

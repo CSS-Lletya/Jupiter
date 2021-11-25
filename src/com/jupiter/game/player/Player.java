@@ -26,6 +26,8 @@ import com.jupiter.game.HintIconsManager;
 import com.jupiter.game.Hit;
 import com.jupiter.game.LocalNPCUpdate;
 import com.jupiter.game.LocalPlayerUpdate;
+import com.jupiter.game.dialogue.Conversation;
+import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
@@ -123,6 +125,8 @@ public class Player extends Entity {
 	private transient double hpBoostMultiplier;
 	private transient boolean largeSceneView;
 	private transient RouteEvent routeEvent;
+	
+	private transient Conversation conversation;
 	
 	/**
 	 * Represents a Player's last Emote delay (used for various things)
@@ -393,6 +397,8 @@ public class Player extends Entity {
 		if (interfaceManager.containsInventoryInter())
 			interfaceManager.closeInventoryInterface();
 		
+		endConversation();
+		
 		getInterfaceManager().closeChatBoxInterface();
 		getTemporaryAttributtes().remove("dialogue_event");
 		
@@ -400,6 +406,29 @@ public class Player extends Entity {
 			closeInterfacesEvent.run();
 			closeInterfacesEvent = null;
 		}
+	}
+	
+	public void startConversation(Dialogue dialogue) {
+		startConversation(new Conversation(dialogue.finish()));
+	}
+
+	public boolean startConversation(Conversation conversation) {
+		if (conversation.getCurrent() == null)
+			return false;
+		this.conversation = conversation;
+		this.conversation.setPlayer(this);
+		conversation.start();
+		return true;
+	}
+
+	public void endConversation() {
+		this.conversation = null;
+		if (getInterfaceManager().containsChatBoxInter())
+			getInterfaceManager().closeChatBoxInterface();
+	}
+
+	public Conversation getConversation() {
+		return conversation;
 	}
 
 	public void setClientHasntLoadedMapRegion() {
