@@ -121,7 +121,7 @@ public final class ObjectDispatcher {
 	
 	public static void handleOption(final Player player, InputStream stream, int option) {
 //		System.out.println("option " + option);
-		if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+		if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 			return;
 		long currentTime = Utils.currentTimeMillis();
 		if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)

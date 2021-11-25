@@ -5,12 +5,12 @@ import java.util.Optional;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.specials.WeaponSpecialSignature;
 import com.jupiter.combat.player.specials.WeaponSpecials;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.Utils;
 
 @WeaponSpecialSignature(weapons = { ItemNames.SARADOMIN_SWORD, 23690 }, specAmount = 100)
@@ -25,7 +25,7 @@ public class SaradominSword implements WeaponSpecials {
     public void execute(Player player, Entity target, PlayerCombat combat) throws Exception {
         target.setNextGraphics(new Graphics(1194));
 
-        if(player.getRights() == Rights.ADMINISTRATOR)
+        if(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			player.getPackets().sendGameMessage(this.getClass().getName() + " Unfinished special, needs testing!");
 
 

@@ -6,10 +6,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.OutputStream;
 import com.jupiter.combat.npc.NPC;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.HintIcon;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
@@ -20,10 +17,13 @@ import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.AccountCreation;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.PublicChatMessage;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.net.Session;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.HintIcon;
+import com.jupiter.net.encoders.other.PublicChatMessage;
 import com.jupiter.utils.Huffman;
 import com.jupiter.utils.IntegerInputAction;
 import com.jupiter.utils.MapArchiveKeys;
@@ -558,7 +558,7 @@ public class WorldPacketsEncoder extends Encoder {
 	}
 	
 	public void sendGameBarStages() {
-		sendConfig(1054, player.getClanStatus());
+		sendConfig(1054, player.getPlayerDetails().getClanStatus());
 //		sendConfig(1055, player.getAssistStatus());
 		sendConfig(1056, player.getPlayerDetails().isFilterGame() ? 1 : 0);
 		sendConfig(2159, player.getFriendsIgnores().getFriendsChatStatus());
@@ -569,8 +569,8 @@ public class WorldPacketsEncoder extends Encoder {
 	public void sendOtherGameBarStages() {
 		OutputStream stream = new OutputStream(3);
 		stream.writePacket(player, 30);
-		stream.writeByteC(player.getTradeStatus());
-		stream.writeByte128(player.getPublicStatus());
+		stream.writeByteC(player.getPlayerDetails().getTradeStatus());
+		stream.writeByte128(player.getPlayerDetails().getPublicStatus());
 		session.write(stream);
 	}
 
@@ -712,7 +712,7 @@ public class WorldPacketsEncoder extends Encoder {
 		for (int count = 0; count < 20; count++)
 			for (int i = 0; i < 4; i++)
 				stream.writeInt(0);
-		byte[] appearence = player.getAppearance().getAppeareanceBlocks();
+		byte[] appearence = player.getAppearence().getAppeareanceBlocks();
 		stream.writeByte(appearence.length);
 		stream.writeBytes(appearence);
 		stream.endPacketVarShort();
@@ -954,7 +954,7 @@ public class WorldPacketsEncoder extends Encoder {
 	}
 
 	public void sendPanelBoxMessage(String text) {
-		sendMessage(player.getRights() == Rights.ADMINISTRATOR ? 99 : 0, text, null);
+		sendMessage(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR ? 99 : 0, text, null);
 	}
 
 	public void sendTradeRequestMessage(Player p) {
@@ -986,8 +986,8 @@ public class WorldPacketsEncoder extends Encoder {
 
 		if (p != null) {
 			maskData |= 0x1;
-			if (p.hasDisplayName())
-				maskData |= 0x2;
+//			if (p.hasDisplayName())
+//				maskData |= 0x2;
 		}
 		OutputStream stream = new OutputStream();
 		stream.writePacketVarByte(player, 160);
@@ -996,8 +996,8 @@ public class WorldPacketsEncoder extends Encoder {
 		stream.writeByte(maskData);
 		if ((maskData & 0x1) != 0) {
 			stream.writeString(p.getDisplayName());
-			if (p.hasDisplayName())
-				stream.writeString(Utils.formatPlayerNameForDisplay(p.getUsername()));
+//			if (p.hasDisplayName())
+//				stream.writeString(Utils.formatPlayerNameForDisplay(p.getUsername()));
 		}
 		stream.writeString(text);
 		stream.endPacketVarByte();

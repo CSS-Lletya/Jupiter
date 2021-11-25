@@ -33,7 +33,7 @@ public final class LoginPacketsEncoder extends Encoder {
 	public final void sendLoginDetails(Player player) {
 		OutputStream stream = new OutputStream();
 		stream.writePacketVarByte(null, 2);
-		stream.writeByte(player.getRights().getValue());
+		stream.writeByte(player.getPlayerDetails().getRights().getValue());
 		stream.writeByte(0);
 		stream.writeByte(0);
 		stream.writeByte(0);

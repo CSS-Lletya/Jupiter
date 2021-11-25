@@ -1,4 +1,4 @@
-package com.jupiter.game;
+package com.jupiter.net.encoders.other;
 
 public final class HintIcon {
 

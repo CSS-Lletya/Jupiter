@@ -1,9 +1,9 @@
 package com.jupiter.skills.prayer;
 
 import com.jupiter.combat.player.CombatDefinitions;
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.Utils;
 
@@ -416,7 +416,7 @@ public class Prayer {
 				onPrayers[getPrayerBook()][prayerId] = false;
 				closePrayers(prayerId);
 				onPrayersCount--;
-				player.getAppearance().generateAppearenceData();
+				player.getAppearence().generateAppearenceData();
 				player.getPackets().sendSound(2663, 0, 1);
 				return true;
 			}
@@ -548,7 +548,7 @@ public class Prayer {
 			resetDrainPrayer(prayerId);
 			onPrayersCount++;
 			if (needAppearenceGenerate)
-				player.getAppearance().generateAppearenceData();
+				player.getAppearence().generateAppearenceData();
 		} else {
 			quickPrayers[getPrayerBook()][prayerId] = true;
 		}
@@ -600,7 +600,7 @@ public class Prayer {
 		onPrayersCount = 0;
 		player.getPackets().sendGlobalConfig(182, 0);
 		player.getPackets().sendConfig(ancientcurses ? 1582 : 1395, 0);
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 		resetStatAdjustments();
 	}
 

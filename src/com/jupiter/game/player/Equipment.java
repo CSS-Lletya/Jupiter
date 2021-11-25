@@ -310,7 +310,7 @@ public final class Equipment {
 			player.setHitpoints(player.getMaxHitpoints());
 			player.refreshHitPoints();
 		}
-		player.getAppearance().generateAppearenceData();;
+		player.getAppearence().generateAppearenceData();;
 
 	}
 

@@ -6,14 +6,14 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.specials.WeaponSpecialSignature;
 import com.jupiter.combat.player.specials.WeaponSpecials;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 
 
 @WeaponSpecialSignature(weapons = { ItemNames.DRAGON_SPEAR }, specAmount = 25)
@@ -28,7 +28,7 @@ public class DragonSpear implements WeaponSpecials {
 	public void execute(Player player, Entity target, PlayerCombat combat) throws Exception {
 		player.stopAll();
 		target.setNextGraphics(new Graphics(80, 5, 60));
-		if(player.getRights() == Rights.ADMINISTRATOR)
+		if(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			player.getPackets().sendGameMessage(this.getClass().getName() + " Unfinished special, Needs sound, and testing!");
 
 
@@ -42,7 +42,6 @@ public class DragonSpear implements WeaponSpecials {
 		if (target instanceof Player) {
 			final Player defendingPlayer = (Player) target;
 			defendingPlayer.lock();
-			defendingPlayer.getWatchMap().get("FOOD").elapsed(3000);
 			defendingPlayer.setDisableEquip(true);
 			World.get().submit(new Task(5) {
 				@Override

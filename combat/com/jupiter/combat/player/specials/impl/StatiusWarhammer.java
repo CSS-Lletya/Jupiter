@@ -5,12 +5,12 @@ import java.util.Optional;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.specials.WeaponSpecialSignature;
 import com.jupiter.combat.player.specials.WeaponSpecials;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 
 
 @WeaponSpecialSignature(weapons = { ItemNames.STATIUS_WARHAMMER }, specAmount = 35)
@@ -22,7 +22,7 @@ public class StatiusWarhammer implements WeaponSpecials {
 	 */
 	@Override
 	public void execute(Player player, Entity target, PlayerCombat combat) throws Exception {
-		if(player.getRights() == Rights.ADMINISTRATOR)
+		if(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			player.getPackets().sendGameMessage(this.getClass().getName() + " Unfinished special, Needs sound, needs -30% def implementation!");
 
 

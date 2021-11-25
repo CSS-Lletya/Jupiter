@@ -5,12 +5,12 @@ import java.util.Optional;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.specials.WeaponSpecialSignature;
 import com.jupiter.combat.player.specials.WeaponSpecials;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 
 
 @WeaponSpecialSignature(weapons = { ItemNames.RUNE_THROWING_AXE }, specAmount = 10)//Per hit, not Miss
@@ -23,7 +23,7 @@ public class RuneThrownaxe implements WeaponSpecials {
 	@Override
 	public void execute(Player player, Entity target, PlayerCombat combat) throws Exception {
 		target.setNextGraphics(new Graphics(2108, 0, 100));
-		if(player.getRights() == Rights.ADMINISTRATOR)
+		if(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			player.getPackets().sendGameMessage(this.getClass().getName() + " Unfinished special, Needs sound, graphics, animations and implementation!");
 		if (target instanceof Player) {
 			;

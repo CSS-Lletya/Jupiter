@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
-import com.jupiter.game.Animation;
-import com.jupiter.game.Hit;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.Utils;
 
@@ -475,7 +475,7 @@ public class Foods {
 			public void effect(Object object) {
 				Player player = (Player) object;
 				player.getPackets()
-						.sendGameMessage("It hurts to see a grown " + player.getAppearance().isMale() != null ? "male"
+						.sendGameMessage("It hurts to see a grown " + player.getAppearence().isMale() != null ? "male"
 								: "female" + "cry.");
 			}
 		},
@@ -498,9 +498,6 @@ public class Foods {
 		Food food = Food.forId(item.getId());
 		if (food == null)
 			return false;
-		if (!player.getWatchMap().get("FOOD").elapsed(1800)) {
-			return false;
-		}
 		if (!player.getControlerManager().canEat(food))
 			return true;
 		String name = ItemDefinitions.getItemDefinitions(food.getId()).getName().toLowerCase();
@@ -508,7 +505,6 @@ public class Foods {
 		player.setNextAnimation(EAT_ANIM);
 		long foodDelay = name.contains("half") ? 600 : 1800;
 		player.getActionManager().setActionDelay((int) foodDelay / 1000);
-		player.getWatchMap().get("FOOD").reset();
 		player.getActionManager().setActionDelay(player.getActionManager().getActionDelay() + 2);
 		player.getInventory().getItems().set(slot, food.getNewId() == 0 ? null : new Item(food.getNewId(), 1));
 		player.getInventory().refresh(slot);

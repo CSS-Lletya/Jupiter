@@ -42,7 +42,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		String itemName = item.getDefinitions() == null ? "" : item.getDefinitions().getName().toLowerCase();
 		if (item == null || item.getId() != itemId)
 			return false;
-		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearance().isMale())) {
+		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearence().isMale())) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return true;
 		}
@@ -129,7 +129,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 		player.getPackets().sendSound(2240, 0, 1);
 		return true;
 	}
@@ -141,12 +141,12 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;
-		if ((itemId == 4565 || itemId == 4084) && !player.getRights().equal(Rights.ADMINISTRATOR)) {
+		if ((itemId == 4565 || itemId == 4084) && !player.getPlayerDetails().getRights().equal(Rights.ADMINISTRATOR)) {
 			player.getPackets().sendGameMessage("You've to be a administrator to wear this item.");
 			return true;
 		}
 		if (item.getDefinitions().isNoted()
-				|| !item.getDefinitions().isWearItem(player.getAppearance().isMale()) && itemId != 4084) {
+				|| !item.getDefinitions().isWearItem(player.getAppearence().isMale()) && itemId != 4084) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return false;
 		}
@@ -245,7 +245,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		player.getInventory().refreshItems(copy);
 		if (worn) {
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 			player.getPackets().sendSound(2240, 0, 1);
 		}
 	}

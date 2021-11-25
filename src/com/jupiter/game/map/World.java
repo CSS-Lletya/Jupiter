@@ -14,7 +14,6 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
 import com.jupiter.game.EntityList;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.controlers.Wilderness;
@@ -25,6 +24,7 @@ import com.jupiter.game.task.impl.DrainPrayerTask;
 import com.jupiter.game.task.impl.PlayerOwnedObjectTask;
 import com.jupiter.game.task.impl.RestoreRunEnergyTask;
 import com.jupiter.game.task.impl.RestoreSpecialTask;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.AntiFlood;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
@@ -36,7 +36,7 @@ public final class World {
 	public static int exiting_delay;
 	public static long exiting_start;
 
-	private static final Predicate<Player> VALID_PLAYER = (p) -> p != null && p.hasStarted() && !p.hasFinished() && p.isActive();
+	private static final Predicate<Player> VALID_PLAYER = (p) -> p != null && p.isStarted() && !p.hasFinished() && p.isActive();
 	private static final Predicate<NPC> VALID_NPC = (n) -> n != null && !n.hasFinished();
 
 	public static Stream<Entity> entities() {
@@ -410,7 +410,7 @@ public final class World {
 					continue;
 				for (Integer playerIndex : playersIndexes) {
 					Player player = players.get(playerIndex);
-					if (player == null || !player.hasStarted() || player.hasFinished() || !player.withinDistance(tile))
+					if (player == null || !player.isStarted() || player.hasFinished() || !player.withinDistance(tile))
 						continue;
 					player.getPackets().sendGraphics(graphics, tile);
 				}
@@ -425,7 +425,7 @@ public final class World {
 				continue;
 			for (Integer playerIndex : playersIndexes) {
 				Player player = players.get(playerIndex);
-				if (player == null || !player.hasStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
+				if (player == null || !player.isStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
 					continue;
 				player.getPackets().sendProjectile(null, startTile, receiver, gfxId, startHeight, endHeight, speed, delay, curve, startDistanceOffset, 1);
 			}
@@ -439,7 +439,7 @@ public final class World {
 				continue;
 			for (Integer playerIndex : playersIndexes) {
 				Player player = players.get(playerIndex);
-				if (player == null || !player.hasStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
+				if (player == null || !player.isStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
 					continue;
 				player.getPackets().sendProjectile(null, shooter, receiver, gfxId, startHeight, endHeight, speed, delay, curve, startDistanceOffset, 1);
 			}
@@ -453,7 +453,7 @@ public final class World {
 				continue;
 			for (Integer playerIndex : playersIndexes) {
 				Player player = players.get(playerIndex);
-				if (player == null || !player.hasStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
+				if (player == null || !player.isStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
 					continue;
 				player.getPackets().sendProjectile(null, shooter, receiver, gfxId, startHeight, endHeight, speed, delay, curve, startDistanceOffset, shooter.getSize());
 			}
@@ -467,7 +467,7 @@ public final class World {
 				continue;
 			for (Integer playerIndex : playersIndexes) {
 				Player player = players.get(playerIndex);
-				if (player == null || !player.hasStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
+				if (player == null || !player.isStarted() || player.hasFinished() || (!player.withinDistance(shooter) && !player.withinDistance(receiver)))
 					continue;
 				int size = shooter.getSize();
 				player.getPackets().sendProjectile(receiver, new WorldTile(shooter.getCoordFaceX(size), shooter.getCoordFaceY(size), shooter.getPlane()), receiver, gfxId, startHeight, endHeight, speed, delay, curve, startDistanceOffset, size);
@@ -507,7 +507,7 @@ public final class World {
 	}
 
 	public static void sendWorldMessage(String message, boolean forStaff) {
-		players().filter(p -> (forStaff && p.getRights() == Rights.PLAYER)).forEach(p -> p.getPackets().sendGameMessage(message));
+		players().filter(p -> (forStaff && p.getPlayerDetails().getRights() == Rights.PLAYER)).forEach(p -> p.getPackets().sendGameMessage(message));
 	}
 
 	public static final void sendProjectile(WorldObject object, WorldTile startTile, WorldTile endTile, int gfxId, int startHeight, int endHeight, int speed, int delay, int curve, int startOffset) {

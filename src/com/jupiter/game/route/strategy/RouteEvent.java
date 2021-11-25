@@ -63,7 +63,7 @@ public class RouteEvent {
 		else if (this.instanceOfFloorItem())
 			player.setNextFaceWorldTile(((FloorItem) object).getTile());
 		player.setNextFaceEntity(null);
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 	}
 
 	public boolean processEvent(final Player player) {
@@ -76,28 +76,6 @@ public class RouteEvent {
 			completePath(player);
 			return true;
 		}
-		// else if (EffectsManager.isBound(player)){
-		// if ((instanceOfEntity() || instanceOfRSObject()) && Utils.getDistance(player, instanceOfEntity() ? (Entity) object : (RSObject) object) >= 2){
-		// player.getPackets().sendGameMessage("You can't reach that.");
-		// player.getPackets().sendResetMinimapFlag();
-		// completePath(player);
-		// return true;
-		// }
-		// else if (instanceOfFloorItem()){
-		// if (Utils.getDistance(player, ((FloorItem) object).getTile()) == 1){
-		// player.setNextAnimation(new Animation(832));
-		// completePath(player);
-		// event.run();
-		// return true;
-		// }
-		// else if (Utils.getDistance(player, ((FloorItem) object).getTile()) >= 2){
-		// player.getPackets().sendGameMessage("You can't reach that.");
-		// player.getPackets().sendResetMinimapFlag();
-		// completePath(player);
-		// return true;
-		// }
-		// }
-		// }
 		RouteStrategy[] strategies = generateStrategies();
 		if (strategies == null)
 			return false;

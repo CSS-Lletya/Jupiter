@@ -4,13 +4,13 @@ import java.util.Optional;
 
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.npc.NPC;
-import com.jupiter.game.Animation;
-import com.jupiter.game.ForceTalk;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.LinkedTaskSequence;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.ForceTalk;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.Utils;
 
 import lombok.AllArgsConstructor;

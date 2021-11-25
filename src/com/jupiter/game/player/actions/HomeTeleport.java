@@ -1,9 +1,9 @@
 package com.jupiter.game.player.actions;
 
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.Utils;
 

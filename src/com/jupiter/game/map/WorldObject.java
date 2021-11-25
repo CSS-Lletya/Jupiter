@@ -3,9 +3,9 @@ package com.jupiter.game.map;
 import java.util.List;
 
 import com.jupiter.cache.loaders.ObjectDefinitions;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
 
 /**
  * A container class for a World Object.
@@ -223,7 +223,7 @@ public class WorldObject extends WorldTile {
 					continue;
 				for (Integer playerIndex : playersIndexes) {
 					Player player = World.getPlayers().get(playerIndex);
-					if (player == null || !player.hasStarted() || player.hasFinished() || !player.withinDistance(object))
+					if (player == null || !player.isStarted() || player.hasFinished() || !player.withinDistance(object))
 						continue;
 					player.getPackets().sendObjectAnimation(object, animation);
 				}

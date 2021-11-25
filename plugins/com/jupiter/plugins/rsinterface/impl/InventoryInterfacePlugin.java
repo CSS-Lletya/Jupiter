@@ -45,7 +45,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				InventoryDispatcher.execute(player, item, 1);
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
-				if (player.isEquipDisabled())
+				if (player.isDisableEquip())
 					return;
 				long passedTime = Utils.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {

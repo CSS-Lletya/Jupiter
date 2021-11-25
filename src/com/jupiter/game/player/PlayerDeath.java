@@ -3,10 +3,10 @@ package com.jupiter.game.player;
 import java.util.Optional;
 
 import com.jupiter.Settings;
-import com.jupiter.game.Animation;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.task.impl.ActorDeathTask;
+import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
 
@@ -30,9 +30,8 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 			getActor().getPoisonDamage().set(0);
 			getActor().getPackets().sendConfig(102, 0);
 		}
-		getActor().setAntifireDetail(Optional.empty());	
+		getActor().setAntifireDetails(Optional.empty());	
 		getActor().getSkullTimer().set(0);
-		getActor().getWatchMap().get("TOLERANCE").reset();
 		getActor().stopAll();
 //		if (getActor().getFamiliar() != null)
 //			getActor().getFamiliar().sendDeath(getActor());

@@ -3,9 +3,9 @@ package com.jupiter.combat.npc.combat;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.scripts.NPCCombatDispatcher;
 import com.jupiter.combat.player.Combat;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 

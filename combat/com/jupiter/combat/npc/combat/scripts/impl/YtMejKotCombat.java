@@ -6,10 +6,10 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 
 @MobCombatSignature(mobId = {}, mobName = {"Yt-MejKot"})
 public class YtMejKotCombat extends MobCombatInterface {

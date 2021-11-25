@@ -4,8 +4,6 @@ import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.PlayerCombat;
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
@@ -13,7 +11,6 @@ import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.PublicChatMessage;
 import com.jupiter.game.player.actions.PlayerFollow;
 import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.game.player.content.SkillCapeCustomizer;
@@ -21,6 +18,9 @@ import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.net.Session;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.PublicChatMessage;
 import com.jupiter.plugins.CommandDispatcher;
 import com.jupiter.plugins.NPCDispatcher;
 import com.jupiter.plugins.ObjectDispatcher;
@@ -303,7 +303,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		int packetId = packet.getId();
 		InputStream stream = new InputStream(packet.getData());
 		if (packetId == WALKING_PACKET || packetId == MINI_WALKING_PACKET) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
 			if (player.getLockDelay() > currentTime)
@@ -332,7 +332,7 @@ public final class WorldPacketsDecoder extends Decoder {
 
 	        player.setNextFaceEntity(null);
 	        
-	        player.getSkillActionTask().ifPresent(skill -> skill.cancel());
+	        player.getAction().ifPresent(skill -> skill.cancel());
 
 	        if (steps > 0) {
 
@@ -416,7 +416,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			//3095, 0, 17010, 44498944, 11694, 0, 3503
 //			0, 17010,
 			
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
 			if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
@@ -447,7 +447,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				break;
 			}
 		} else if (packetId == PLAYER_OPTION_2_PACKET) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			@SuppressWarnings("unused")
 			boolean unknown = stream.readByte() == 1;
@@ -492,7 +492,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.getPackets().sendGameMessage("Sending " + p2.getDisplayName() + " a request...");
 			p2.getPackets().sendTradeRequestMessage(player);
 		} else if (packetId == PLAYER_OPTION_1_PACKET) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			int playerIndex = stream.readUnsignedShort(); //incorrect returns 32k
 			boolean forceRun = stream.read128Byte() == 1;
@@ -536,7 +536,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.stopAll(false);
 			player.getActionManager().setAction(new PlayerCombat(targetPlayer));
 		} else if (packetId == ATTACK_NPC) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead()) {
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead()) {
 				return;
 			}
 			if (player.getLockDelay() > Utils.currentTimeMillis()) {
@@ -567,7 +567,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			}
 			player.stopAll(false);
 			player.getActionManager().setAction(new PlayerCombat(npc));
-			player.getWatchMap().get("TOLERANCE").reset();
 		}
 		
 		
@@ -580,7 +579,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		
 		
 		else if (packetId == INTERFACE_ON_PLAYER) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			if (player.getLockDelay() > Utils.currentTimeMillis())
 				return;
@@ -738,7 +737,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (Settings.DEBUG)
 				System.out.println("Spell:" + componentId);
 		} else if (packetId == INTERFACE_ON_NPC) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			if (player.getLockDelay() > Utils.currentTimeMillis())
 				return;
@@ -887,7 +886,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		else if (packetId == OBJECT_CLICK5_PACKET)
 			ObjectDispatcher.handleOption(player, stream, 5);
 		else if (packetId == ITEM_TAKE_PACKET) {
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
 			if (player.getLockDelay() > currentTime)
@@ -1005,7 +1004,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		} else if (packetId == AFK_PACKET) {
 			player.getSession().getChannel().close();
 		} else if (packetId == CLOSE_INTERFACE_PACKET) {
-			if (player.hasStarted() && !player.hasFinished() && !player.isActive()) { // used for old welcome screen
+			if (player.isStarted() && !player.hasFinished() && !player.isActive()) { // used for old welcome screen
 				player.run();
 				return;
 			}
@@ -1024,7 +1023,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.setScreenHeight((short) stream.readUnsignedShort());
 			@SuppressWarnings("unused")
 			boolean switchScreenMode = stream.readUnsignedByte() == 1;
-			if (!player.hasStarted() || player.hasFinished() || displayMode == player.getDisplayMode() || !player.getInterfaceManager().containsInterface(742))
+			if (!player.isStarted() || player.hasFinished() || displayMode == player.getDisplayMode() || !player.getInterfaceManager().containsInterface(742))
 				return;
 			player.setDisplayMode(displayMode);
 			player.getInterfaceManager().removeAll();
@@ -1213,8 +1212,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (Settings.DEBUG)
 				System.out.println("Switch item interface " + fromInterfaceId + " from slot " + fromSlot + " to slot " + toSlot);
 		} else if (packetId == DONE_LOADING_REGION_PACKET) {
-			//bit off but ye for most part this is done.
-			player.getWatchMap().get("TOLERANCE").reset();
 		} 
 		//TODO queue
 		else if (packetId == WALKING_PACKET 
@@ -1242,7 +1239,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		} else if (packetId == NPC_EXAMINE_PACKET) {
 			NPCDispatcher.handleExamine(player, stream);
 		} else if (packetId == JOIN_FRIEND_CHAT_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
@@ -1250,7 +1247,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.getPackets().sendGameMessage(String.format("byte0: %s, string: %s, fixedEnded: %s", byte0, username, supposed_username));
 			FriendChatsManager.joinChat(supposed_username, player);
 		} else if (packetId == KICK_FRIEND_CHAT_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			player.setLastPublicMessage(Utils.currentTimeMillis() + 1000); // avoids
 			int byte0 = stream.readUnsignedByte();
@@ -1258,7 +1255,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
 			player.kickPlayerFromFriendsChannel(supposed_username);
 		} else if (packetId == CHANGE_FRIEND_CHAT_PACKET) {
-			if (!player.hasStarted() || !player.getInterfaceManager().containsInterface(1108))
+			if (!player.isStarted() || !player.getInterfaceManager().containsInterface(1108))
 				return;
 			int byte0 = stream.readUnsignedByte();
 			int rank = stream.readUnsigned128Byte();
@@ -1266,21 +1263,21 @@ public final class WorldPacketsDecoder extends Decoder {
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
 			player.getFriendsIgnores().changeRank(supposed_username, rank);
 		} else if (packetId == ADD_FRIEND_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
 			player.getFriendsIgnores().addFriend(supposed_username);
 		} else if (packetId == REMOVE_FRIEND_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
 			player.getFriendsIgnores().removeFriend(supposed_username);
 		} else if (packetId == ADD_IGNORE_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
@@ -1289,7 +1286,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
 			player.getFriendsIgnores().addIgnore(supposed_username, until_logout);
 		} else if (packetId == REMOVE_IGNORE_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
@@ -1297,7 +1294,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			//player.getPackets().sendGameMessage(String.format("byte0: %s, name: %s", unknownByte0, name));
 			player.getFriendsIgnores().removeIgnore(supposed_username);
 		} else if (packetId == SEND_FRIEND_MESSAGE_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			if (player.getPlayerDetails().getMuted() > Utils.currentTimeMillis()) {
 				player.getPackets().sendGameMessage("You temporary muted. Recheck in 48 hours.");
@@ -1350,7 +1347,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		} else if (packetId == CHAT_TYPE_PACKET) {
 			chatType = stream.readUnsignedByte();
 		} else if (packetId == CHAT_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			if (player.getLastPublicMessage() > Utils.currentTimeMillis())
 				return;
@@ -1387,14 +1384,14 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!CommandDispatcher.processCommand(player, command, true, clientCommand) && Settings.DEBUG)
 				Logger.log(this, "Command: " + command);
 		} else if (packetId == COLOR_ID_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int colorId = stream.readUnsignedShort();
 			if (player.getTemporaryAttributtes().get("SkillcapeCustomize") != null)
 				SkillCapeCustomizer.handleSkillCapeCustomizerColor(player, colorId);
 		} 
 		else if (packetId == GROUND_ITEM_EXAMINE){
-			if (!player.hasStarted() || !player.clientHasLoadedMapRegion()
+			if (!player.isStarted() || !player.clientHasLoadedMapRegion()
 					|| player.isDead())
 				return;
 			final int id = stream.readShortLE128();
@@ -1419,7 +1416,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.getPackets().sendGameMessage("examined floor item");
 		}
 		else if (packetId == REPORT_ABUSE_PACKET) {
-			if (!player.hasStarted())
+			if (!player.isStarted())
 				return;
 			int byte0 = stream.readUnsignedByte(); //correlating to first letter? keystroke > alphabet/numeric letter??
 			String remaining_username = stream.readString(); //username missing the first letter, i.e when reporting "jordan" this will return "ordan"

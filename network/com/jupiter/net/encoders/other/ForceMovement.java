@@ -1,4 +1,4 @@
-package com.jupiter.game;
+package com.jupiter.net.encoders.other;
 
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.utils.Utils;

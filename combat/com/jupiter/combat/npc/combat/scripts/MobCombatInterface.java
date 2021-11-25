@@ -5,11 +5,11 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Hit;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.Utils;
 

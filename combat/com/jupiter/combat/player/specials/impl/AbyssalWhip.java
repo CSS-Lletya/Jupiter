@@ -5,11 +5,11 @@ import java.util.Optional;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.specials.WeaponSpecialSignature;
 import com.jupiter.combat.player.specials.WeaponSpecials;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 
 @WeaponSpecialSignature(weapons = { ItemNames.ABYSSAL_WHIP, 15442, 15443, 15444, 15441, 23691 }, specAmount = 50)
 public class AbyssalWhip implements WeaponSpecials {

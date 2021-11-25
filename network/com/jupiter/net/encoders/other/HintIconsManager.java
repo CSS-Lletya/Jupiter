@@ -1,5 +1,6 @@
-package com.jupiter.game;
+package com.jupiter.net.encoders.other;
 
+import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
 
 public class HintIconsManager {

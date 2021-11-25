@@ -1,4 +1,4 @@
-package com.jupiter.game;
+package com.jupiter.net.encoders.other;
 
 /**
  * A container class that represents an Entity Animation (NPC, Player, Object,

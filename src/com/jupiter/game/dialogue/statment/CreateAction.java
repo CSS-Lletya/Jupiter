@@ -1,9 +1,9 @@
 package com.jupiter.game.dialogue.statment;
 
-import com.jupiter.game.Animation;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Action;
+import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.skills.Skills;
 
 public class CreateAction extends Action {

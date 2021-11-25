@@ -105,7 +105,7 @@ public class EquipmentInterfacePlugin implements RSInterface {
 			return;
 		player.getEquipment().getItems().set(slotId, null);
 		player.getEquipment().refresh(slotId);
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 //		if (Runecrafting.isTiara(item.getId()))
 //			player.getPackets().sendConfig(491, 0);
 		if (slotId == 3)

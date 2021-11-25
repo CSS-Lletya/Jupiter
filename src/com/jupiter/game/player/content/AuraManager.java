@@ -2,12 +2,12 @@ package com.jupiter.game.player.content;
 
 import java.util.HashMap;
 
-import com.jupiter.game.Animation;
-import com.jupiter.game.Graphics;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
 
@@ -37,7 +37,7 @@ public class AuraManager {
 		if (Utils.currentTimeMillis() < activation)
 			return;
 		desactive();
-		player.getAppearance().generateAppearenceData();
+		player.getAppearence().generateAppearenceData();
 	}
 
 	public void removeAura() {
@@ -70,7 +70,7 @@ public class AuraManager {
 		if (toId != -1) {
 			player.getEquipment().getItem(Equipment.SLOT_AURA).setId(toId);
 			player.getEquipment().refresh(Equipment.SLOT_AURA);
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 		} else {
 			if (activation != 0) {
 				// TODO message already activated
@@ -94,7 +94,7 @@ public class AuraManager {
 			cooldowns.put(item.getId(), activation + getCooldown(item.getId()) * 1000);
 			player.setNextAnimation(new Animation(2231));
 			player.setNextGraphics(new Graphics(getActiveGraphic(tier)));
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 		}
 	}
 

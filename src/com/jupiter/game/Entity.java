@@ -14,13 +14,18 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.combat.player.type.CombatEffectType;
 import com.jupiter.combat.player.type.PoisonType;
-import com.jupiter.game.Hit.HitLook;
 import com.jupiter.game.map.DynamicRegion;
 import com.jupiter.game.map.Region;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.ForceMovement;
+import com.jupiter.net.encoders.other.ForceTalk;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.MutableNumber;
@@ -298,8 +303,8 @@ public abstract class Entity extends WorldTile {
 			setLocation(nextWorldTile);
 			nextWorldTile = null;
 			teleported = true;
-			if (this instanceof Player && ((Player) this).getTemporaryMoveType() == -1)
-				((Player) this).setTemporaryMoveType(Player.TELE_MOVE_TYPE);
+			if (this instanceof Player && ((Player) this).getTemporaryMovementType() == -1)
+				((Player) this).setTemporaryMovementType(Player.TELE_MOVE_TYPE);
 			updateEntityRegion(this);
 			if (needMapUpdate())
 				loadMapRegions();
@@ -318,7 +323,7 @@ public abstract class Entity extends WorldTile {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
 				if (stepCount == 1 && this instanceof Player)
-					((Player) this).setTemporaryMoveType(Player.WALK_MOVE_TYPE);
+					((Player) this).setTemporaryMovementType(Player.WALK_MOVE_TYPE);
 				break;
 			}
 			int dir = (int) nextStep[0];
@@ -1264,7 +1269,7 @@ public abstract class Entity extends WorldTile {
 				if (musicId != -1)
 					player.getMusicsManager().checkMusic(musicId);
 				player.getControlerManager().moved();
-				if (player.hasStarted()) {
+				if (player.isStarted()) {
 //					checkControlersAtMove(player);
 				}
 			} else {
@@ -1278,7 +1283,7 @@ public abstract class Entity extends WorldTile {
 			if (entity instanceof Player) {
 				Player player = (Player) entity;
 				player.getControlerManager().moved();
-				if (player.hasStarted()) {
+				if (player.isStarted()) {
 //					checkControlersAtMove(player);					
 				}
 			}

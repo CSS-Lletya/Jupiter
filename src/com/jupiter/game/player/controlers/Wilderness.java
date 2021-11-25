@@ -3,14 +3,14 @@ package com.jupiter.game.player.controlers;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.combat.player.type.CombatEffectType;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.ForceMovement;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.ForceMovement;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.Utils;
 
@@ -211,7 +211,7 @@ public class Wilderness extends Controler {
 			showingSkull = true;
 			player.setCanPvp(true);
 			showSkull();
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 		} else if (showingSkull && (isAtWildSafe || !isAtWild)) {
 			removeIcon();
 		} else if (!isAtWildSafe && !isAtWild) {
@@ -226,7 +226,7 @@ public class Wilderness extends Controler {
 			showingSkull = false;
 			player.setCanPvp(false);
 			player.getPackets().closeInterface(player.getInterfaceManager().hasRezizableScreen() ? 11 : 0);
-			player.getAppearance().generateAppearenceData();
+			player.getAppearence().generateAppearenceData();
 			player.getEquipment().refresh(null);
 		}
 	}

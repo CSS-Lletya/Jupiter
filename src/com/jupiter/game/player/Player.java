@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +18,7 @@ import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.type.AntifireDetails;
 import com.jupiter.combat.player.type.CombatEffect;
 import com.jupiter.cores.CoresManager;
-import com.jupiter.game.Animation;
 import com.jupiter.game.Entity;
-import com.jupiter.game.Graphics;
-import com.jupiter.game.HintIconsManager;
-import com.jupiter.game.Hit;
-import com.jupiter.game.LocalNPCUpdate;
-import com.jupiter.game.LocalPlayerUpdate;
 import com.jupiter.game.dialogue.Conversation;
 import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.item.FloorItem;
@@ -52,6 +45,13 @@ import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.net.encoders.WorldPacketsEncoder;
+import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.HintIconsManager;
+import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.net.encoders.other.LocalNPCUpdate;
+import com.jupiter.net.encoders.other.LocalPlayerUpdate;
+import com.jupiter.net.encoders.other.PublicChatMessage;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
@@ -59,7 +59,6 @@ import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utils.IsaacKeyPair;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MutableNumber;
-import com.jupiter.utils.Stopwatch;
 import com.jupiter.utils.Utils;
 
 import lombok.Data;
@@ -108,9 +107,6 @@ public class Player extends Entity {
 	// player stages - not personal
 	private transient boolean started;
 	private transient boolean isActive;
-	public void isactive(boolean active) {
-		this.isActive = active;
-	}
 
 	private transient long packetsDecoderPing;
 	private transient boolean resting;
@@ -132,38 +128,11 @@ public class Player extends Entity {
 	 * Represents a Player's last Emote delay (used for various things)
 	 */
 	private transient long nextEmoteEnd;
-
-	// interface
-
-	// saving stuff
-	private String password;
-	private String displayName;
-	
-	/**
-	 * The amount of authority this player has over others.
-	 */
-	public Rights rights = Rights.PLAYER;
 	
 	/**
 	 * Creates a new instance of a Players details
 	 */
-	public PlayerDetails details = new PlayerDetails();
-	
-	/**
-	 * Gets the amount of authority this player has over others.
-	 * @return the authority this player has.
-	 */
-	public Rights getRights() {
-		return rights;
-	}
-	
-	/**
-	 * Sets the value for {@link Player#rights}.
-	 * @param rights the new value to set.
-	 */
-	public void setRights(Rights rights) {
-		this.rights = rights;
-	}
+	public PlayerDetails playerDetails = new PlayerDetails();
 	
 	private Appearance appearence;
 	private Inventory inventory;
@@ -184,28 +153,16 @@ public class Player extends Entity {
 	
 	public transient VarManager varsManager;
 	
-	private boolean forceNextMapLoadRefresh;
+	private transient boolean forceNextMapLoadRefresh;
 
-	// game bar status
-	private byte publicStatus;
-	private byte clanStatus;
-	private byte tradeStatus;
-
-	// Used for storing recent ips and password
-	private transient ArrayList<String> passwordList = new ArrayList<String>();
-	private transient ArrayList<String> ipList = new ArrayList<String>();
-
-
-	private String currentFriendChatOwner;
-	private byte summoningLeftClickOption;
-	private List<String> ownedObjectsManagerKeys;
 	
 
 	// creates Player and saved classes
 	public Player(String password) {
 		super(Settings.START_PLAYER_LOCATION);
 		setHitpoints(100);
-		this.password = password;
+		playerDetails = new PlayerDetails();
+		getPlayerDetails().setPassword(password);
 		this.toolbelt = new Toolbelt();
 		varsManager = new VarManager(this);
 		appearence = new Appearance();
@@ -215,7 +172,6 @@ public class Player extends Entity {
 		combatDefinitions = new CombatDefinitions();
 		prayer = new Prayer();
 		bank = new Bank();
-		details = new PlayerDetails();
 		controlerManager = new ControlerManager();
 		musicsManager = new MusicsManager();
 		friendsIgnores = new FriendsIgnores();
@@ -224,17 +180,20 @@ public class Player extends Entity {
 		runEnergy = 100D;
 		allowChatEffects = true;
 		mouseButtons = true;
-		ownedObjectsManagerKeys = new LinkedList<String>();
-		passwordList = new ArrayList<String>();
-		ipList = new ArrayList<String>();
 	}
 
 	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
 		// temporary deleted after reset all chars
+		this.session = session;
+		this.username = username;
+		this.displayMode = displayMode;
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
+		this.isaacKeyPair = isaacKeyPair;
+		if (playerDetails == null)
+			playerDetails = new PlayerDetails();
 		if (auraManager == null)
 			auraManager = new AuraManager();
-		if (details == null)
-			details = new PlayerDetails();
 		if(toolbelt == null)
 			this.toolbelt = new Toolbelt();
 		if (lodeStone == null)
@@ -243,12 +202,6 @@ public class Player extends Entity {
 			activatedLodestones = new boolean[16];
 		if (varsManager == null)
 			varsManager = new VarManager(this);
-		this.session = session;
-		this.username = username;
-		this.displayMode = displayMode;
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
-		this.isaacKeyPair = isaacKeyPair;
 		interfaceManager = new InterfaceManager(this);
 		hintIconsManager = new HintIconsManager(this);
 		priceCheckManager = new PriceCheckManager(this);
@@ -276,14 +229,12 @@ public class Player extends Entity {
 		packetsDecoderPing = Utils.currentTimeMillis();
 		World.addPlayer(this);
 		updateEntityRegion(this);
-		if (Settings.DEBUG)
-			Logger.log(this, "Initiated player: " + username + ", pass: " + password);
 
 		// Do not delete >.>, useful for security purpose. this wont waste that much space..
-		if (passwordList == null)
-			passwordList = new ArrayList<String>();
-		if (ipList == null)
-			ipList = new ArrayList<String>();
+		if (getPlayerDetails().getPasswordList() == null)
+			getPlayerDetails().setPasswordList(new ArrayList<String>());
+		if (getPlayerDetails().getIpList() == null)
+			getPlayerDetails().setIpList(new ArrayList<String>());
 		updateIPnPass();
 	}
 	
@@ -426,11 +377,7 @@ public class Player extends Entity {
 		if (getInterfaceManager().containsChatBoxInter())
 			getInterfaceManager().closeChatBoxInterface();
 	}
-
-	public Conversation getConversation() {
-		return conversation;
-	}
-
+	
 	public void setClientHasntLoadedMapRegion() {
 		clientLoadedMapRegion = false;
 	}
@@ -590,7 +537,7 @@ public class Player extends Entity {
 			int delayPassed = (int) ((Utils.currentTimeMillis() - World.exiting_start) / 1000);
 			getPackets().sendSystemUpdate(World.exiting_delay - delayPassed);
 		}
-		getAppearance().generateAppearenceData();
+		getAppearence().generateAppearenceData();
 		getPlayerDetails().setLastIP(getSession().getIP());
 		getInterfaceManager().sendInterfaces();
 		getPackets().sendRunEnergy();
@@ -605,9 +552,9 @@ public class Player extends Entity {
 		});
 		Settings.STAFF.entrySet().forEach(staff -> {
 			if (getUsername().equalsIgnoreCase(staff.getKey()))
-				setRights(staff.getValue());
+				getPlayerDetails().setRights(staff.getValue());
 		});
-		getDetails().getVarBitList().entrySet().forEach(varbit -> getVarsManager().forceSendVarBit(varbit.getKey(), varbit.getValue()));
+		getPlayerDetails().getVarBitList().entrySet().forEach(varbit -> getVarsManager().forceSendVarBit(varbit.getKey(), varbit.getValue()));
 		sendRunButtonConfig();
 		getPackets().sendGameMessage("Welcome to " + Settings.SERVER_NAME + ".");
 		getPackets().sendGameMessage(Settings.LASTEST_UPDATE);
@@ -633,12 +580,12 @@ public class Player extends Entity {
 		getPackets().sendGameBarStages();
 		getMusicsManager().init();
 		Emotes.refreshListConfigs(this);
-		if(this.rights == Rights.ADMINISTRATOR)
+		if(getPlayerDetails().rights == Rights.ADMINISTRATOR)
 			lodeStone.unlockAllLodestones();
-		if (getCurrentFriendChatOwner() != null) {
-			FriendChatsManager.joinChat(getCurrentFriendChatOwner(), this);
+		if (getPlayerDetails().getCurrentFriendChatOwner() != null) {
+			FriendChatsManager.joinChat(getPlayerDetails().getCurrentFriendChatOwner(), this);
 			if (currentFriendChat == null) // failed
-				currentFriendChatOwner = null;
+				getPlayerDetails().setCurrentFriendChatOwner(null);
 		}
 //		if (getFamiliar() != null) {
 //			getFamiliar().respawnFamiliar(this);
@@ -647,7 +594,7 @@ public class Player extends Entity {
 //		}
 		isActive = true;
 		updateMovementType = true;
-		getAppearance().getAppeareanceBlocks();
+		getAppearence().getAppeareanceBlocks();
 		getControlerManager().login(); // checks what to do on login after welcome
 		OwnedObjectManager.linkKeys(this);
 		
@@ -656,10 +603,6 @@ public class Player extends Entity {
 		}
 		if (!getRun())
 			toogleRun(true);
-	}
-
-	public Toolbelt getToolbelt() {
-		return toolbelt;
 	}
 
 	@SuppressWarnings("unused")
@@ -701,14 +644,14 @@ public class Player extends Entity {
 	}
 
 	public void updateIPnPass() {
-		if (getPasswordList().size() > 25)
-			getPasswordList().clear();
-		if (getIPList().size() > 50)
-			getIPList().clear();
-		if (!getPasswordList().contains(getPassword()))
-			getPasswordList().add(getPassword());
-		if (!getIPList().contains(getPlayerDetails().getLastIP()))
-			getIPList().add(getPlayerDetails().getLastIP());
+		if (getPlayerDetails().getPasswordList().size() > 25)
+			getPlayerDetails().getPasswordList().clear();
+		if (getPlayerDetails().getIpList().size() > 50)
+			getPlayerDetails().getIpList().clear();
+		if (!getPlayerDetails().getPasswordList().contains(getPlayerDetails().getPassword()))
+			getPlayerDetails().getPasswordList().add(getPlayerDetails().getPassword());
+		if (!getPlayerDetails().getIpList().contains(getPlayerDetails().getLastIP()))
+			getPlayerDetails().getIpList().add(getPlayerDetails().getLastIP());
 		return;
 	}
 
@@ -723,7 +666,7 @@ public class Player extends Entity {
 
 	@Override
 	public void checkMultiArea() {
-		if (!hasStarted())
+		if (!isStarted())
 			return;
 		boolean isAtMultiArea = isForceMultiArea() ? true : World.isMultiArea(this);
 		if (isAtMultiArea && !isAtMultiArea()) {
@@ -790,14 +733,12 @@ public class Player extends Entity {
 		if (currentFriendChat != null)
 			currentFriendChat.leaveChat(this, true);
 		World.get().getTask().cancel(this);
-		setSkillAction(Optional.empty());
+		setAction(Optional.empty());
 		setFinished(true);
 		session.setDecoder(-1);
 		AccountCreation.savePlayer(this);
 		updateEntityRegion(this);
 		World.removePlayer(this);
-		if (Settings.DEBUG)
-			Logger.log(this, "Finished Player: " + username + ", pass: " + password);
 	}
 
 	@Override
@@ -830,115 +771,17 @@ public class Player extends Entity {
 	public int getMaxHitpoints() {
 		return skills.getLevel(Skills.HITPOINTS) * 10 + equipment.getEquipmentHpIncrease();
 	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public ArrayList<String> getPasswordList() {
-		return passwordList;
-	}
-
-	public ArrayList<String> getIPList() {
-		return ipList;
-	}
 	
 	public int getMessageIcon() {
-		return getRights() == Rights.ADMINISTRATOR ? 2 : getRights() == Rights.MODERATOR ? 1 : 0;
+		return getPlayerDetails().getRights() == Rights.ADMINISTRATOR ? 2 : getPlayerDetails().getRights() == Rights.MODERATOR ? 1 : 0;
 	}
 
 	public WorldPacketsEncoder getPackets() {
 		return session.getWorldPackets();
 	}
-
-	public boolean[] getActivatedLodestones() {
-		return activatedLodestones;
-	}
-
-	public LodeStone getLodeStones() {
-		return lodeStone;
-	}
-
-	public boolean hasStarted() {
-		return started;
-	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
+	
 	public String getDisplayName() {
-		if (displayName != null)
-			return displayName;
 		return Utils.formatPlayerNameForDisplay(username);
-	}
-
-	public boolean hasDisplayName() {
-		return displayName != null;
-	}
-
-	public Appearance getAppearance() {
-		return appearence;
-	}
-
-	public Equipment getEquipment() {
-		return equipment;
-	}
-
-	public byte getTemporaryMoveType() {
-		return temporaryMovementType;
-	}
-
-	public void setTemporaryMoveType(byte temporaryMovementType) {
-		this.temporaryMovementType = temporaryMovementType;
-	}
-
-	public LocalPlayerUpdate getLocalPlayerUpdate() {
-		return localPlayerUpdate;
-	}
-
-	public LocalNPCUpdate getLocalNPCUpdate() {
-		return localNPCUpdate;
-	}
-
-	public byte getDisplayMode() {
-		return displayMode;
-	}
-
-	public InterfaceManager getInterfaceManager() {
-		return interfaceManager;
-	}
-
-	public void setPacketsDecoderPing(long packetsDecoderPing) {
-		this.packetsDecoderPing = packetsDecoderPing;
-	}
-
-	public long getPacketsDecoderPing() {
-		return packetsDecoderPing;
-	}
-
-	public Session getSession() {
-		return session;
-	}
-
-	public void setScreenWidth(short screenWidth) {
-		this.screenWidth = screenWidth;
-	}
-
-	public int getScreenWidth() {
-		return screenWidth;
-	}
-
-	public void setScreenHeight(short screenHeight) {
-		this.screenHeight = screenHeight;
-	}
-
-	public int getScreenHeight() {
-		return screenHeight;
 	}
 
 	public boolean clientHasLoadedMapRegion() {
@@ -947,22 +790,6 @@ public class Player extends Entity {
 
 	public void setClientHasLoadedMapRegion() {
 		clientLoadedMapRegion = true;
-	}
-
-	public void setDisplayMode(byte displayMode) {
-		this.displayMode = displayMode;
-	}
-
-	public Inventory getInventory() {
-		return inventory;
-	}
-
-	public Skills getSkills() {
-		return skills;
-	}
-
-	public double getRunEnergy() {
-		return runEnergy;
 	}
 
 	public void drainRunEnergy() {
@@ -981,18 +808,6 @@ public class Player extends Entity {
 	public void setResting(boolean resting) {
 		this.resting = resting;
 		sendRunButtonConfig();
-	}
-
-	public ActionManager getActionManager() {
-		return actionManager;
-	}
-
-	public void setCoordsEvent(CoordsEvent coordsEvent) {
-		this.coordsEvent = coordsEvent;
-	}
-
-	public CombatDefinitions getCombatDefinitions() {
-		return combatDefinitions;
 	}
 
 	@Override
@@ -1133,20 +948,11 @@ public class Player extends Entity {
 	public int getSize() {
 		return appearence.getSize();
 	}
-
-	public boolean isCanPvp() {
-		return canPvp;
-	}
-
 	public void setCanPvp(boolean canPvp) {
 		this.canPvp = canPvp;
 		appearence.getAppeareanceBlocks();
 		getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
 		getPackets().sendPlayerUnderNPCPriority(canPvp);
-	}
-
-	public Prayer getPrayer() {
-		return prayer;
 	}
 
 	public long getLockDelay() {
@@ -1194,15 +1000,7 @@ public class Player extends Entity {
 			});
 		}
 	}
-
-	public Bank getBank() {
-		return bank;
-	}
-
-	public ControlerManager getControlerManager() {
-		return controlerManager;
-	}
-
+	
 	public void switchMouseButtons() {
 		mouseButtons = !mouseButtons;
 		refreshMouseButtons();
@@ -1230,69 +1028,10 @@ public class Player extends Entity {
 		getPackets().sendConfig(1438, value);
 	}
 
-	public void setPrivateChatSetup(byte privateChatSetup) {
-		this.privateChatSetup = privateChatSetup;
-	}
-
-	public void setFriendChatSetup(byte friendChatSetup) {
-		this.friendChatSetup = friendChatSetup;
-	}
-
-	public byte getPrivateChatSetup() {
-		return privateChatSetup;
-	}
-
-	public boolean isForceNextMapLoadRefresh() {
-		return forceNextMapLoadRefresh;
-	}
-
-	public void setForceNextMapLoadRefresh(boolean forceNextMapLoadRefresh) {
-		this.forceNextMapLoadRefresh = forceNextMapLoadRefresh;
-	}
-
-	public FriendsIgnores getFriendsIgnores() {
-		return friendsIgnores;
-	}
-
-	/*
-	 * do not use this, only used by pm
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
 	@Override
 	public void heal(int ammount, int extra) {
 		super.heal(ammount, extra);
 		refreshHitPoints();
-	}
-
-	public MusicsManager getMusicsManager() {
-		return musicsManager;
-	}
-
-	public HintIconsManager getHintIconsManager() {
-		return hintIconsManager;
-	}
-
-	public boolean isCastVeng() {
-		return castedVeng;
-	}
-
-	public void setCastVeng(boolean castVeng) {
-		this.castedVeng = castVeng;
-	}
-
-	public void setCloseInterfacesEvent(Runnable closeInterfacesEvent) {
-		this.closeInterfacesEvent = closeInterfacesEvent;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public String getLastHostname() {
@@ -1305,22 +1044,6 @@ public class Player extends Entity {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	public PriceCheckManager getPriceCheckManager() {
-		return priceCheckManager;
-	}
-
-	public boolean isUpdateMovementType() {
-		return updateMovementType;
-	}
-
-	public long getLastPublicMessage() {
-		return lastPublicMessage;
-	}
-
-	public void setLastPublicMessage(long lastPublicMessage) {
-		this.lastPublicMessage = lastPublicMessage;
 	}
 
 	public void kickPlayerFromFriendsChannel(String name) {
@@ -1342,7 +1065,7 @@ public class Player extends Entity {
 				continue;
 			for (Integer playerIndex : playersIndexes) {
 				Player p = World.getPlayers().get(playerIndex);
-				if (p == null || !p.hasStarted() || p.hasFinished()
+				if (p == null || !p.isStarted() || p.hasFinished()
 						|| p.getLocalPlayerUpdate().getLocalPlayers()[getIndex()] == null)
 					continue;
 				p.getPackets().sendPublicMessage(this, message);
@@ -1360,14 +1083,6 @@ public class Player extends Entity {
 		logicPackets.add(packet);
 	}
 	
-	public void setRouteEvent(RouteEvent routeEvent) {
-		this.routeEvent = routeEvent;
-	}
-	
-	public Trade getTrade() {
-		return trade;
-	}
-
 	public void setTeleBlockDelay(long teleDelay) {
 		getTemporaryAttributtes().put("TeleBlocked", teleDelay + Utils.currentTimeMillis());
 	}
@@ -1391,144 +1106,22 @@ public class Player extends Entity {
 		return teleblock;
 	}
 
-	public FriendChatsManager getCurrentFriendChat() {
-		return currentFriendChat;
-	}
-
-	public void setCurrentFriendChat(FriendChatsManager currentFriendChat) {
-		this.currentFriendChat = currentFriendChat;
-	}
-
-	public String getCurrentFriendChatOwner() {
-		return currentFriendChatOwner;
-	}
-
-	public void setCurrentFriendChatOwner(String currentFriendChatOwner) {
-		this.currentFriendChatOwner = currentFriendChatOwner;
-	}
-
-	public int getSummoningLeftClickOption() {
-		return summoningLeftClickOption;
-	}
-
-	public void setSummoningLeftClickOption(byte summoningLeftClickOption) {
-		this.summoningLeftClickOption = summoningLeftClickOption;
-	}
-
-	public List<Byte> getSwitchItemCache() {
-		return switchItemCache;
-	}
-
-	public AuraManager getAuraManager() {
-		return auraManager;
-	}
-
 	public byte getMovementType() {
-		if (getTemporaryMoveType() != -1)
-			return getTemporaryMoveType();
+		if (getTemporaryMovementType() != -1)
+			return getTemporaryMovementType();
 		return getRun() ? RUN_MOVE_TYPE : WALK_MOVE_TYPE;
 	}
 
 	public List<String> getOwnedObjectManagerKeys() {
-		if (ownedObjectsManagerKeys == null) // temporary
-			ownedObjectsManagerKeys = new LinkedList<String>();
-		return ownedObjectsManagerKeys;
-	}
-
-	public void setDisableEquip(boolean equip) {
-		disableEquip = equip;
-	}
-
-	public boolean isEquipDisabled() {
-		return disableEquip;
-	}
-
-	public byte getPublicStatus() {
-		return publicStatus;
-	}
-
-	public void setPublicStatus(byte publicStatus) {
-		this.publicStatus = publicStatus;
-	}
-
-	public byte getClanStatus() {
-		return clanStatus;
-	}
-
-	public void setClanStatus(byte clanStatus) {
-		this.clanStatus = clanStatus;
-	}
-
-	public byte getTradeStatus() {
-		return tradeStatus;
-	}
-
-	public void setTradeStatus(byte tradeStatus) {
-		this.tradeStatus = tradeStatus;
-	}
-	
-	public IsaacKeyPair getIsaacKeyPair() {
-		return isaacKeyPair;
-	}
-
-	public boolean isCantTrade() {
-		return cantTrade;
-	}
-
-	public void setCantTrade(boolean canTrade) {
-		this.cantTrade = canTrade;
-	}
-
-
-	public double getHpBoostMultiplier() {
-		return hpBoostMultiplier;
-	}
-
-	public void setHpBoostMultiplier(double hpBoostMultiplier) {
-		this.hpBoostMultiplier = hpBoostMultiplier;
-	}
-
-	public boolean hasLargeSceneView() {
-		return largeSceneView;
-	}
-
-	public void setLargeSceneView(boolean largeSceneView) {
-		this.largeSceneView = largeSceneView;
-	}
-
-	public void switchItemsLook() {
-		getPlayerDetails().oldItemsLook = !getPlayerDetails().oldItemsLook;
-		getPackets().sendItemsLook();
+		if (getPlayerDetails().getOwnedObjectsManagerKeys() == null) // temporary
+			getPlayerDetails().setOwnedObjectsManagerKeys(new LinkedList<String>());
+		return getPlayerDetails().getOwnedObjectsManagerKeys();
 	}
 
 	/**
 	 * The current skill action that is going on for this player.
 	 */
 	private Optional<SkillActionTask> action = Optional.empty();
-	
-	/**
-	 * The current skill this player is training.
-	 * @return {@link #action}.
-	 */
-	public Optional<SkillActionTask> getSkillActionTask() {
-		return action;
-	}
-	
-	/**
-	 * Sets the skill action.
-	 * @param action the action to set this skill action to.
-	 */
-	public void setSkillAction(SkillActionTask action) {
-		this.action = Optional.of(action);
-	}
-	
-	/**
-	 * Sets the skill action.
-	 * @param action the action to set this skill action to.
-	 */
-	public void setSkillAction(Optional<SkillActionTask> action) {
-		this.action = action;
-	}
 	
 	/**
 	 * Sends a delayed task for this player.
@@ -1545,78 +1138,11 @@ public class Player extends Entity {
 	}
 
 	private final MutableNumber poisonImmunity = new MutableNumber(), skullTimer = new MutableNumber();
-	
-	/**
-	 * Gets the poison immunity counter value.
-	 * @return the poison immunity counter.
-	 */
-	public MutableNumber getPoisonImmunity() {
-		return poisonImmunity;
-	}
-	
-	/**
-	 * Gets the skull timer counter value.
-	 * @return the skull timer counter.
-	 */
-	public MutableNumber getSkullTimer() {
-		return skullTimer;
-	}
 
 	/**
 	 * Holds an optional wrapped inside the Antifire details.
 	 */
 	private Optional<AntifireDetails> antifireDetails = Optional.empty();
-	
-	/**
-	 * Gets the anti-fire details instance for this player.
-	 * @return the {@link AntifireDetails} as an optional.
-	 */
-	public Optional<AntifireDetails> getAntifireDetails() {
-		return antifireDetails;
-	}
-	
-	/**
-	 * Sets a new anti-fire instance for this class.
-	 * @param details the anti-fire instance to set.
-	 */
-	public void setAntifireDetail(Optional<AntifireDetails> details) {
-		this.antifireDetails = details;
-	}
-	
-	/**
-	 * Sets the new anti-fire instance for this class directly.
-	 * @param details the anti-fire instance to set.
-	 */
-	public void setAntifireDetail(AntifireDetails details) {
-		setAntifireDetail(details == null ? Optional.empty() : Optional.of(details));
-	}
-	
-	/**
-	 * A collection of Stopwatches
-	 */
-	public HashMap<String, Stopwatch> watchMap = new HashMap<>();
-	
-	/**
-	 * Gets the collection of Stopwatches
-	 * @return stopwatch
-	 */
-	public HashMap<String, Stopwatch> getWatchMap() {
-		return watchMap;
-	}
-	
-	/**
-	 * Populates the {@link #watchMap}
-	 */
-	{
-		watchMap.put("FOOD", new Stopwatch());
-		watchMap.put("DRINKS", new Stopwatch());
-		watchMap.put("TOLERANCE", new Stopwatch());
-		watchMap.put("EMOTE", new Stopwatch());
-	}
-	
-	public PlayerDetails getPlayerDetails() {
-		return details;
-	}
 	
 	public void sendSound(int id) {
 		getPackets().sendSound(id, 0, 1);

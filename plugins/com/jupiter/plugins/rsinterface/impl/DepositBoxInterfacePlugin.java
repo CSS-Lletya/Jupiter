@@ -32,7 +32,7 @@ public class DepositBoxInterfacePlugin implements RSInterface {
             Item[] items = player.getEquipment().getItems().getItemsCopy();
             player.getBank().addItems(items, true);
             player.getEquipment().removeAllEquipment();
-            player.getAppearance().generateAppearenceData();
+            player.getAppearence().generateAppearenceData();
         }
         else if (componentId == 24)
             player.getBank().depositAllBob(false);

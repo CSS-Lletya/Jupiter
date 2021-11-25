@@ -147,7 +147,7 @@ public final class NPCDispatcher {
 		final NPC npc = World.getNPCs().get(npcIndex);
 		if (npc == null || npc.hasFinished() || !player.getMapRegionsIds().contains(npc.getRegionId()))
 			return;
-		if (player.getRights().isStaff()) {
+		if (player.getPlayerDetails().getRights().isStaff()) {
 			player.getPackets().sendGameMessage("NPC - [id=" + npc.getId() + ", loc=[" + npc.getX() + ", " + npc.getY()
 					+ ", " + npc.getPlane() + "]].");
 		}

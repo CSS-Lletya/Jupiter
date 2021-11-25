@@ -1,4 +1,4 @@
-package com.jupiter.game;
+package com.jupiter.net.encoders.other;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -7,6 +7,7 @@ import java.util.List;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.OutputStream;
 import com.jupiter.combat.npc.NPC;
+import com.jupiter.game.Bar;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
@@ -26,7 +27,7 @@ public final class LocalNPCUpdate {
 	}
 
 	public OutputStream createPacketAndProcess() {
-		boolean largeSceneView = player.hasLargeSceneView();
+		boolean largeSceneView = player.isLargeSceneView();
 		OutputStream stream = new OutputStream();
 		OutputStream updateBlockData = new OutputStream();
 		stream.writePacketVarShort(player, largeSceneView ? 47 : 6);

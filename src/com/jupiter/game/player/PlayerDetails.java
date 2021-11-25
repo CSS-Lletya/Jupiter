@@ -1,5 +1,8 @@
 package com.jupiter.game.player;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.jupiter.utils.Utils;
@@ -23,8 +26,36 @@ public final class PlayerDetails {
 		maxedCapeCustomized = new int[4];
 		completionistCapeCustomized = new int[4];
 		varBitList = new ConcurrentHashMap<Integer, Integer>();
+		rights = Rights.PLAYER;
+		ownedObjectsManagerKeys = new LinkedList<String>();
+		passwordList = new ArrayList<String>();
+		ipList = new ArrayList<String>();
 	}
 
+	/**
+	 * The players personal password for login
+	 */
+	private String password;
+	
+	/**
+	 * The amount of authority this player has over others.
+	 */
+	public Rights rights = Rights.PLAYER;
+	
+	// game bar status
+	private byte publicStatus;
+	private byte clanStatus;
+	private byte tradeStatus;
+
+	// Used for storing recent ips and password
+	private ArrayList<String> passwordList = new ArrayList<String>();
+	private ArrayList<String> ipList = new ArrayList<String>();
+
+
+	private String currentFriendChatOwner;
+	private byte summoningLeftClickOption;
+	private List<String> ownedObjectsManagerKeys;
+	
 	/**
 	 * An array of Runecrafting pouches that possibly contain values.
 	 */
