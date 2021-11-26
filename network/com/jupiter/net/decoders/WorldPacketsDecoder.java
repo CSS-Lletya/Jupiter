@@ -21,7 +21,10 @@ import com.jupiter.net.Session;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.plugins.ObjectDispatcher;
+import com.jupiter.plugin.ObjectDispatcher;
+import com.jupiter.plugin.PluginManager;
+import com.jupiter.plugin.events.ItemOnObjectEvent;
+import com.jupiter.plugin.events.ItemOnPlayerEvent;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.npc.NPCDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
@@ -443,7 +446,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				player.setRun(forceRun);
 			switch (interfaceId) {
 			case Inventory.INVENTORY_INTERFACE: // inventory
-				ObjectDispatcher.handleItemOnObject(player, object, interfaceId, item);
+				PluginManager.handle(new ItemOnObjectEvent(player, item, object, false));
 				break;
 			}
 		} else if (packetId == PLAYER_OPTION_2_PACKET) {
@@ -734,6 +737,9 @@ public final class WorldPacketsDecoder extends Decoder {
 				}
 				break;
 			}
+			if (PluginManager.handle(new ItemOnPlayerEvent(player, p2, new Item(itemId)))) {
+				return;
+			}
 			if (Settings.DEBUG)
 				System.out.println("Spell:" + componentId);
 		} else if (packetId == INTERFACE_ON_NPC) {
@@ -874,7 +880,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (Settings.DEBUG)
 				System.out.println("Spell:" + componentId);
 		}
-		
 	 	if (packetId == OBJECT_CLICK1_PACKET)
 			ObjectDispatcher.handleOption(player, stream, 1);
 		else if (packetId == OBJECT_CLICK2_PACKET)

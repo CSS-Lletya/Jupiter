@@ -1084,4 +1084,31 @@ public final class ItemDefinitions {
 	public int getHighAlchPrice() {
 		return (int) (getValue() * 0.6);
 	}
+
+	public String getInventoryOption(int optionId) {
+		switch(id) {
+		case 6099:
+		case 6100:
+		case 6101:
+		case 6102:
+			if (optionId == 2)
+				return "Temple";
+			break;
+		case 19760:
+		case 13561:
+		case 13562:
+			if (optionId == 0)
+				return inventoryOptions[1];
+			else if (optionId == 1)
+				return inventoryOptions[0];
+			break;
+		}
+		if (inventoryOptions == null)
+			return "null";
+		if (optionId >= inventoryOptions.length)
+			return "null";
+		if (inventoryOptions[optionId] == null)
+			return "null";
+		return inventoryOptions[optionId];
+	}
 }

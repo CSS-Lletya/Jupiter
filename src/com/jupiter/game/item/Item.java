@@ -39,6 +39,17 @@ public class Item {
 		}
 	}
 
+	private transient int slot;
+	
+	public int getSlot() {
+		return slot;
+	}
+	
+	public Item setSlot(int slot) {
+		this.slot = slot;
+		return this;
+	}
+	
 	public ItemDefinitions getDefinitions() {
 		return ItemDefinitions.getItemDefinitions(id);
 	}

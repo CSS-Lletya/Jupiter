@@ -15,7 +15,11 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
-import com.jupiter.plugins.inventory.InventoryDispatcher;
+import com.jupiter.plugin.PluginManager;
+import com.jupiter.plugin.events.ItemClickEvent;
+import com.jupiter.plugin.events.ItemOnItemEvent;
+import com.jupiter.plugin.events.ItemOnNPCEvent;
+import com.jupiter.plugin.events.ItemOnObjectEvent;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.cooking.Foods;
@@ -42,7 +46,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 				player.stopAll(false);
 				if (Foods.eat(player, item, slotId))
 					return;
-				InventoryDispatcher.execute(player, item, 1);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(0))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
 				if (player.isDisableEquip())
@@ -65,19 +70,24 @@ public class InventoryInterfacePlugin implements RSInterface {
 				if (player.getSwitchItemCache().contains(slotId))
 					return;
 				player.getSwitchItemCache().add(slotId);
-				InventoryDispatcher.execute(player, item, 2);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(1))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON3_PACKET:
-				InventoryDispatcher.execute(player, item, 3);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(2))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON4_PACKET:
-				InventoryDispatcher.execute(player, item, 4);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(3))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON5_PACKET:
-				InventoryDispatcher.execute(player, item, 5);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(4))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON6_PACKET:
-				InventoryDispatcher.execute(player, item, 6);
+				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(5))))
+					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON8_PACKET:
 				long dropTime = Utils.currentTimeMillis();
@@ -97,14 +107,12 @@ public class InventoryInterfacePlugin implements RSInterface {
 					player.getToolbelt().addItem(slotId, item);
 					return;
 				}
-				InventoryDispatcher.execute(player, item, 7);
 				player.getInventory().deleteItem(slotId, item);
 				FloorItem.createGroundItem(item, new WorldTile(player), player, false, 180, true);
 				player.getPackets().sendSound(2739, 0, 1);
 				break;
 			case 81:
 				player.getInventory().sendExamine(slotId);
-				InventoryDispatcher.execute(player, item, 8);
 				break;
 			}
 		}
@@ -133,7 +141,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 					|| usedWith.getId() != itemUsedWithId)
 				return;
 			player.stopAll();
-			
+			PluginManager.handle(new ItemOnItemEvent(player, itemUsed, usedWith));
 			if (Settings.DEBUG)
 				Logger.log("ItemHandler", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());
 		}
@@ -149,6 +157,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				if (!player.getInventory().containsItem(item.getId(), item.getAmount())) {
 					return;
 				}
+				PluginManager.handle(new ItemOnNPCEvent(player, npc, item));
 			}
 		}, npc.getSize()));
 	}

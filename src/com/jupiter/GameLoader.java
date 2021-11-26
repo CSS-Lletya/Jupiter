@@ -16,9 +16,8 @@ import com.jupiter.game.player.controlers.ControlerHandler;
 import com.jupiter.net.ServerChannelHandler;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
+import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugins.commands.CommandDispatcher;
-import com.jupiter.plugins.inventory.InventoryDispatcher;
-import com.jupiter.plugins.npc.NPCDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.utils.Huffman;
 import com.jupiter.utils.ItemBonuses;
@@ -61,19 +60,17 @@ public class GameLoader {
 			NPCBonuses.init();
 			ItemExamines.init();
 			ItemBonuses.init();
-//			MusicHints.init();
 		});
 		getBackgroundLoader().submit(() -> {
 			ControlerHandler.init();
 			FriendChatsManager.init();
 			RegionBuilder.init();
+			PluginManager.loadPlugins();
 		});
 		getBackgroundLoader().submit(() -> {
 			CommandDispatcher.load();
 			RSInterfaceDispatcher.load();
-			NPCDispatcher.load();
 			NPCCombatDispatcher.load();
-			InventoryDispatcher.load();
 			WeaponSpecialDispatcher.load();
 		});
 		getBackgroundLoader().submit(() -> {
