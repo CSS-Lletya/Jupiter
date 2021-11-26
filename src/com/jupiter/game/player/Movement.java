@@ -2,6 +2,10 @@ package com.jupiter.game.player;
 
 import java.util.function.Consumer;
 
+import com.jupiter.game.map.World;
+import com.jupiter.game.map.WorldTile;
+import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
 import lombok.Data;
@@ -65,5 +69,27 @@ public class Movement {
 	 */
 	public void unlock() {
 		lockDelay = 0;
+	}
+	
+	public void useStairs(int emoteId, final WorldTile dest) {
+		useStairs(emoteId, dest, null);
+	}
+
+	public void useStairs(int emoteId, final WorldTile dest,final String message) {
+		lockUntil(p -> {
+			p.stopAll();
+			if (emoteId != -1)
+				p.setNextAnimation(new Animation(emoteId));
+			World.get().submit(new Task(1) {
+				@Override
+				protected void execute() {
+					p.setNextWorldTile(dest);
+					p.getMovement().unlock();
+					if (message != null)
+						p.getPackets().sendGameMessage(message);
+					this.cancel();
+				}
+			});
+		});
 	}
 }

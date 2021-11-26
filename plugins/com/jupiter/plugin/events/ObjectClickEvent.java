@@ -48,7 +48,7 @@ public class ObjectClickEvent implements PluginEvent {
 	}
 	
 	public boolean isAtObject() {
-		return player.withinDistance(object, 1);
+		return player.withinDistance(object, 3);
 	}
 	
 	

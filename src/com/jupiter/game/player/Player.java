@@ -928,33 +928,7 @@ public class Player extends Entity {
 		getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
 		getPackets().sendPlayerUnderNPCPriority(canPvp);
 	}
-	
-	public void useStairs(int emoteId, final WorldTile dest, int useDelay, int totalDelay) {
-		useStairs(emoteId, dest, useDelay, totalDelay, null);
-	}
 
-	public void useStairs(int emoteId, final WorldTile dest, int useDelay, int totalDelay, final String message) {
-		stopAll();
-		getMovement().lock(totalDelay);
-		if (emoteId != -1)
-			setNextAnimation(new Animation(emoteId));
-		if (useDelay == 0)
-			setNextWorldTile(dest);
-		else {
-			World.get().submit(new Task(useDelay - 1) {
-				@Override
-				protected void execute() {
-					if (isDead())
-						return;
-					setNextWorldTile(dest);
-					if (message != null)
-						getPackets().sendGameMessage(message);
-					this.cancel();
-				}
-			});
-		}
-	}
-	
 	public void switchMouseButtons() {
 		getPlayerDetails().setMouseButtons(getPlayerDetails().isMouseButtons());
 		refreshMouseButtons();
