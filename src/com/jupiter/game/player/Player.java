@@ -27,6 +27,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
+import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.Emotes;
@@ -1129,4 +1130,9 @@ public class Player extends Entity {
 	}
 	
 	private Toolbelt toolbelt;
+	
+	public void sendTab(Tab tab) {
+		getPackets().sendGlobalConfig(168, tab.getBeltId());
+		tab.getAction().accept(this);
+	}
 }

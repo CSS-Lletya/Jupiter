@@ -1,8 +1,11 @@
 package com.jupiter.game.player;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import com.jupiter.game.player.content.Emotes;
+
+import lombok.Getter;
 
 public class InterfaceManager {
 
@@ -448,4 +451,36 @@ public class InterfaceManager {
 		return lastTab;
 	}
 
+	public enum Tab {
+		COMBAT(0),
+		ACHIEVEMENT(1),
+		SKILLS(2, p -> p.getPackets().sendGameMessage("Skills tab")),
+		QUESTS(3),
+		INVENTORY(4),
+		EQUIPMENT(5),
+		PRAYER(6),
+		MAGIC(7),
+		SOF(8),
+		FRIENDS(9),
+		FRIENDS_CHAT(10),
+		CLAN_CHAT(11),
+		SETTINGS(12),
+		EMOTES(13),
+		MUSIC(14),
+		NOTES(15);
+		
+		@Getter
+		private int beltId;
+		@Getter
+		private Consumer<Player> action;
+		
+		private Tab(int beltid) {
+			this.beltId = beltid;
+		}
+		
+		private Tab(int interfaceId, Consumer<Player> action) {
+			this(interfaceId);
+			this.action = action;
+		}
+	}
 }

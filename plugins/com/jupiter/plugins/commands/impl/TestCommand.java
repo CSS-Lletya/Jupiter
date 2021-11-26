@@ -1,6 +1,6 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.game.item.Item;
+import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.plugins.commands.Command;
@@ -17,6 +17,6 @@ public final class TestCommand implements Command {
 
 	@Override
 	public void execute(Player player, String[] cmd, String command) throws Exception {
-		player.getInventory().addItems(new Item(4151), new Item(1050));
+		player.sendTab(Tab.SKILLS);
 	}
 }
