@@ -210,7 +210,7 @@ public class InterfaceManager {
 	}
 
 	public void sendXPDisplay(int interfaceId) {
-		sendTab(resizableScreen ? 27 : 29, interfaceId); // xp counter
+		sendTab(resizableScreen ? 28 : 29, interfaceId); // xp counter
 	}
 
 	public void closeXPPopup() {
@@ -218,7 +218,7 @@ public class InterfaceManager {
 	}
 
 	public void closeXPDisplay() {
-		player.getPackets().closeInterface(resizableScreen ? 27 : 29);
+		player.getPackets().closeInterface(resizableScreen ? 28 : 29);
 	}
 
 	public void sendEquipment() {
