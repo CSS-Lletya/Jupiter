@@ -1,16 +1,12 @@
 package com.jupiter.game.item;
 
-import java.io.Serializable;
-
 /**
  * Container class.
  * 
  * @author Graham / edited by Dragonkk(Alex)
  * @param <T>
  */
-public final class ItemsContainer<T extends Item> implements Serializable {
-
-	private static final long serialVersionUID = 1099313426737026107L;
+public final class ItemsContainer<T extends Item> {
 
 	private Item[] data;
 	private boolean alwaysStackable = false;

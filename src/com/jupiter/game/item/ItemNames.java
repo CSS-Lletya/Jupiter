@@ -1,5 +1,9 @@
 package com.jupiter.game.item;
 
+/**
+ * Lets help stop magic numbers by using this everyday!
+ * @author Dennis
+ */
 public class ItemNames {
 
 	public static final int DWARF_REMAINS = 0;

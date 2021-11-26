@@ -13,8 +13,11 @@ import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.common.reflect.ClassPath;
@@ -1023,5 +1026,17 @@ public final class Utils {
 			classes.add(Class.forName(info.getName()));
 		}
 		return classes;
+	}
+
+	public static Map<String, Object> cloneMap(Map<String, Object> from) {
+		if (from == null)
+			return null;
+		Map<String, Object> newMap = new HashMap<String, Object>();
+
+		for (Entry<String, Object> entry : from.entrySet()) {
+			newMap.put(entry.getKey(), entry.getValue());
+		}
+
+		return newMap;
 	}
 }

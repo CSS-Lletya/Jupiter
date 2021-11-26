@@ -19,7 +19,6 @@ import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ItemClickEvent;
 import com.jupiter.plugin.events.ItemOnItemEvent;
 import com.jupiter.plugin.events.ItemOnNPCEvent;
-import com.jupiter.plugin.events.ItemOnObjectEvent;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.cooking.Foods;
@@ -41,7 +40,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			switch(packetId) {
 			case WorldPacketsDecoder.ACTION_BUTTON1_PACKET:
 				long time = Utils.currentTimeMillis();
-				if (player.getLockDelay() >= time || player.getNextEmoteEnd() >= time)
+				if (player.getMovement().getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
 				player.stopAll(false);
 				if (Foods.eat(player, item, slotId))
@@ -91,7 +90,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON8_PACKET:
 				long dropTime = Utils.currentTimeMillis();
-				if (player.getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
+				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
 				if (!player.getControlerManager().canDropItem(item))
 					return;

@@ -67,12 +67,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = false) // what plugin is this
+@EqualsAndHashCode(callSuper = false)
 public class Player extends Entity {
 
-	public static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
+	public transient static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
 
-	// transient stuff
 	private transient String username;
 	private transient Session session;
 	private transient boolean clientLoadedMapRegion;
@@ -87,15 +86,29 @@ public class Player extends Entity {
 	private transient FriendChatsManager currentFriendChat;
 	private transient Trade trade;
 	private transient IsaacKeyPair isaacKeyPair;
-
-	//Stones
-	private transient boolean[] activatedLodestones;
-	private transient LodeStone lodeStone;
-
-	//Pins
-	public transient String lastIPBankWasOpened;
-	public transient boolean bypass;
-
+	private transient Movement movement;
+	
+	/**
+	 * Creates a new instance of a Players details
+	 */
+	private PlayerDetails playerDetails = new PlayerDetails();
+	
+	private Appearance appearence;
+	private Inventory inventory;
+	private Equipment equipment;
+	private Skills skills;
+	private CombatDefinitions combatDefinitions;
+	private Prayer prayer;
+	private Bank bank;
+	private ControlerManager controlerManager;
+	private MusicsManager musicsManager;
+	private FriendsIgnores friendsIgnores;
+	private AuraManager auraManager;
+	private LodeStone lodeStone;
+	private transient RouteEvent routeEvent;
+	private transient Conversation conversation;
+	private transient VarManager varsManager;
+	
 	// used for packets logic
 	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
 
@@ -114,7 +127,6 @@ public class Player extends Entity {
 	private transient boolean resting;
 	private transient boolean canPvp;
 	private transient boolean cantTrade;
-	private transient long lockDelay; // used for doors and stuff like that
 	private transient Runnable closeInterfacesEvent;
 	private transient long lastPublicMessage;
 	private transient List<Byte> switchItemCache;
@@ -122,34 +134,11 @@ public class Player extends Entity {
 	private transient boolean castedVeng;
 	private transient double hpBoostMultiplier;
 	private transient boolean largeSceneView;
-	private transient RouteEvent routeEvent;
-	
-	private transient Conversation conversation;
 	
 	/**
 	 * Represents a Player's last Emote delay (used for various things)
 	 */
 	private transient long nextEmoteEnd;
-	
-	/**
-	 * Creates a new instance of a Players details
-	 */
-	public PlayerDetails playerDetails = new PlayerDetails();
-	
-	private Appearance appearence;
-	private Inventory inventory;
-	private Equipment equipment;
-	private Skills skills;
-	private CombatDefinitions combatDefinitions;
-	private Prayer prayer;
-	private Bank bank;
-	private ControlerManager controlerManager;
-	private MusicsManager musicsManager;
-	private FriendsIgnores friendsIgnores;
-	private AuraManager auraManager;
-	
-	public transient VarManager varsManager;
-	
 	private transient boolean forceNextMapLoadRefresh;
 
 	
@@ -174,6 +163,7 @@ public class Player extends Entity {
 		friendsIgnores = new FriendsIgnores();
 		auraManager = new AuraManager();
 		lodeStone = new LodeStone();
+		movement = new Movement(this);
 	}
 
 	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
@@ -186,14 +176,17 @@ public class Player extends Entity {
 		this.isaacKeyPair = isaacKeyPair;
 		if (playerDetails == null)
 			playerDetails = new PlayerDetails();
+		if (movement == null) {
+			movement = new Movement(this);
+		}
 		if (auraManager == null)
 			auraManager = new AuraManager();
 		if(toolbelt == null)
 			this.toolbelt = new Toolbelt();
 		if (lodeStone == null)
 			lodeStone = new LodeStone();
-		if (activatedLodestones == null)
-			activatedLodestones = new boolean[16];
+		if (getPlayerDetails().getActivatedLodestones() == null)
+			getPlayerDetails().setActivatedLodestones(new boolean[16]);
 		if (varsManager == null)
 			varsManager = new VarManager(this);
 		interfaceManager = new InterfaceManager(this);
@@ -467,7 +460,7 @@ public class Player extends Entity {
 
 	@Override
 	public void processReceivedHits() {
-		if (lockDelay > Utils.currentTimeMillis())
+		if (getMovement().getLockDelay() > Utils.currentTimeMillis())
 			return;
 		super.processReceivedHits();
 	}
@@ -688,7 +681,7 @@ public class Player extends Entity {
 		stopAll(false, true, !(actionManager.getAction() instanceof PlayerCombat));
 		long currentTime = Utils.currentTimeMillis();
 		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
-				|| getNextEmoteEnd() >= currentTime || lockDelay >= currentTime) {
+				|| getNextEmoteEnd() >= currentTime || getMovement().getLockDelay() >= currentTime) {
 			CoresManager.schedule(() -> {
 				try {
 					packetsDecoderPing = Utils.currentTimeMillis();
@@ -935,34 +928,14 @@ public class Player extends Entity {
 		getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
 		getPackets().sendPlayerUnderNPCPriority(canPvp);
 	}
-
-	public long getLockDelay() {
-		return lockDelay;
-	}
-
-	public boolean isLocked() {
-		return lockDelay >= Utils.currentTimeMillis();
-	}
-
-	public void lock() {
-		lockDelay = Long.MAX_VALUE;
-	}
-
-	public void lock(long time) {
-		lockDelay = Utils.currentTimeMillis() + (time * 600);
-	}
-
-	public void unlock() {
-		lockDelay = 0;
-	}
-
+	
 	public void useStairs(int emoteId, final WorldTile dest, int useDelay, int totalDelay) {
 		useStairs(emoteId, dest, useDelay, totalDelay, null);
 	}
 
 	public void useStairs(int emoteId, final WorldTile dest, int useDelay, int totalDelay, final String message) {
 		stopAll();
-		lock(totalDelay);
+		getMovement().lock(totalDelay);
 		if (emoteId != -1)
 			setNextAnimation(new Animation(emoteId));
 		if (useDelay == 0)

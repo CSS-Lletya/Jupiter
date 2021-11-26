@@ -23,7 +23,7 @@ public final class ObjectDispatcher {
 		if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 			return;
 		long currentTime = Utils.currentTimeMillis();
-		if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
+		if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 			return;
 
 		int id = getObjectIDFromStreamCopy(stream);

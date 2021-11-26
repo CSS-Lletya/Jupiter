@@ -116,7 +116,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an emote.");
 						return;
 					}
-					if (player.getLockDelay() >= currentTime) {
+					if (player.getMovement().getLockDelay() >= currentTime) {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an action.");
 						return;
 					}

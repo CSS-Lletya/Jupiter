@@ -67,7 +67,7 @@ public class RouteEvent {
 	}
 
 	public boolean processEvent(final Player player) {
-		if (player.isLocked())
+		if (player.getMovement().isLocked())
 			return true;
 
 		if (!simpleCheck(player)) {

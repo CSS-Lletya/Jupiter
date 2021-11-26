@@ -17,6 +17,7 @@ import com.jupiter.utils.Utils;
 public final class ItemDefinitions {
 	
 	public static final ItemDefinitions[] itemsDefinitions = new ItemDefinitions[Utils.getItemDefinitionsSize()];
+	private static final HashMap<Integer, Integer> EQUIP_IDS = new HashMap<Integer, Integer>();
 
 	public int id;
 	public boolean loaded;
@@ -131,6 +132,23 @@ public final class ItemDefinitions {
 		setDefaultsVariableValues();
 		setDefaultOptions();
 		loadItemDefinitions();
+	}
+	
+	public static void mapEquipIds() {
+		int equipId = 0;
+		for (int itemId = 0; itemId < Utils.getItemDefinitionsSize(); itemId++) {
+			ItemDefinitions def = ItemDefinitions.getItemDefinitions(itemId);
+			if (def.getMaleWornModelId1() >= 0 || def.getFemaleWornModelId1() >= 0) {
+				EQUIP_IDS.put(itemId, equipId++);
+			}
+		}
+	}
+	
+	public int getEquipId() {
+		if (EQUIP_IDS.isEmpty())
+			mapEquipIds();
+		Integer equipId = EQUIP_IDS.get(id);
+		return equipId == null ? -1 : equipId;
 	}
 
 	public boolean isLoaded() {

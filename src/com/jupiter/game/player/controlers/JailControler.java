@@ -38,7 +38,7 @@ public class JailControler extends Controler {
 			player.reset();
 			player.setCanPvp(false);
 			player.sendRandomJail(player);
-			player.unlock();
+			player.getMovement().unlock();
 		});
 		seq.start();
 		return false;

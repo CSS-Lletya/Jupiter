@@ -33,6 +33,7 @@ public final class PlayerDetails {
 		runEnergy = 100D;
 		allowChatEffects = true;
 		mouseButtons = true;
+		activatedLodestones = new boolean[16];
 	}
 
 	/**
@@ -49,6 +50,7 @@ public final class PlayerDetails {
 	private byte publicStatus;
 	private byte clanStatus;
 	private byte tradeStatus;
+	private boolean[] activatedLodestones;
 	
 	private double runEnergy;
 	private boolean allowChatEffects;

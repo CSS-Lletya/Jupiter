@@ -24,7 +24,7 @@ public class ItemClickEvent implements PluginEvent {
 
 	public ItemClickEvent(Player player, Item item, int slotId, String option, boolean isEquipped) {
 		this.player = player;
-		this.item = item.setSlot(slotId);
+		this.item = item;
 		this.option = option;
 		this.isEquipped = isEquipped;
 		this.slotId = slotId;

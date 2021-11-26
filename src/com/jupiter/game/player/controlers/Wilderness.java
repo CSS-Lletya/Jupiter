@@ -153,7 +153,7 @@ public class Wilderness extends Controler {
 	@Override
 	public boolean processObjectClick1(final WorldObject object) {
 		if (isDitch(object.getId())) {
-			player.lock();
+			player.getMovement().lock();
 			player.setNextAnimation(new Animation(6132));
 			final WorldTile toTile = new WorldTile(
 					object.getRotation() == 1 || object.getRotation() == 3 ? object.getX() + 2 : player.getX(),
@@ -170,7 +170,7 @@ public class Wilderness extends Controler {
 					removeIcon();
 					removeControler();
 					player.resetReceivedDamage();
-					player.unlock();
+					player.getMovement().unlock();
 					this.cancel();
 				}
 			});

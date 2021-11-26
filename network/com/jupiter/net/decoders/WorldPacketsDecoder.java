@@ -309,7 +309,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() > currentTime)
+			if (player.getMovement().getLockDelay() > currentTime)
 				return;
 			if (player.getFreezeDelay() >= currentTime) {
 				player.getPackets().sendGameMessage("A magical force prevents you from moving.");
@@ -422,7 +422,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
+			if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 				return;
 			final WorldTile tile = new WorldTile(x, y, player.getPlane());
 			int regionId = tile.getRegionId();
@@ -435,7 +435,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			final Item item = player.getInventory().getItem(slot);
 			if (player.isDead() || Utils.getInterfaceDefinitionsSize() <= interfaceId)
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			if (!player.getInterfaceManager().containsInterface(interfaceId))
 				return;
@@ -458,7 +458,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			Player p2 = World.getPlayers().get(playerIndex);
 			if (p2 == null || p2.isDead() || p2.hasFinished() || !player.getMapRegionsIds().contains(p2.getRegionId()))
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			player.stopAll(false);
 			player.getActionManager().setAction(new PlayerFollow(p2));
@@ -469,7 +469,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			Player p2 = World.getPlayers().get(playerIndex);
 			if (p2 == null || p2.isDead() || p2.hasFinished() || !player.getMapRegionsIds().contains(p2.getRegionId()))
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			player.stopAll(false);
 			if (player.isCantTrade()) {
@@ -508,7 +508,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (targetPlayer == null || targetPlayer.isDead() || targetPlayer.hasFinished() || !player.getMapRegionsIds().contains(targetPlayer.getRegionId()))
 				return;
 			
-			if (player.getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
 				return;
 			if (!player.isCanPvp())
 				return;
@@ -542,7 +542,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead()) {
 				return;
 			}
-			if (player.getLockDelay() > Utils.currentTimeMillis()) {
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis()) {
 				return;
 			}
 			int npcIndex = stream.readUnsignedShort();//stream.readUnsignedShort128();
@@ -584,7 +584,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		else if (packetId == INTERFACE_ON_PLAYER) {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			
 			int slot = stream.readUnsignedShort();
@@ -745,7 +745,7 @@ public final class WorldPacketsDecoder extends Decoder {
 		} else if (packetId == INTERFACE_ON_NPC) {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 	
 			int interfaceHash = stream.readIntV2();
@@ -894,7 +894,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() > currentTime || player.getFreezeDelay() >= currentTime)
+			if (player.getMovement().getLockDelay() > currentTime || player.getFreezeDelay() >= currentTime)
 				return;
 
 			final int id = stream.readShortLE128();

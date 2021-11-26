@@ -101,7 +101,7 @@ public final class RSInterfaceDispatcher {
 			// player.getSession().getChannel().close();
 			return;
 		}
-		if (player.isDead() || player.isLocked()) {
+		if (player.isDead() || player.getMovement().isLocked()) {
 			return;
 		}
 		if (!player.getInterfaceManager().containsInterface(interfaceId)) {
