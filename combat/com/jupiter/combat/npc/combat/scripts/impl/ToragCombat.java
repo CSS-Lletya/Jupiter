@@ -20,7 +20,7 @@ public class ToragCombat extends MobCombatInterface {
 		if (damage != 0 && target instanceof Player && Utils.random(3) == 0) {
 			target.setNextGraphics(new Graphics(399));
 			Player targetPlayer = (Player) target;
-			targetPlayer.setRunEnergy(targetPlayer.getPlayerDetails().getRunEnergy() > 4 ? targetPlayer.getPlayerDetails().getRunEnergy() - 4 : 0);
+			targetPlayer.getMovement().setRunEnergy(targetPlayer.getPlayerDetails().getRunEnergy() > 4 ? targetPlayer.getPlayerDetails().getRunEnergy() - 4 : 0);
 		}
 		delayHit(npc, 0, target, getMeleeHit(npc, damage));
 		return defs.getAttackDelay();

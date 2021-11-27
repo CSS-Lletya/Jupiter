@@ -1,5 +1,7 @@
 package com.jupiter.plugins.global;
 
+import java.util.Optional;
+
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.plugin.annotations.PluginEventHandler;
 import com.jupiter.plugin.events.ObjectClickEvent;
@@ -12,7 +14,7 @@ public class Stairs {
 		
 		@Override
 		public void handle(ObjectClickEvent e) {
-			e.getPlayer().getMovement().useStairs(-1, new WorldTile(e.getPlayer().getX(), e.getPlayer().getY(), 1));
+			e.getPlayer().getMovement().move(Optional.empty(), e.getPlayer(), Optional.of("HEY"));
 		}
 	};
 }

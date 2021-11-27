@@ -1,5 +1,7 @@
 package com.jupiter.game.player.controlers;
 
+import java.util.Optional;
+
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.combat.player.type.CombatEffectType;
@@ -165,7 +167,7 @@ public class Wilderness extends Controler {
 			World.get().submit(new Task(0) {
 				@Override
 				protected void execute() {
-					player.setNextWorldTile(toTile);
+					player.getMovement().move(Optional.empty(), toTile);
 					player.faceObject(object);
 					removeIcon();
 					removeControler();

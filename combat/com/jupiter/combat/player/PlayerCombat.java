@@ -3828,8 +3828,8 @@ public class PlayerCombat extends Action {
 											"Your opponent has been weakened so much that your leech curse has no effect.",
 											true);
 								} else {
-									p2.setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 90 ? 100 : p2.getPlayerDetails().getRunEnergy() + 10);
-									player.setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 10 ? player.getPlayerDetails().getRunEnergy() - 10 : 0);
+									p2.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 90 ? 100 : p2.getPlayerDetails().getRunEnergy() + 10);
+									player.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 10 ? player.getPlayerDetails().getRunEnergy() - 10 : 0);
 								}
 								p2.setNextAnimation(new Animation(12575));
 								p2.getPrayer().setBoostedLeech(true);

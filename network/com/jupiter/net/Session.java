@@ -1,5 +1,8 @@
 package com.jupiter.net;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -131,5 +134,17 @@ public class Session {
 
 	public String getLocalAddress() {
 		return channel.getLocalAddress().toString();
+	}
+	
+	public String getLastHostname(Player player) {
+		InetAddress addr;
+		try {
+			addr = InetAddress.getByName(player.getPlayerDetails().getLastIP());
+			String hostname = addr.getHostName();
+			return hostname;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

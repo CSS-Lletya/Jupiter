@@ -61,9 +61,7 @@ public abstract class Entity extends WorldTile {
 	private transient int nextRunDirection;
 	private transient WorldTile nextFaceWorldTile;
 	private transient boolean teleported;
-	private transient ConcurrentLinkedQueue<Object[]> walkSteps;// called by more
-																// than 1thread
-																// so concurent
+	
 	private transient ConcurrentLinkedQueue<Hit> receivedHits;
 	private transient Map<Entity, Integer> receivedDamage;
 	private transient boolean finished; // if removed
@@ -103,7 +101,6 @@ public abstract class Entity extends WorldTile {
 
 	public final void initEntity() {
 		mapRegionsIds = new CopyOnWriteArrayList<Integer>();
-		walkSteps = new ConcurrentLinkedQueue<Object[]>();
 		receivedHits = new ConcurrentLinkedQueue<Hit>();
 		receivedDamage = new ConcurrentHashMap<Entity, Integer>();
 		temporaryAttributes = new ConcurrentHashMap<Object, Object>();
@@ -132,7 +129,7 @@ public abstract class Entity extends WorldTile {
 		setHitpoints(getMaxHitpoints());
 		receivedHits.clear();
 		resetCombat();
-		walkSteps.clear();
+		ifPlayer(p -> p.getMovement().getWalkSteps().clear());
 		resetReceivedDamage();
 		if (attributes)
 			temporaryAttributes.clear();
@@ -279,6 +276,7 @@ public abstract class Entity extends WorldTile {
 
 	public void heal(int ammount) {
 		heal(ammount, 0);
+		ifPlayer(p -> p.refreshHitPoints());
 	}
 
 	public void heal(int ammount, int extra) {
@@ -286,16 +284,13 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public boolean hasWalkSteps() {
-		return !walkSteps.isEmpty();
+		return ! toPlayer().getMovement().getWalkSteps().isEmpty();
 	}
 
 	public abstract void sendDeath(Entity source);
 
 	public void processMovement() {
 		boolean run = this.run;
-		// if (this instanceof Player)
-		// run = ((Player) this).getEmoteManager().isRunning();
-
 		lastWorldTile = new WorldTile(this);
 		if (lastFaceEntity >= 0) {
 			Entity target = lastFaceEntity >= 32768 ? World.getPlayers().get(lastFaceEntity - 32768) : World.getNPCs().get(lastFaceEntity);
@@ -323,7 +318,7 @@ public abstract class Entity extends WorldTile {
 			return;
 		}
 		teleported = false;
-		if (walkSteps.isEmpty()/* || isStunned() */ /* || (this instanceof NPC && lastFaceEntity >= 0) */) { // <- TODO why was this part even here?
+		if (toPlayer().getMovement().getWalkSteps().isEmpty()){
 			resetWalkSteps();
 			return;
 		}
@@ -351,7 +346,7 @@ public abstract class Entity extends WorldTile {
 						resetWalkSteps();
 						return;
 					}
-					((Player) this).drainRunEnergy();
+					((Player) this).getMovement().drainRunEnergy();
 				}
 			}
 			moveLocation(Utils.DIRECTION_DELTA_X[dir], Utils.DIRECTION_DELTA_Y[dir], 0);
@@ -540,7 +535,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int getPreviewNextWalkStep() {
-		Object[] step = walkSteps.poll();
+		Object[] step = toPlayer().getMovement().getWalkSteps().poll();
 		if (step == null)
 			return -1;
 		return (int) step[0];
@@ -723,7 +718,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int[] getLastWalkTile() {
-		Object[] objects = walkSteps.toArray();
+		Object[] objects = toPlayer().getMovement().getWalkSteps().toArray();
 		if (objects.length == 0)
 			return new int[] { getX(), getY() };
 		Object step[] = (Object[]) objects[objects.length - 1];
@@ -755,16 +750,16 @@ public abstract class Entity extends WorldTile {
 			if (!((Player) this).getControlerManager().addWalkStep(lastX, lastY, nextX, nextY))
 				return false;
 		}
-		walkSteps.add(new Object[] { dir, nextX, nextY, check });
+		toPlayer().getMovement().getWalkSteps().add(new Object[] { dir, nextX, nextY, check });
 		return true;
 	}
 
 	public ConcurrentLinkedQueue<Object[]> getWalkSteps() {
-		return walkSteps;
+		return toPlayer().getMovement().getWalkSteps();
 	}
 
 	public void resetWalkSteps() {
-		walkSteps.clear();
+		toPlayer().getMovement().getWalkSteps().clear();
 	}
 
 	public boolean restoreHitPoints() {
@@ -1016,7 +1011,9 @@ public abstract class Entity extends WorldTile {
 			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
 	}
 
-	public abstract int getSize();
+	public int getSize() {
+		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearence().getSize();
+	}
 
 	public void cancelFaceEntityNoCheck() {
 		nextFaceEntity = -2;
@@ -1078,11 +1075,17 @@ public abstract class Entity extends WorldTile {
 		}
 	}
 
-	public abstract double getMagePrayerMultiplier();
+	public double getMagePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
-	public abstract double getRangePrayerMultiplier();
+	public double getRangePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
-	public abstract double getMeleePrayerMultiplier();
+	public double getMeleePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
 	public Entity getAttackedBy() {
 		return attackedBy;
@@ -1184,7 +1187,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private Object[] getNextWalkStep() {
-		Object[] step = walkSteps.poll();
+		Object[] step = toPlayer().getMovement().getWalkSteps().poll();
 		if (step == null)
 			return null;
 		return step;

@@ -1,5 +1,7 @@
 package com.jupiter.game.player.actions;
 
+import java.util.Optional;
+
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.net.encoders.other.Animation;
@@ -51,7 +53,7 @@ public class HomeTeleport extends Action {
 			player.setNextAnimation(new Animation(HOME_ANIMATION + 1));
 		} else if (currentTime == 23) {
 			player.setNextAnimation(new Animation(16393));
-			player.setNextWorldTile(tile);
+			player.getMovement().move(Optional.empty(), tile);
 		} else if (currentTime == 24) {
 			return -1;
 		}

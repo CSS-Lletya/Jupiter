@@ -392,7 +392,7 @@ public class Foods {
 				int runEnergy = (int) (player.getPlayerDetails().getRunEnergy() * 1.1);
 				if (runEnergy > 100)
 					runEnergy = 100;
-				player.setRunEnergy(runEnergy);
+				player.getMovement().setRunEnergy(runEnergy);
 				int level = player.getSkills().getLevel(Skills.AGILITY);
 				int realLevel = player.getSkills().getLevelForXp(Skills.AGILITY);
 				player.getSkills().set(Skills.AGILITY, level >= realLevel ? realLevel + 5 : level + 5);

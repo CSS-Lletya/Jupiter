@@ -552,32 +552,12 @@ public class NPC extends Entity {
 		}
 	}
 
-	@Override
-	public int getSize() {
-		return getDefinitions().size;
-	}
-
 	public int getMaxHit() {
 		return getCombatDefinitions().getMaxHit();
 	}
 
 	public int[] getBonuses() {
 		return bonuses;
-	}
-
-	@Override
-	public double getMagePrayerMultiplier() {
-		return 0;
-	}
-
-	@Override
-	public double getRangePrayerMultiplier() {
-		return 0;
-	}
-
-	@Override
-	public double getMeleePrayerMultiplier() {
-		return 0;
 	}
 
 	public WorldTile getRespawnTile() {

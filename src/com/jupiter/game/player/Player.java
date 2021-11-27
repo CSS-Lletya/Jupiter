@@ -1,7 +1,5 @@
 package com.jupiter.game.player;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -47,7 +45,6 @@ import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.net.encoders.WorldPacketsEncoder;
-import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.HintIconsManager;
 import com.jupiter.net.encoders.other.Hit;
@@ -321,7 +318,7 @@ public class Player extends Entity {
 		resting = false;
 		getPoisonDamage().set(0);
 		castedVeng = false;
-		setRunEnergy(100);
+		getPlayerDetails().setRunEnergy(100);
 		appearence.getAppeareanceBlocks();
 	}
 
@@ -483,29 +480,13 @@ public class Player extends Entity {
 		}
 	}
 
-	public void toogleRun(boolean update) {
-		super.setRun(!getRun());
-		updateMovementType = true;
-		if (update)
-			sendRunButtonConfig();
-	}
-
-	public void setRunHidden(boolean run) {
-		super.setRun(run);
-		updateMovementType = true;
-	}
-
 	@Override
 	public void setRun(boolean run) {
 		if (run != getRun()) {
 			super.setRun(run);
 			updateMovementType = true;
-			sendRunButtonConfig();
+			getMovement().sendRunButtonConfig();
 		}
-	}
-
-	public void sendRunButtonConfig() {
-		getPackets().sendConfig(173, resting ? 3 : getRun() ? 1 : 0);
 	}
 
 	public void run() {
@@ -531,7 +512,7 @@ public class Player extends Entity {
 				getPlayerDetails().setRights(staff.getValue());
 		});
 		getPlayerDetails().getVarBitList().entrySet().forEach(varbit -> getVarsManager().forceSendVarBit(varbit.getKey(), varbit.getValue()));
-		sendRunButtonConfig();
+		getMovement().sendRunButtonConfig();
 		getPackets().sendGameMessage("Welcome to " + Settings.SERVER_NAME + ".");
 		getPackets().sendGameMessage(Settings.LASTEST_UPDATE);
 
@@ -766,39 +747,6 @@ public class Player extends Entity {
 		clientLoadedMapRegion = true;
 	}
 
-	public void drainRunEnergy() {
-		setRunEnergy(getPlayerDetails().getRunEnergy() - 1);
-	}
-
-	public void setRunEnergy(double runEnergy) {
-		getPlayerDetails().setRunEnergy(runEnergy);
-		getPackets().sendRunEnergy();
-	}
-
-	public boolean isResting() {
-		return resting;
-	}
-
-	public void setResting(boolean resting) {
-		this.resting = resting;
-		sendRunButtonConfig();
-	}
-
-	@Override
-	public double getMagePrayerMultiplier() {
-		return 0.6;
-	}
-
-	@Override
-	public double getRangePrayerMultiplier() {
-		return 0.6;
-	}
-
-	@Override
-	public double getMeleePrayerMultiplier() {
-		return 0.6;
-	}
-
 	public void sendSoulSplit(final Hit hit, final Entity user) {
 		final Player target = this;
 		if (hit.getDamage() > 0)
@@ -895,33 +843,29 @@ public class Player extends Entity {
 		p.resetWalkSteps();
 		switch (Utils.getRandom(6)) {
 		case 0:
-			p.setNextWorldTile(new WorldTile(2669, 10387, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10387, 0));
 			break;
 		case 1:
-			p.setNextWorldTile(new WorldTile(2669, 10383, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10383, 0));
 			break;
 		case 2:
-			p.setNextWorldTile(new WorldTile(2669, 10379, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10379, 0));
 			break;
 		case 3:
-			p.setNextWorldTile(new WorldTile(2673, 10379, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10379, 0));
 			break;
 		case 4:
-			p.setNextWorldTile(new WorldTile(2673, 10385, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10385, 0));
 			break;
 		case 5:
-			p.setNextWorldTile(new WorldTile(2677, 10387, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10387, 0));
 			break;
 		case 6:
-			p.setNextWorldTile(new WorldTile(2677, 10383, 0));
+			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10383, 0));
 			break;
 		}
 	}
-
-	@Override
-	public int getSize() {
-		return appearence.getSize();
-	}
+	
 	public void setCanPvp(boolean canPvp) {
 		this.canPvp = canPvp;
 		appearence.getAppeareanceBlocks();
@@ -954,24 +898,6 @@ public class Player extends Entity {
 	public void refreshOtherChatsSetup() {
 		int value = getPlayerDetails().getFriendChatSetup() << 6;
 		getPackets().sendConfig(1438, value);
-	}
-
-	@Override
-	public void heal(int ammount, int extra) {
-		super.heal(ammount, extra);
-		refreshHitPoints();
-	}
-
-	public String getLastHostname() {
-		InetAddress addr;
-		try {
-			addr = InetAddress.getByName(getPlayerDetails().getLastIP());
-			String hostname = addr.getHostName();
-			return hostname;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public void kickPlayerFromFriendsChannel(String name) {

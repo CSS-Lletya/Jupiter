@@ -1,5 +1,7 @@
 package com.jupiter.game.player.controlers;
 
+import java.util.Optional;
+
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -19,8 +21,7 @@ public class JailControler extends Controler {
 	public void process() {
 		if (player.getPlayerDetails().getJailed() <= Utils.currentTimeMillis()) {
 			player.getControlerManager().getControler().removeControler();
-			player.getPackets().sendGameMessage("Your account has been unjailed.", true);
-			player.setNextWorldTile(new WorldTile(2677, 10379, 0));
+			player.getMovement().move(Optional.empty(), new WorldTile(2677, 10379, 0), Optional.of("Your account has been unjailed."));
 		}
 	}
 
@@ -38,7 +39,6 @@ public class JailControler extends Controler {
 			player.reset();
 			player.setCanPvp(false);
 			player.sendRandomJail(player);
-			player.getMovement().unlock();
 		});
 		seq.start();
 		return false;

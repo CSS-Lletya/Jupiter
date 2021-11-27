@@ -1,5 +1,7 @@
 package com.jupiter.combat.npc.combat.scripts.impl;
 
+import java.util.Optional;
+
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
@@ -15,6 +17,8 @@ import com.jupiter.utils.Utils;
 @MobCombatSignature(mobId = {6222}, mobName = {})
 public class KreearaCombat extends MobCombatInterface {
 
+	private WorldTile teleTile;
+	
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
@@ -30,13 +34,13 @@ public class KreearaCombat extends MobCombatInterface {
 			else {
 				delayHit(npc, 1, t, getRangeHit(npc, getRandomMaxHit(npc, 720, NPCCombatDefinitions.RANGE, t)));
 				World.sendProjectile(npc, t, 1197, 41, 16, 41, 35, 16, 0);
-				WorldTile teleTile = t;
+				teleTile = t;
 				for (int trycount = 0; trycount < 10; trycount++) {
 					teleTile = new WorldTile(t, 2);
 					if (World.canMoveNPC(t.getPlane(), teleTile.getX(), teleTile.getY(), t.getSize()))
 						break;
 				}
-				t.setNextWorldTile(teleTile);
+				t.ifPlayer(p -> p.getMovement().move(Optional.empty(), teleTile));
 			}
 		}
 		return defs.getAttackDelay();

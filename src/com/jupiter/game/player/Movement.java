@@ -1,10 +1,10 @@
 package com.jupiter.game.player;
 
+import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
-import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
@@ -12,6 +12,8 @@ import lombok.Data;
 
 @Data
 public class Movement {
+	
+	private transient ConcurrentLinkedQueue<Object[]> walkSteps;
 	
 	/**
 	 * Represents the Player
@@ -24,6 +26,7 @@ public class Movement {
 	 */
 	public Movement(Player player) {
 		this.player = player;
+		walkSteps = new ConcurrentLinkedQueue<Object[]>();
 	}
 	
 	/**
@@ -71,25 +74,59 @@ public class Movement {
 		lockDelay = 0;
 	}
 	
-	public void useStairs(int emoteId, final WorldTile dest) {
-		useStairs(emoteId, dest, null);
+	/**
+	 * Moves the {@link #player} to a specified position with optional parameters.
+	 * @param emoteId
+	 * @param dest
+	 */
+	public void move(Optional<Animation> emoteId, final WorldTile dest) {
+		move(emoteId, dest, Optional.empty());
 	}
 
-	public void useStairs(int emoteId, final WorldTile dest,final String message) {
+	/**
+	 * Moves the {@link #player} to a specified position with optional parameters.
+	 * @param emoteId
+	 * @param dest
+	 */
+	public void move(Optional<Animation> emoteId, final WorldTile dest, Optional<String> message) {
 		lockUntil(p -> {
 			p.stopAll();
-			if (emoteId != -1)
-				p.setNextAnimation(new Animation(emoteId));
-			World.get().submit(new Task(1) {
-				@Override
-				protected void execute() {
-					p.setNextWorldTile(dest);
-					p.getMovement().unlock();
-					if (message != null)
-						p.getPackets().sendGameMessage(message);
-					this.cancel();
-				}
+			emoteId.ifPresent(p::setNextAnimation);
+			p.task(1, event -> {
+				event.setNextWorldTile(dest);
+				event.getMovement().unlock();
+				message.ifPresent(event.getPackets()::sendGameMessage);
 			});
 		});
+	}
+	
+	public void drainRunEnergy() {
+		setRunEnergy(player.getPlayerDetails().getRunEnergy() - 1);
+	}
+
+	public void setRunEnergy(double runEnergy) {
+		player.getPlayerDetails().setRunEnergy(runEnergy);
+		player.getPackets().sendRunEnergy();
+	}
+
+	public void setResting(boolean resting) {
+		player.setResting(resting);
+		sendRunButtonConfig();
+	}
+	
+	public void toogleRun(boolean update) {
+		player.setRun(!player.getRun());
+		player.setUpdateMovementType(update);
+		if (update)
+			sendRunButtonConfig();
+	}
+
+	public void setRunHidden(boolean run) {
+		player.setRun(run);
+		player.setUpdateMovementType(run);
+	}
+	
+	public void sendRunButtonConfig() {
+		player.getPackets().sendConfig(173, player.isResting() ? 3 : player.getRun() ? 1 : 0);
 	}
 }
