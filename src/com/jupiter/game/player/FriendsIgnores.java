@@ -483,5 +483,4 @@ public class FriendsIgnores {
 	public void setFriendsChatStatus(int friendsChatStatus) {
 		this.friendsChatStatus = (byte) friendsChatStatus;
 	}
-
 }

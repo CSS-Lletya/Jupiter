@@ -1,4 +1,4 @@
-package com.jupiter.game.player;
+package com.jupiter.game;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,16 +16,16 @@ public class Movement {
 	private transient ConcurrentLinkedQueue<Object[]> walkSteps;
 	
 	/**
-	 * Represents the Player
+	 * Represents the Entity
 	 */
-	private transient Player player;
+	private transient Entity entity;
 	
 	/**
 	 * Constructs a new Movement event
-	 * @param player
+	 * @param entity
 	 */
-	public Movement(Player player) {
-		this.player = player;
+	public Movement(Entity entity) {
+		this.entity = entity;
 		walkSteps = new ConcurrentLinkedQueue<Object[]>();
 	}
 	
@@ -35,7 +35,7 @@ public class Movement {
 	private transient long lockDelay; // used for doors and stuff like that
 
 	/**
-	 * Checks if the {@link #player} is locked
+	 * Checks if the {@link #entity} is locked
 	 * @return
 	 */
 	public boolean isLocked() {
@@ -43,24 +43,24 @@ public class Movement {
 	}
 
 	/**
-	 * Locks the {@link #player} indefinitely 
+	 * Locks the {@link #entity} indefinitely 
 	 */
 	public void lock() {
 		lockDelay = Long.MAX_VALUE;
 	}
 
 	/**
-	 * Locks the {@link #player} until the consumer event passes
+	 * Locks the {@link #entity} until the consumer event passes
 	 * Note: Required to use {@link #unlock()} method to release the lock state in the consumer event
-	 * @param player
+	 * @param entity
 	 */
-	public void lockUntil(Consumer<Player> player) {
+	public void lockUntil(Consumer<Entity> entity) {
 		lock();
-		player.accept(this.player);
+		entity.accept(this.entity);
 	}
 	
 	/**
-	 * Locks the {@link #player} for a specific amount of Seconds.
+	 * Locks the {@link #entity} for a specific amount of Seconds.
 	 * @param time
 	 */
 	public void lock(long time) {
@@ -68,14 +68,14 @@ public class Movement {
 	}
 
 	/**
-	 * Unlocks the {@link #player} indefinitely
+	 * Unlocks the {@link #entity} indefinitely
 	 */
 	public void unlock() {
 		lockDelay = 0;
 	}
 	
 	/**
-	 * Moves the {@link #player} to a specified position with optional parameters.
+	 * Moves the {@link #entity} to a specified position with optional parameters.
 	 * @param emoteId
 	 * @param dest
 	 */
@@ -84,15 +84,15 @@ public class Movement {
 	}
 
 	/**
-	 * Moves the {@link #player} to a specified position with optional parameters.
+	 * Moves the {@link #entity} to a specified position with optional parameters.
 	 * @param emoteId
 	 * @param dest
 	 */
 	public void move(Optional<Animation> emoteId, final WorldTile dest, Optional<String> message) {
 		lockUntil(p -> {
-			p.stopAll();
+			p.toPlayer().stopAll();
 			emoteId.ifPresent(p::setNextAnimation);
-			p.task(1, event -> {
+			p.toPlayer().task(1, event -> {
 				event.setNextWorldTile(dest);
 				event.getMovement().unlock();
 				message.ifPresent(event.getPackets()::sendGameMessage);
@@ -101,32 +101,32 @@ public class Movement {
 	}
 	
 	public void drainRunEnergy() {
-		setRunEnergy(player.getPlayerDetails().getRunEnergy() - 1);
+		setRunEnergy(entity.toPlayer().getPlayerDetails().getRunEnergy() - 1);
 	}
 
 	public void setRunEnergy(double runEnergy) {
-		player.getPlayerDetails().setRunEnergy(runEnergy);
-		player.getPackets().sendRunEnergy();
+		entity.toPlayer().getPlayerDetails().setRunEnergy(runEnergy);
+		entity.toPlayer().getPackets().sendRunEnergy();
 	}
 
 	public void setResting(boolean resting) {
-		player.setResting(resting);
+		entity.toPlayer().setResting(resting);
 		sendRunButtonConfig();
 	}
 	
 	public void toogleRun(boolean update) {
-		player.setRun(!player.getRun());
-		player.setUpdateMovementType(update);
+		entity.setRun(!entity.getRun());
+		entity.toPlayer().setUpdateMovementType(update);
 		if (update)
 			sendRunButtonConfig();
 	}
 
 	public void setRunHidden(boolean run) {
-		player.setRun(run);
-		player.setUpdateMovementType(run);
+		entity.setRun(run);
+		entity.toPlayer().setUpdateMovementType(run);
 	}
 	
 	public void sendRunButtonConfig() {
-		player.getPackets().sendConfig(173, player.isResting() ? 3 : player.getRun() ? 1 : 0);
+		entity.toPlayer().getPackets().sendConfig(173, entity.toPlayer().isResting() ? 3 : entity.getRun() ? 1 : 0);
 	}
 }

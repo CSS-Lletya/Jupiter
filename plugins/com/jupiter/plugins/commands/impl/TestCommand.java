@@ -1,7 +1,9 @@
 package com.jupiter.plugins.commands.impl;
 
+import com.jupiter.Settings;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.game.player.content.FadingScreen;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
 
@@ -16,6 +18,6 @@ public final class TestCommand implements Command {
 
 	@Override
 	public void execute(Player player, String[] cmd, String command) throws Exception {
-		player.getMovement().lock(7);
+		FadingScreen.fadeWithDelay(player, 3, () -> player.setNextWorldTile(Settings.RESPAWN_PLAYER_LOCATION));
 	}
 }

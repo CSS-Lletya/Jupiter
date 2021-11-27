@@ -148,7 +148,7 @@ public class Skills {
 			player.getInterfaceManager().closeXPPopup();
 	}
 
-	public void restoreSkills() {
+	public void restoreAllSkills() {
 		for (int skill = 0; skill < level.length; skill++) {
 			level[skill] = (byte) getLevelForXp(skill);
 			refresh(skill);
@@ -410,5 +410,20 @@ public class Skills {
 	public void setXp(int skill, double exp) {
 		xp[skill] = exp;
 		refresh(skill);
+	}
+	
+	public void updateSkills(boolean drain) {
+		for (int skill = 0; skill < 25; skill++) {
+			if (skill == Skills.HITPOINTS || skill == Skills.SUMMONING || skill == Skills.PRAYER)
+				continue;
+			int currentLevel = getLevel(skill);
+			int normalLevel = getLevelForXp(skill);
+			if (currentLevel < normalLevel)
+				set(skill, (drain ? currentLevel - 1 : currentLevel + 1));
+		}
+	}
+	
+	public void refreshHitPoints() {
+		player.getPackets().sendConfigByFile(7198, player.getHitpoints());
 	}
 }

@@ -20,7 +20,7 @@ import com.jupiter.utils.Utils;
 public final class ObjectDispatcher {
 	
 	public static void handleOption(final Player player, InputStream stream, int option) {
-		if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+		if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 			return;
 		long currentTime = Utils.currentTimeMillis();
 		if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)

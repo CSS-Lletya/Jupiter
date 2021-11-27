@@ -99,7 +99,7 @@ public final class Equipment {
 		if (hpIncrease != equipmentHpIncrease) {
 			equipmentHpIncrease = (int) hpIncrease;
 			if (!init)
-				player.refreshHitPoints();
+				player.getSkills().refreshHitPoints();
 		}
 	}
 
@@ -308,7 +308,7 @@ public final class Equipment {
 
 		if (player.getHitpoints() > (player.getMaxHitpoints() * 1.15)) {
 			player.setHitpoints(player.getMaxHitpoints());
-			player.refreshHitPoints();
+			player.getSkills().refreshHitPoints();
 		}
 		player.getAppearence().generateAppearenceData();;
 

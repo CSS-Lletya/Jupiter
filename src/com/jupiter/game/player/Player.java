@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import com.jupiter.Settings;
@@ -21,10 +20,8 @@ import com.jupiter.game.EntityType;
 import com.jupiter.game.dialogue.Conversation;
 import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.item.FloorItem;
-import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
-import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.content.AuraManager;
@@ -71,7 +68,7 @@ public class Player extends Entity {
 
 	private transient String username;
 	private transient Session session;
-	private transient boolean clientLoadedMapRegion;
+	private transient boolean clientLoadedMapRegion = false;
 	private transient byte displayMode;
 	private transient short screenWidth;
 	private transient short screenHeight;
@@ -83,7 +80,6 @@ public class Player extends Entity {
 	private transient FriendChatsManager currentFriendChat;
 	private transient Trade trade;
 	private transient IsaacKeyPair isaacKeyPair;
-	private transient Movement movement;
 	
 	/**
 	 * Creates a new instance of a Players details
@@ -160,7 +156,6 @@ public class Player extends Entity {
 		friendsIgnores = new FriendsIgnores();
 		auraManager = new AuraManager();
 		lodeStone = new LodeStone();
-		movement = new Movement(this);
 	}
 
 	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
@@ -173,9 +168,6 @@ public class Player extends Entity {
 		this.isaacKeyPair = isaacKeyPair;
 		if (playerDetails == null)
 			playerDetails = new PlayerDetails();
-		if (movement == null) {
-			movement = new Movement(this);
-		}
 		if (auraManager == null)
 			auraManager = new AuraManager();
 		if(toolbelt == null)
@@ -220,7 +212,7 @@ public class Player extends Entity {
 			getPlayerDetails().setPasswordList(new ArrayList<String>());
 		if (getPlayerDetails().getIpList() == null)
 			getPlayerDetails().setIpList(new ArrayList<String>());
-		updateIPnPass();
+		getSession().updateIPnPass(this);
 	}
 	
 	public boolean hasSkull() {
@@ -306,38 +298,13 @@ public class Player extends Entity {
 		combatDefinitions.resetSpells(false);
 	}
 
-	@Override
-	public void reset(boolean attributes) {
-		super.reset(attributes);
-		refreshHitPoints();
-		hintIconsManager.removeAll();
-		skills.restoreSkills();
-		combatDefinitions.resetSpecialAttack();
-		prayer.reset();
-		combatDefinitions.resetSpells(true);
-		resting = false;
-		getPoisonDamage().set(0);
-		castedVeng = false;
-		getPlayerDetails().setRunEnergy(100);
-		appearence.getAppeareanceBlocks();
-	}
-
-	@Override
-	public void reset() {
-		reset(true);
-	}
-
 	public void closeInterfaces() {
 		if (interfaceManager.containsScreenInter())
 			interfaceManager.closeScreenInterface();
 		if (interfaceManager.containsInventoryInter())
 			interfaceManager.closeInventoryInterface();
-		
 		endConversation();
-		
 		getInterfaceManager().closeChatBoxInterface();
-		getTemporaryAttributtes().remove("dialogue_event");
-		
 		if (closeInterfacesEvent != null) {
 			closeInterfacesEvent.run();
 			closeInterfacesEvent = null;
@@ -361,10 +328,6 @@ public class Player extends Entity {
 		this.conversation = null;
 		if (getInterfaceManager().containsChatBoxInter())
 			getInterfaceManager().closeChatBoxInterface();
-	}
-	
-	public void setClientHasntLoadedMapRegion() {
-		clientLoadedMapRegion = false;
 	}
 
 	@Override
@@ -407,7 +370,7 @@ public class Player extends Entity {
 		if (musicsManager.musicEnded())
 			musicsManager.replayMusic();
 		
-		if (!(getControlerManager().getControler() instanceof Wilderness) && isAtWild()
+		if (!(getControlerManager().getControler() instanceof Wilderness) && Wilderness.isAtWild(this)
 				&& !Wilderness.isAtWildSafe(this)) {
 			getControlerManager().startControler("Wilderness");
 		}
@@ -416,43 +379,6 @@ public class Player extends Entity {
 		actionManager.process();
 		controlerManager.process();
 	}
-	
-	public final boolean isAtWild() {
-		return (getX() >= 3011 && getX() <= 3132 && getY() >= 10052 && getY() <= 10175)
-				|| (getX() >= 2940 && getX() <= 3395 && getY() >= 3525 && getY() <= 4000)
-				|| (getX() >= 3264 && getX() <= 3279 && getY() >= 3279 && getY() <= 3672)
-				|| (getX() >= 3158 && getX() <= 3181 && getY() >= 3679 && getY() <= 3697)
-				|| (getX() >= 3280 && getX() <= 3183 && getY() >= 3885 && getY() <= 3888)
-				|| (getX() >= 3012 && getX() <= 3059 && getY() >= 10303 && getY() <= 10351)
-				|| (getX() >= 3060 && getX() <= 3072 && getY() >= 10251 && getY() <= 10263);
-	}
-
-
-	public void restoreSkills() {
-        for (int skill = 0; skill < 25; skill++) {
-            if (skill == Skills.HITPOINTS || skill == Skills.SUMMONING || skill == Skills.PRAYER)
-                continue;
-            int currentLevel = getSkills().getLevel(skill);
-            int normalLevel = getSkills().getLevelForXp(skill);
-            if (currentLevel < normalLevel) {
-                getSkills().set(skill, currentLevel + 1);
-
-            }
-        }
-    }
-    
-    public void drainSkills() {
-        for (int skill = 0; skill < 25; skill++) {
-            if (skill == Skills.HITPOINTS)
-                continue;
-            int currentLevel = getSkills().getLevel(skill);
-            int normalLevel = getSkills().getLevelForXp(skill);
-            if (currentLevel > normalLevel) {
-                getSkills().set(skill, currentLevel - 1);
-
-            }
-        }
-    }
     
 
 	@Override
@@ -472,9 +398,9 @@ public class Player extends Entity {
 		super.resetMasks();
 		temporaryMovementType = -1;
 		updateMovementType = false;
-		if (!clientHasLoadedMapRegion()) {
+		if (!isClientLoadedMapRegion()) {
 			// load objects and items here
-			setClientHasLoadedMapRegion();
+			setClientLoadedMapRegion(true);
 			refreshSpawnedObjects();
 			refreshSpawnedItems();
 		}
@@ -526,7 +452,7 @@ public class Player extends Entity {
 		getCombatDefinitions().init();
 		getPrayer().init();
 		getFriendsIgnores().init();
-		refreshHitPoints();
+		getSkills().refreshHitPoints();
 		getPrayer().refreshPrayerPoints();
 		getPackets().sendGlobalConfig(823, 1);
 		getPackets().sendConfig(281, 1000); // unlock can't do this on tutorial
@@ -598,18 +524,6 @@ public class Player extends Entity {
 		getPackets().sendConfigByFile(10912, 1);
 	}
 
-	public void updateIPnPass() {
-		if (getPlayerDetails().getPasswordList().size() > 25)
-			getPlayerDetails().getPasswordList().clear();
-		if (getPlayerDetails().getIpList().size() > 50)
-			getPlayerDetails().getIpList().clear();
-		if (!getPlayerDetails().getPasswordList().contains(getPlayerDetails().getPassword()))
-			getPlayerDetails().getPasswordList().add(getPlayerDetails().getPassword());
-		if (!getPlayerDetails().getIpList().contains(getPlayerDetails().getLastIP()))
-			getPlayerDetails().getIpList().add(getPlayerDetails().getLastIP());
-		return;
-	}
-
 	public void sendDefaultPlayersOptions() {
 		// To Debug full list of options possible
 //		for (int i = 1; i < 10; i++)
@@ -617,20 +531,6 @@ public class Player extends Entity {
 		getPackets().sendPlayerOption("Follow", 2, false);
 		getPackets().sendPlayerOption("Trade with", 4, false);
 		getPackets().sendPlayerOption("Req Assist", 5, false);
-	}
-
-	@Override
-	public void checkMultiArea() {
-		if (!isStarted())
-			return;
-		boolean isAtMultiArea = isForceMultiArea() ? true : World.isMultiArea(this);
-		if (isAtMultiArea && !isAtMultiArea()) {
-			setAtMultiArea(isAtMultiArea);
-			getPackets().sendGlobalConfig(616, 1);
-		} else if (!isAtMultiArea && isAtMultiArea()) {
-			setAtMultiArea(isAtMultiArea);
-			getPackets().sendGlobalConfig(616, 0);
-		}
 	}
 
 	/**
@@ -707,19 +607,9 @@ public class Player extends Entity {
 				super.restoreHitPoints();
 			if (resting)
 				super.restoreHitPoints();
-			refreshHitPoints();
+			getSkills().refreshHitPoints();
 		}
 		return update;
-	}
-
-	public void refreshHitPoints() {
-		getPackets().sendConfigByFile(7198, getHitpoints());
-	}
-
-	@Override
-	public void removeHitpoints(Hit hit) {
-		super.removeHitpoints(hit);
-		refreshHitPoints();
 	}
 
 	@Override
@@ -737,14 +627,6 @@ public class Player extends Entity {
 	
 	public String getDisplayName() {
 		return Utils.formatPlayerNameForDisplay(username);
-	}
-
-	public boolean clientHasLoadedMapRegion() {
-		return clientLoadedMapRegion;
-	}
-
-	public void setClientHasLoadedMapRegion() {
-		clientLoadedMapRegion = true;
 	}
 
 	public void sendSoulSplit(final Hit hit, final Entity user) {
@@ -772,98 +654,6 @@ public class Player extends Entity {
 	@Override
 	public void sendDeath(final Entity source) {
 		World.get().submit(new PlayerDeath(this));
-	}
-
-	public void sendItemsOnDeath(Player killer) {
-//		if (getRights().isStaff())
-//			return;
-		getAuraManager().removeAura();
-		CopyOnWriteArrayList<Item> containedItems = new CopyOnWriteArrayList<Item>();
-		for (int i = 0; i < 14; i++) {
-			if (getEquipment().getItem(i) != null && getEquipment().getItem(i).getId() != -1
-					&& getEquipment().getItem(i).getAmount() != -1)
-				containedItems.add(new Item(getEquipment().getItem(i).getId(), getEquipment().getItem(i).getAmount()));
-		}
-		for (int i = 0; i < 28; i++) {
-			if (getInventory().getItem(i) != null && getInventory().getItem(i).getId() != -1
-					&& getInventory().getItem(i).getAmount() != -1)
-				containedItems.add(new Item(getInventory().getItem(i).getId(), getInventory().getItem(i).getAmount()));
-		}
-		if (containedItems.isEmpty())
-			return;
-		int keptAmount = 0;
-//		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
-			keptAmount = hasSkull() ? 0 : 3;
-			if (getPrayer().usingPrayer(0, 10) || getPrayer().usingPrayer(1, 0))
-				keptAmount++;
-//		}
-		CopyOnWriteArrayList<Item> keptItems = new CopyOnWriteArrayList<Item>();
-		Item lastItem = new Item(1, 1);
-		for (int i = 0; i < keptAmount; i++) {
-			for (Item item : containedItems) {
-				int price = item.getDefinitions().getValue();
-				if (price >= lastItem.getDefinitions().getValue()) {
-					lastItem = item;
-				}
-			}
-			keptItems.add(lastItem);
-			containedItems.remove(lastItem);
-			lastItem = new Item(1, 1);
-		}
-		getInventory().reset();
-		getEquipment().reset();
-		for (Item item : keptItems) {
-			getInventory().addItem(item);
-		}
-		/** This Checks which items that is listed in the 'PROTECT_ON_DEATH' **/
-		for (Item item : containedItems) {	// This checks the items you had in your inventory or equipped
-			for (String string : Settings.PROTECT_ON_DEATH) {	//	This checks the matched items from the list 'PROTECT_ON_DEATH'
-				if (item.getDefinitions().getName().toLowerCase().contains(string) || item.getDefinitions().exchangableItem) {
-					getInventory().addItem(item);	//	This adds the items that is matched and listed in 'PROTECT_ON_DEATH'
-					containedItems.remove(item);	//	This remove the whole list of the contained items that is matched
-				}
-			}
-		}
-
-		/** This to avoid items to be dropped in the list 'PROTECT_ON_DEATH' **/
-		for (Item item : containedItems) {	//	This checks the items you had in your inventory or equipped
-			for (String string : Settings.PROTECT_ON_DEATH) {	//	This checks the matched items from the list 'PROTECT_ON_DEATH'
-				if (item.getDefinitions().getName().toLowerCase().contains(string)) {
-					containedItems.remove(item);	//	This remove the whole list of the contained items that is matched
-				}
-			}
-			FloorItem.createGroundItem(item, getLastWorldTile(), killer == null ? this : killer, false, 180, true, true);	//	This dropps the items to the killer, and is showed for 180 seconds
-		}
-		for (Item item : containedItems) {
-			FloorItem.createGroundItem(item, getLastWorldTile(), killer == null ? this : killer, false, 180, true, true);
-		}
-	}
-
-	public void sendRandomJail(Player p) {
-		p.resetWalkSteps();
-		switch (Utils.getRandom(6)) {
-		case 0:
-			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10387, 0));
-			break;
-		case 1:
-			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10383, 0));
-			break;
-		case 2:
-			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10379, 0));
-			break;
-		case 3:
-			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10379, 0));
-			break;
-		case 4:
-			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10385, 0));
-			break;
-		case 5:
-			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10387, 0));
-			break;
-		case 6:
-			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10383, 0));
-			break;
-		}
 	}
 	
 	public void setCanPvp(boolean canPvp) {
@@ -900,18 +690,6 @@ public class Player extends Entity {
 		getPackets().sendConfig(1438, value);
 	}
 
-	public void kickPlayerFromFriendsChannel(String name) {
-		if (currentFriendChat == null)
-			return;
-		currentFriendChat.kickPlayerFromChat(this, name);
-	}
-
-	public void sendFriendsChannelMessage(String message) {
-		if (currentFriendChat == null)
-			return;
-		currentFriendChat.sendMessage(this, message);
-	}
-
 	public void sendPublicChatMessage(PublicChatMessage message) {
 		for (int regionId : getMapRegionsIds()) {
 			List<Integer> playersIndexes = World.getRegion(regionId).getPlayerIndexes();
@@ -928,13 +706,8 @@ public class Player extends Entity {
 	}
 
 	public void addLogicPacketToQueue(LogicPacket packet) {
-		for (LogicPacket p : logicPackets) {
-			if (p.getId() == packet.getId()) {
-				logicPackets.remove(p);
-				break;
-			}
-		}
-		logicPackets.add(packet);
+		getLogicPackets().stream().filter(type -> type.getId() == packet.getId()).forEach(logical -> getLogicPackets().remove(logical));
+		getLogicPackets().add(packet);
 	}
 	
 	public void setTeleBlockDelay(long teleDelay) {

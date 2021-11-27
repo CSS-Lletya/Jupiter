@@ -147,4 +147,16 @@ public class Session {
 		}
 		return null;
 	}
+	
+	public void updateIPnPass(Player player) {
+		if (player.getPlayerDetails().getPasswordList().size() > 25)
+			player.getPlayerDetails().getPasswordList().clear();
+		if (player.getPlayerDetails().getIpList().size() > 50)
+			player.getPlayerDetails().getIpList().clear();
+		if (!player.getPlayerDetails().getPasswordList().contains(player.getPlayerDetails().getPassword()))
+			player.getPlayerDetails().getPasswordList().add(player.getPlayerDetails().getPassword());
+		if (!player.getPlayerDetails().getIpList().contains(player.getPlayerDetails().getLastIP()))
+			player.getPlayerDetails().getIpList().add(player.getPlayerDetails().getLastIP());
+		return;
+	}
 }

@@ -88,6 +88,8 @@ public abstract class Entity extends WorldTile {
 	private transient long frozenBlocked;
 	private transient long findTargetDelay;
 	private transient ConcurrentHashMap<Object, Object> temporaryAttributes;
+	@Getter
+	private transient Movement movement;
 
 	// saving stuff
 	private int hitpoints;
@@ -110,6 +112,7 @@ public abstract class Entity extends WorldTile {
 		nextWalkDirection = nextRunDirection - 1;
 		lastFaceEntity = -1;
 		nextFaceEntity = -2;
+		movement = new Movement(this);
 	}
 
 	public int getClientIndex() {
@@ -129,10 +132,24 @@ public abstract class Entity extends WorldTile {
 		setHitpoints(getMaxHitpoints());
 		receivedHits.clear();
 		resetCombat();
-		ifPlayer(p -> p.getMovement().getWalkSteps().clear());
+		getMovement().getWalkSteps().clear();
 		resetReceivedDamage();
 		if (attributes)
 			temporaryAttributes.clear();
+		if (attributes && isPlayer()) {
+			toPlayer().getSkills().refreshHitPoints();
+			toPlayer().getHintIconsManager().removeAll();
+			toPlayer().getSkills().restoreAllSkills();
+			toPlayer().getCombatDefinitions().resetSpecialAttack();
+			toPlayer().getPrayer().reset();
+			toPlayer().getCombatDefinitions().resetSpells(true);
+			toPlayer().setResting(false);
+			toPlayer().getPoisonDamage().set(0);
+			toPlayer().setCastedVeng(false);
+			toPlayer().getPlayerDetails().setRunEnergy(100);
+			toPlayer().getAppearence().getAppeareanceBlocks();
+		}
+		
 	}
 
 	public void reset() {
@@ -218,6 +235,7 @@ public abstract class Entity extends WorldTile {
 				player.getPackets().sendGameMessage("Your pheonix necklace heals you, but is destroyed in the process.");
 			}
 		}
+		ifPlayer(p -> p.getSkills().refreshHitPoints());
 	}
 
 	public void resetReceivedDamage() {
@@ -276,7 +294,7 @@ public abstract class Entity extends WorldTile {
 
 	public void heal(int ammount) {
 		heal(ammount, 0);
-		ifPlayer(p -> p.refreshHitPoints());
+		ifPlayer(p -> p.getSkills().refreshHitPoints());
 	}
 
 	public void heal(int ammount, int extra) {
@@ -284,7 +302,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public boolean hasWalkSteps() {
-		return ! toPlayer().getMovement().getWalkSteps().isEmpty();
+		return !getMovement().getWalkSteps().isEmpty();
 	}
 
 	public abstract void sendDeath(Entity source);
@@ -313,16 +331,11 @@ public abstract class Entity extends WorldTile {
 			if (needMapUpdate())
 				loadMapRegions();
 			else if (this instanceof Player && lastPlane != getPlane())
-				((Player) this).setClientHasntLoadedMapRegion();
+				((Player) this).setClientLoadedMapRegion(true);
 			resetWalkSteps();
 			return;
 		}
 		teleported = false;
-		if (toPlayer().getMovement().getWalkSteps().isEmpty()){
-			resetWalkSteps();
-			return;
-		}
-
 		for (int stepCount = 0; stepCount < (run ? 2 : 1); stepCount++) {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
@@ -535,7 +548,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int getPreviewNextWalkStep() {
-		Object[] step = toPlayer().getMovement().getWalkSteps().poll();
+		Object[] step = getMovement().getWalkSteps().poll();
 		if (step == null)
 			return -1;
 		return (int) step[0];
@@ -718,7 +731,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int[] getLastWalkTile() {
-		Object[] objects = toPlayer().getMovement().getWalkSteps().toArray();
+		Object[] objects = getMovement().getWalkSteps().toArray();
 		if (objects.length == 0)
 			return new int[] { getX(), getY() };
 		Object step[] = (Object[]) objects[objects.length - 1];
@@ -750,16 +763,16 @@ public abstract class Entity extends WorldTile {
 			if (!((Player) this).getControlerManager().addWalkStep(lastX, lastY, nextX, nextY))
 				return false;
 		}
-		toPlayer().getMovement().getWalkSteps().add(new Object[] { dir, nextX, nextY, check });
+		getMovement().getWalkSteps().add(new Object[] { dir, nextX, nextY, check });
 		return true;
 	}
 
 	public ConcurrentLinkedQueue<Object[]> getWalkSteps() {
-		return toPlayer().getMovement().getWalkSteps();
+		return getMovement().getWalkSteps();
 	}
 
 	public void resetWalkSteps() {
-		toPlayer().getMovement().getWalkSteps().clear();
+		getMovement().getWalkSteps().clear();
 	}
 
 	public boolean restoreHitPoints() {
@@ -1105,6 +1118,18 @@ public abstract class Entity extends WorldTile {
 
 	public void checkMultiArea() {
 		multiArea = forceMultiArea ? true : World.isMultiArea(this);
+		ifPlayer(p -> {
+			if (!p.isStarted())
+				return;
+			boolean isAtMultiArea = p.isForceMultiArea() ? true : World.isMultiArea(this);
+			if (isAtMultiArea && !p.isAtMultiArea()) {
+				p.setAtMultiArea(isAtMultiArea);
+				p.getPackets().sendGlobalConfig(616, 1);
+			} else if (!isAtMultiArea && p.isAtMultiArea()) {
+				p.setAtMultiArea(isAtMultiArea);
+				p.getPackets().sendGlobalConfig(616, 0);
+			}
+		});
 	}
 
 	public boolean isAtMultiArea() {
@@ -1187,7 +1212,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private Object[] getNextWalkStep() {
-		Object[] step = toPlayer().getMovement().getWalkSteps().poll();
+		Object[] step = getMovement().getWalkSteps().poll();
 		if (step == null)
 			return null;
 		return step;

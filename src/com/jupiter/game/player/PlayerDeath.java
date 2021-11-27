@@ -1,9 +1,11 @@
 package com.jupiter.game.player;
 
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.jupiter.Settings;
-import com.jupiter.game.map.WorldTile;
+import com.jupiter.game.item.FloorItem;
+import com.jupiter.game.item.Item;
 import com.jupiter.game.player.controlers.Wilderness;
 import com.jupiter.game.task.impl.ActorDeathTask;
 import com.jupiter.net.encoders.other.Animation;
@@ -61,9 +63,74 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 			}
 			if (getActor().getControlerManager().getControler() instanceof Wilderness) {
 				if (getActor().getControlerManager().getControler() != null) {
-					getActor().sendItemsOnDeath(killer);
+					sendItemsOnDeath(getActor(), killer);
 				}
 			}
+		}
+	}
+	
+	public void sendItemsOnDeath(Player player, Player killer) {
+//		if (getRights().isStaff())
+//			return;
+		player.getAuraManager().removeAura();
+		CopyOnWriteArrayList<Item> containedItems = new CopyOnWriteArrayList<Item>();
+		for (int i = 0; i < 14; i++) {
+			if (player.getEquipment().getItem(i) != null && player.getEquipment().getItem(i).getId() != -1
+					&& player.getEquipment().getItem(i).getAmount() != -1)
+				containedItems.add(new Item(player.getEquipment().getItem(i).getId(), player.getEquipment().getItem(i).getAmount()));
+		}
+		for (int i = 0; i < 28; i++) {
+			if (player.getInventory().getItem(i) != null && player.getInventory().getItem(i).getId() != -1
+					&& player.getInventory().getItem(i).getAmount() != -1)
+				containedItems.add(new Item(player.getInventory().getItem(i).getId(), player.getInventory().getItem(i).getAmount()));
+		}
+		if (containedItems.isEmpty())
+			return;
+		int keptAmount = 0;
+//		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
+			keptAmount = player.hasSkull() ? 0 : 3;
+			if (player.getPrayer().usingPrayer(0, 10) || player.getPrayer().usingPrayer(1, 0))
+				keptAmount++;
+//		}
+		CopyOnWriteArrayList<Item> keptItems = new CopyOnWriteArrayList<Item>();
+		Item lastItem = new Item(1, 1);
+		for (int i = 0; i < keptAmount; i++) {
+			for (Item item : containedItems) {
+				int price = item.getDefinitions().getValue();
+				if (price >= lastItem.getDefinitions().getValue()) {
+					lastItem = item;
+				}
+			}
+			keptItems.add(lastItem);
+			containedItems.remove(lastItem);
+			lastItem = new Item(1, 1);
+		}
+		player.getInventory().reset();
+		player.getEquipment().reset();
+		for (Item item : keptItems) {
+			player.getInventory().addItem(item);
+		}
+		/** This Checks which items that is listed in the 'PROTECT_ON_DEATH' **/
+		for (Item item : containedItems) {	// This checks the items you had in your inventory or equipped
+			for (String string : Settings.PROTECT_ON_DEATH) {	//	This checks the matched items from the list 'PROTECT_ON_DEATH'
+				if (item.getDefinitions().getName().toLowerCase().contains(string) || item.getDefinitions().exchangableItem) {
+					player.getInventory().addItem(item);	//	This adds the items that is matched and listed in 'PROTECT_ON_DEATH'
+					containedItems.remove(item);	//	This remove the whole list of the contained items that is matched
+				}
+			}
+		}
+
+		/** This to avoid items to be dropped in the list 'PROTECT_ON_DEATH' **/
+		for (Item item : containedItems) {	//	This checks the items you had in your inventory or equipped
+			for (String string : Settings.PROTECT_ON_DEATH) {	//	This checks the matched items from the list 'PROTECT_ON_DEATH'
+				if (item.getDefinitions().getName().toLowerCase().contains(string)) {
+					containedItems.remove(item);	//	This remove the whole list of the contained items that is matched
+				}
+			}
+			FloorItem.createGroundItem(item, player.getLastWorldTile(), killer == null ? player : killer, false, 180, true, true);	//	This dropps the items to the killer, and is showed for 180 seconds
+		}
+		for (Item item : containedItems) {
+			FloorItem.createGroundItem(item, player.getLastWorldTile(), killer == null ? player : killer, false, 180, true, true);
 		}
 	}
 }
