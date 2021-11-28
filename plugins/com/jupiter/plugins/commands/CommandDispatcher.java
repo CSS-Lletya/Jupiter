@@ -1,4 +1,4 @@
-package com.jupiter.plugins;
+package com.jupiter.plugins.commands;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
 import com.jupiter.utils.Utils;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;

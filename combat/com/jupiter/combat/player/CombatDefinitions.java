@@ -1,8 +1,13 @@
 package com.jupiter.combat.player;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
+import com.jupiter.game.Entity;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.task.Task;
+import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.ItemBonuses;
 
@@ -535,6 +540,23 @@ public final class CombatDefinitions {
 		usingSpecialAttack = !usingSpecialAttack;
 		refreshUsingSpecialAttack();
 	}
+	
+	public void sendSoulSplit(final Hit hit, final Entity user) {
+		final Player target = player;
+		if (hit.getDamage() > 0)
+			World.sendProjectile(user, player, 2263, 11, 11, 20, 5, 0, 0);
+		user.heal(hit.getDamage() / 5);
+		player.getPrayer().drainPrayer(hit.getDamage() / 5);
+		World.get().submit(new Task(0) {
+			@Override
+			protected void execute() {
+				player.setNextGraphics(new Graphics(2264));
+				if (hit.getDamage() > 0)
+					World.sendProjectile(target, user, 2263, 11, 11, 20, 5, 0, 0);
+				this.cancel();
+			}
+		});
+	}
 
 	public void decreaseSpecialAttack(int ammount) {
 		usingSpecialAttack = false;
@@ -607,5 +629,9 @@ public final class CombatDefinitions {
 
 	public void setInstantAttack(boolean instantAttack) {
 		this.instantAttack = instantAttack;
+	}
+	
+	public boolean hasSkull() {
+		return player.getSkullTimer().get() > 0;
 	}
 }

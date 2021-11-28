@@ -10,6 +10,8 @@ import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.task.Task;
 import com.jupiter.utils.Utils;
 
+import io.vavr.collection.Array;
+
 public class OwnedObjectManager {
 
 	public static final AtomicLong keyMaker = new AtomicLong();
@@ -24,8 +26,7 @@ public class OwnedObjectManager {
 	private String managerKey;
 
 	public static void processAll() {
-		for (OwnedObjectManager object : ownedObjects.values())
-			object.process();
+		Array.of(ownedObjects).forEach(owned -> ((OwnedObjectManager) owned).process());
 	}
 
 	public static boolean isPlayerObject(Player player, WorldObject object) {

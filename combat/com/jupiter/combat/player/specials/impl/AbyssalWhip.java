@@ -26,9 +26,9 @@ public class AbyssalWhip implements WeaponSpecials {
 
 		if (target instanceof Player) {
 			Player targetPlayer = (Player) target;
-			int runEnergyLoss = (int)Math.ceil(targetPlayer.getRunEnergy()*0.25);
-			targetPlayer.setRunEnergy(targetPlayer.getRunEnergy() - runEnergyLoss);
-			player.setRunEnergy(targetPlayer.getRunEnergy() + runEnergyLoss);
+			int runEnergyLoss = (int)Math.ceil(targetPlayer.getPlayerDetails().getRunEnergy()*0.25);
+			targetPlayer.getMovement().setRunEnergy(targetPlayer.getPlayerDetails().getRunEnergy() - runEnergyLoss);
+			player.getMovement().setRunEnergy(targetPlayer.getPlayerDetails().getRunEnergy() + runEnergyLoss);
 		}
 		int weaponId = player.getEquipment().getWeaponId();
 		int attackStyle = player.getCombatDefinitions().getAttackStyle();

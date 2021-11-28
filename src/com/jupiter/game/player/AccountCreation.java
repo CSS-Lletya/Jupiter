@@ -4,13 +4,6 @@ import java.io.File;
 
 import com.jupiter.json.GSONParser;
 
-
-/**
-* @author -Andreas 27 jan. 2020
-* @project Game
-* 
-*/
-
 public class AccountCreation {
 
 	public static Player loadPlayer(String username) {
@@ -24,5 +17,4 @@ public class AccountCreation {
 	public static boolean exists(String username) {
 		return new File("data/characters/" + username + ".json").exists();
 	}
-
 }

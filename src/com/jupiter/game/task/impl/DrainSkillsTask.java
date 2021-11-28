@@ -19,7 +19,7 @@ public final class DrainSkillsTask extends Task {
 			p.getPrayer();
 			boolean usingBerserk = Prayer.usingBerserker(p);
 			setDelay(!usingBerserk ? 70 : 96);
-			p.drainSkills();
+			p.getSkills().updateSkills(true);
 		});
 	}
 	

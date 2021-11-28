@@ -397,7 +397,7 @@ public final class World {
 			@Override
 			public void run() {
 				try {
-					players().forEach(p -> p.realFinish());
+					players().forEach(p -> p.getSession().realFinish(p));
 					Launcher.shutdown();
 				} catch (Throwable e) {
 					Logger.handle(e);
@@ -575,7 +575,7 @@ public final class World {
 			player.getPackets().sendGameMessage("You can't log out while performing an emote.");
 			return;
 		}
-		if (player.getLockDelay() >= currentTime) {
+		if (player.getMovement().getLockDelay() >= currentTime) {
 			player.getPackets().sendGameMessage("You can't log out while performing an action.");
 			return;
 		}

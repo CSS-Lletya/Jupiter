@@ -1,4 +1,4 @@
-package com.jupiter.plugins.wrapper;
+package com.jupiter.plugins.commands;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

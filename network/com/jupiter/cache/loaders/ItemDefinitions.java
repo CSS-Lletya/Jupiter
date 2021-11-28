@@ -17,6 +17,7 @@ import com.jupiter.utils.Utils;
 public final class ItemDefinitions {
 	
 	public static final ItemDefinitions[] itemsDefinitions = new ItemDefinitions[Utils.getItemDefinitionsSize()];
+	private static final HashMap<Integer, Integer> EQUIP_IDS = new HashMap<Integer, Integer>();
 
 	public int id;
 	public boolean loaded;
@@ -131,6 +132,23 @@ public final class ItemDefinitions {
 		setDefaultsVariableValues();
 		setDefaultOptions();
 		loadItemDefinitions();
+	}
+	
+	public static void mapEquipIds() {
+		int equipId = 0;
+		for (int itemId = 0; itemId < Utils.getItemDefinitionsSize(); itemId++) {
+			ItemDefinitions def = ItemDefinitions.getItemDefinitions(itemId);
+			if (def.getMaleWornModelId1() >= 0 || def.getFemaleWornModelId1() >= 0) {
+				EQUIP_IDS.put(itemId, equipId++);
+			}
+		}
+	}
+	
+	public int getEquipId() {
+		if (EQUIP_IDS.isEmpty())
+			mapEquipIds();
+		Integer equipId = EQUIP_IDS.get(id);
+		return equipId == null ? -1 : equipId;
 	}
 
 	public boolean isLoaded() {
@@ -1083,5 +1101,32 @@ public final class ItemDefinitions {
 
 	public int getHighAlchPrice() {
 		return (int) (getValue() * 0.6);
+	}
+
+	public String getInventoryOption(int optionId) {
+		switch(id) {
+		case 6099:
+		case 6100:
+		case 6101:
+		case 6102:
+			if (optionId == 2)
+				return "Temple";
+			break;
+		case 19760:
+		case 13561:
+		case 13562:
+			if (optionId == 0)
+				return inventoryOptions[1];
+			else if (optionId == 1)
+				return inventoryOptions[0];
+			break;
+		}
+		if (inventoryOptions == null)
+			return "null";
+		if (optionId >= inventoryOptions.length)
+			return "null";
+		if (inventoryOptions[optionId] == null)
+			return "null";
+		return inventoryOptions[optionId];
 	}
 }

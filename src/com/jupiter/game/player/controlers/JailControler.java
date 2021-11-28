@@ -1,5 +1,7 @@
 package com.jupiter.game.player.controlers;
 
+import java.util.Optional;
+
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -12,15 +14,14 @@ public class JailControler extends Controler {
 	@Override
 	public void start() {
 		if (player.getPlayerDetails().getJailed() > Utils.currentTimeMillis())
-			player.sendRandomJail(player);
+			sendRandomJail(player);
 	}
 
 	@Override
 	public void process() {
 		if (player.getPlayerDetails().getJailed() <= Utils.currentTimeMillis()) {
 			player.getControlerManager().getControler().removeControler();
-			player.getPackets().sendGameMessage("Your account has been unjailed.", true);
-			player.setNextWorldTile(new WorldTile(2677, 10379, 0));
+			player.getMovement().move(Optional.empty(), new WorldTile(2677, 10379, 0), Optional.of("Your account has been unjailed."));
 		}
 	}
 
@@ -37,8 +38,7 @@ public class JailControler extends Controler {
 			player.setNextAnimation(new Animation(-1));
 			player.reset();
 			player.setCanPvp(false);
-			player.sendRandomJail(player);
-			player.unlock();
+			sendRandomJail(player);
 		});
 		seq.start();
 		return false;
@@ -73,5 +73,31 @@ public class JailControler extends Controler {
 		player.getPackets().sendGameMessage("You cannot do any activities while being jailed.");
 		return false;
 	}
-
+	
+	public void sendRandomJail(Player p) {//todo
+		p.resetWalkSteps();
+		switch (Utils.getRandom(6)) {
+		case 0:
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10387, 0));
+			break;
+		case 1:
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10383, 0));
+			break;
+		case 2:
+			p.getMovement().move(Optional.empty(), new WorldTile(2669, 10379, 0));
+			break;
+		case 3:
+			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10379, 0));
+			break;
+		case 4:
+			p.getMovement().move(Optional.empty(), new WorldTile(2673, 10385, 0));
+			break;
+		case 5:
+			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10387, 0));
+			break;
+		case 6:
+			p.getMovement().move(Optional.empty(), new WorldTile(2677, 10383, 0));
+			break;
+		}
+	}
 }

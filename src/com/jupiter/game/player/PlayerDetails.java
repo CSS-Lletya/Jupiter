@@ -30,6 +30,10 @@ public final class PlayerDetails {
 		ownedObjectsManagerKeys = new LinkedList<String>();
 		passwordList = new ArrayList<String>();
 		ipList = new ArrayList<String>();
+		runEnergy = 100D;
+		allowChatEffects = true;
+		mouseButtons = true;
+		activatedLodestones = new boolean[16];
 	}
 
 	/**
@@ -46,6 +50,13 @@ public final class PlayerDetails {
 	private byte publicStatus;
 	private byte clanStatus;
 	private byte tradeStatus;
+	private boolean[] activatedLodestones;
+	
+	private double runEnergy;
+	private boolean allowChatEffects;
+	private boolean mouseButtons;
+	private byte privateChatSetup;
+	private byte friendChatSetup;
 
 	// Used for storing recent ips and password
 	private ArrayList<String> passwordList = new ArrayList<String>();

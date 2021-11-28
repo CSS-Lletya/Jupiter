@@ -18,7 +18,7 @@ public final class RestoreSkillsTask extends Task {
 		World.players().forEach(p -> {
 			boolean usingRapidRestore = Prayer.usingRapidRestore(p);
 			setDelay(usingRapidRestore ? 12 : 24);
-			p.restoreSkills();
+			p.getSkills().updateSkills(false);
 		});
 	}
 	

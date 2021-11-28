@@ -389,10 +389,10 @@ public class Foods {
 			@Override
 			public void effect(Object object) {
 				Player player = (Player) object;
-				int runEnergy = (int) (player.getRunEnergy() * 1.1);
+				int runEnergy = (int) (player.getPlayerDetails().getRunEnergy() * 1.1);
 				if (runEnergy > 100)
 					runEnergy = 100;
-				player.setRunEnergy(runEnergy);
+				player.getMovement().setRunEnergy(runEnergy);
 				int level = player.getSkills().getLevel(Skills.AGILITY);
 				int realLevel = player.getSkills().getLevelForXp(Skills.AGILITY);
 				player.getSkills().set(Skills.AGILITY, level >= realLevel ? realLevel + 5 : level + 5);
@@ -507,12 +507,11 @@ public class Foods {
 		player.getActionManager().setActionDelay((int) foodDelay / 1000);
 		player.getActionManager().setActionDelay(player.getActionManager().getActionDelay() + 2);
 		player.getInventory().getItems().set(slot, food.getNewId() == 0 ? null : new Item(food.getNewId(), 1));
-		player.getInventory().refresh(slot);
+//		player.getInventory().refresh(slot);
 		int hp = player.getHitpoints();
 		player.heal(food.getHeal() * 10, food.getExtraHP() * 10);
 		if (player.getHitpoints() > hp)
 			player.getPackets().sendGameMessage("It heals some health.");
-		player.getInventory().refresh();
 		if (food.effect != null) {
 			food.effect.effect(player);
 		}

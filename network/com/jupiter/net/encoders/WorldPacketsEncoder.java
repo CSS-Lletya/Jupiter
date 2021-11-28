@@ -328,7 +328,7 @@ public class WorldPacketsEncoder extends Encoder {
 	public void sendRunEnergy() {
 		OutputStream stream = new OutputStream(2);
 		stream.writePacket(player, 64);
-		stream.writeByte((int) player.getRunEnergy());
+		stream.writeByte((int) player.getPlayerDetails().getRunEnergy());
 		session.write(stream);
 	}
 
@@ -1011,6 +1011,10 @@ public class WorldPacketsEncoder extends Encoder {
 			sendIndex15Sound(id, delay);
 	}
 
+	public void sendSound(int id) {
+		sendSound(id, 0, 1);
+	}
+	
 	public void sendVoice(int id) {
 		resetSounds();
 		sendSound(id, 0, 2);

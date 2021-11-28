@@ -3,6 +3,9 @@ package com.jupiter;
 import java.math.BigInteger;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.jupiter.game.item.Item;
+import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Rights;
 
@@ -132,5 +135,11 @@ public final class Settings {
 			"Jawarrior1", Rights.ADMINISTRATOR
 	);
 
+	public static ImmutableSet<Item> STATER_KIT = ImmutableSet.of(new Item(995, 5000000),
+			new Item(4069, 1), new Item(4070, 1), new Item(4071, 1), new Item(4068, 1), new Item(4072, 1),
+			new Item(1063, 1), new Item(1095, 1), new Item(1129, 1), new Item(577, 1), new Item(1011, 1),
+			new Item(ItemNames.SHORTBOW, 1), new Item(ItemNames.BRONZE_ARROW, 200),
+			new Item(1381, 1), new Item(558, 500), new Item(554, 500), new Item(555, 500), new Item(557, 500),
+			new Item(11640, 1), new Item(362, 50), new Item(29941));
 
 }

@@ -3,8 +3,8 @@ package com.jupiter.plugins.rsinterface.impl;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Rest;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
-import com.jupiter.plugins.listener.RSInterface;
-import com.jupiter.plugins.wrapper.RSInterfaceSignature;
+import com.jupiter.plugins.rsinterface.RSInterface;
+import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.utils.Utils;
 
 @RSInterfaceSignature(interfaceId = { 548, 746, 750, 749, 755, 1214})
@@ -103,11 +103,11 @@ public class WorldMapInterfacePlugin implements RSInterface {
 		} else if (interfaceId == 750) {
 			if (componentId == 4) {
 				if (packetId == WorldPacketsDecoder.ACTION_BUTTON1_PACKET) {
-					player.toogleRun(player.isResting() ? false : true);
-					if (player.isResting())
+					player.getMovement().toogleRun(!player.getMovement().isResting());
+					if (player.getMovement().isResting())
 						player.stopAll();
 				} else if (packetId == WorldPacketsDecoder.ACTION_BUTTON2_PACKET) {
-					if (player.isResting()) {
+					if (player.getMovement().isResting()) {
 						player.stopAll();
 						return;
 					}
@@ -116,7 +116,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an emote.");
 						return;
 					}
-					if (player.getLockDelay() >= currentTime) {
+					if (player.getMovement().getLockDelay() >= currentTime) {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an action.");
 						return;
 					}

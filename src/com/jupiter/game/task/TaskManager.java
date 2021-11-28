@@ -66,9 +66,6 @@ public final class TaskManager {
 	 * Iterates through all active {@link Task}s and cancels all that have {@code attachment} as their attachment.
 	 */
 	public void cancel(Object attachment) {
-		for(Task tasks : tasks) {
-			if(Objects.equals(attachment, tasks.getAttachment()))
-				tasks.cancel();
-		}
+		tasks.parallelStream().filter(task -> Objects.equals(attachment, task.getAttachment())).forEach(task -> task.cancel());
 	}
 }

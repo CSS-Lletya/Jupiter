@@ -1673,13 +1673,13 @@ public class PlayerCombat extends Action {
 				});
 				if (target instanceof Player) {
 					final Player other = (Player) target;
-					other.lock();
+					other.getMovement().lock();
 					other.setDisableEquip(true);
 					World.get().submit(new Task(5) {
 						@Override
 						protected void execute() {
 							other.setDisableEquip(false);
-							other.unlock();
+							other.getMovement().unlock();
 						}
 					});
 				} else {
@@ -2386,7 +2386,7 @@ public class PlayerCombat extends Action {
 			if (target instanceof Player) {
 				Player p2 = (Player) target;
 				if (player.getPrayer().usingPrayer(1, 18))
-					p2.sendSoulSplit(hit, player);
+					p2.getCombatDefinitions().sendSoulSplit(hit, player);
 			}
 			int damage = hit.getDamage() > target.getHitpoints() ? target.getHitpoints() : hit.getDamage();
 			if (hit.getLook() == HitLook.RANGE_DAMAGE || hit.getLook() == HitLook.MELEE_DAMAGE) {
@@ -2536,7 +2536,7 @@ public class PlayerCombat extends Action {
 //					}
 					if (target instanceof Player) {
 						Player p2 = (Player) target;
-						p2.closeInterfaces();
+						p2.getInterfaceManager().closeInterfaces();
 						if (p2.getCombatDefinitions().isAutoRelatie() && !p2.getActionManager().hasSkillWorking()
 								&& !p2.hasWalkSteps())
 							p2.getActionManager().setAction(new PlayerCombat(player));
@@ -2943,7 +2943,7 @@ public class PlayerCombat extends Action {
 				|| distanceY < -1 - maxDistance) {
 			if (!player.hasWalkSteps()) {
 				player.resetWalkSteps();
-				player.addWalkStepsInteract(target.getX(), target.getY(), player.getRun() ? 2 : 1, size, true);
+				player.addWalkStepsInteract(target.getX(), target.getY(), player.getMovement().isRun() ? 2 : 1, size, true);
 			}
 			return true;
 		} else {
@@ -3823,13 +3823,13 @@ public class PlayerCombat extends Action {
 
 						if (p2.getPrayer().usingPrayer(1, 15)) {
 							if (Utils.getRandom(10) == 0) {
-								if (player.getRunEnergy() <= 0) {
+								if (player.getPlayerDetails().getRunEnergy() <= 0) {
 									p2.getPackets().sendGameMessage(
 											"Your opponent has been weakened so much that your leech curse has no effect.",
 											true);
 								} else {
-									p2.setRunEnergy(p2.getRunEnergy() > 90 ? 100 : p2.getRunEnergy() + 10);
-									player.setRunEnergy(p2.getRunEnergy() > 10 ? player.getRunEnergy() - 10 : 0);
+									p2.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 90 ? 100 : p2.getPlayerDetails().getRunEnergy() + 10);
+									player.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 10 ? player.getPlayerDetails().getRunEnergy() - 10 : 0);
 								}
 								p2.setNextAnimation(new Animation(12575));
 								p2.getPrayer().setBoostedLeech(true);
@@ -3895,7 +3895,7 @@ public class PlayerCombat extends Action {
 		} else {
 			NPC n = (NPC) source;
 			if (n.getId() == 13448)
-				player.sendSoulSplit(hit, n);
+				player.getCombatDefinitions().sendSoulSplit(hit, n);
 		}
 	}
 }

@@ -437,4 +437,8 @@ public final class NPCDefinitions {
 	public int getCombatLevel() {
 		return combatLevel;
 	}
+
+	public String getName() {
+		return name;
+	}
 }

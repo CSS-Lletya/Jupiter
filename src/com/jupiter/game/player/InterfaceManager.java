@@ -1,8 +1,11 @@
 package com.jupiter.game.player;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import com.jupiter.game.player.content.Emotes;
+
+import lombok.Getter;
 
 public class InterfaceManager {
 
@@ -72,7 +75,11 @@ public class InterfaceManager {
 //		if (player.getFamiliar() != null && player.isActive())
 //			player.getFamiliar().unlock();
 		player.getControlerManager().sendInterfaces();
-		player.getInterfaceManager().sendOverlay(1252, false);
+//		player.getInterfaceManager().sendOverlay(1252, false); //sof
+		refreshAllowChatEffects();
+		refreshMouseButtons();
+		refreshPrivateChatSetup();
+		refreshOtherChatsSetup();
 	}
 
 	public void replaceRealChatBoxInterface(int interfaceId) {
@@ -210,7 +217,7 @@ public class InterfaceManager {
 	}
 
 	public void sendXPDisplay(int interfaceId) {
-		sendTab(resizableScreen ? 27 : 29, interfaceId); // xp counter
+		sendTab(resizableScreen ? 28 : 29, interfaceId); // xp counter
 	}
 
 	public void closeXPPopup() {
@@ -218,7 +225,7 @@ public class InterfaceManager {
 	}
 
 	public void closeXPDisplay() {
-		player.getPackets().closeInterface(resizableScreen ? 27 : 29);
+		player.getPackets().closeInterface(resizableScreen ? 28 : 29);
 	}
 
 	public void sendEquipment() {
@@ -448,4 +455,76 @@ public class InterfaceManager {
 		return lastTab;
 	}
 
+	public enum Tab {
+		COMBAT(0),
+		ACHIEVEMENT(1),
+		SKILLS(2, p -> p.getPackets().sendGameMessage("Skills tab")),
+		QUESTS(3),
+		INVENTORY(4),
+		EQUIPMENT(5),
+		PRAYER(6),
+		MAGIC(7),
+		SOF(8),
+		FRIENDS(9),
+		FRIENDS_CHAT(10),
+		CLAN_CHAT(11),
+		SETTINGS(12),
+		EMOTES(13),
+		MUSIC(14),
+		NOTES(15);
+		
+		@Getter
+		private int beltId;
+		@Getter
+		private Consumer<Player> action;
+		
+		private Tab(int beltid) {
+			this.beltId = beltid;
+		}
+		
+		private Tab(int interfaceId, Consumer<Player> action) {
+			this(interfaceId);
+			this.action = action;
+		}
+	}
+	
+	public void switchMouseButtons() {
+		player.getPlayerDetails().setMouseButtons(player.getPlayerDetails().isMouseButtons());
+		refreshMouseButtons();
+	}
+
+	public void switchAllowChatEffects() {
+		player.getPlayerDetails().setAllowChatEffects(player.getPlayerDetails().isAllowChatEffects());
+		refreshAllowChatEffects();
+	}
+
+	public void refreshAllowChatEffects() {
+		player.getPackets().sendConfig(171, player.getPlayerDetails().isAllowChatEffects() ? 0 : 1);
+	}
+
+	public void refreshMouseButtons() {
+		player.getPackets().sendConfig(170, player.getPlayerDetails().isMouseButtons() ? 0 : 1);
+	}
+
+	public void refreshPrivateChatSetup() {
+		player.getPackets().sendConfig(287, player.getPlayerDetails().getPrivateChatSetup());
+	}
+
+	public void refreshOtherChatsSetup() {
+		int value = player.getPlayerDetails().getFriendChatSetup() << 6;
+		player.getPackets().sendConfig(1438, value);
+	}
+	
+	public void closeInterfaces() {
+		if (containsScreenInter())
+			closeScreenInterface();
+		if (containsInventoryInter())
+			closeInventoryInterface();
+		player.endConversation();
+		player.getInterfaceManager().closeChatBoxInterface();
+		if (player.getCloseInterfacesEvent() != null) {
+			player.getCloseInterfacesEvent().run();
+			player.setCloseInterfacesEvent(null);
+		}
+	}
 }

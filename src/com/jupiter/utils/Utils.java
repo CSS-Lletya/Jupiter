@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -12,10 +13,14 @@ import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.google.common.reflect.ClassPath;
 import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
 import com.jupiter.game.map.WorldTile;
@@ -1000,5 +1005,38 @@ public final class Utils {
 
 	public static int clampI(int val, int min, int max) {
 		return Math.max(min, Math.min(max, val));
+	}
+
+	public static ArrayList<Class<?>> getClassesWithAnnotation(String packageName,
+			Class<? extends Annotation> annotation) throws ClassNotFoundException, IOException {
+		ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
+		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive(packageName)) {
+			if (!Class.forName(info.getName()).isAnnotationPresent(annotation))
+				continue;
+			classes.add(Class.forName(info.getName()));
+		}
+		return classes;
+	}
+
+	public static ArrayList<Class<?>> getClassesArray(String packageName) throws ClassNotFoundException, IOException {
+		ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
+		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive(packageName)) {
+			classes.add(Class.forName(info.getName()));
+		}
+		return classes;
+	}
+
+	public static Map<String, Object> cloneMap(Map<String, Object> from) {
+		if (from == null)
+			return null;
+		Map<String, Object> newMap = new HashMap<String, Object>();
+
+		for (Entry<String, Object> entry : from.entrySet()) {
+			newMap.put(entry.getKey(), entry.getValue());
+		}
+
+		return newMap;
 	}
 }

@@ -21,10 +21,13 @@ import com.jupiter.net.Session;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.plugins.CommandDispatcher;
-import com.jupiter.plugins.NPCDispatcher;
-import com.jupiter.plugins.ObjectDispatcher;
-import com.jupiter.plugins.RSInterfaceDispatcher;
+import com.jupiter.plugin.ObjectDispatcher;
+import com.jupiter.plugin.PluginManager;
+import com.jupiter.plugin.events.ItemOnObjectEvent;
+import com.jupiter.plugin.events.ItemOnPlayerEvent;
+import com.jupiter.plugins.commands.CommandDispatcher;
+import com.jupiter.plugins.npc.NPCDispatcher;
+import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.plugins.rsinterface.impl.InventoryInterfacePlugin;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
@@ -303,10 +306,10 @@ public final class WorldPacketsDecoder extends Decoder {
 		int packetId = packet.getId();
 		InputStream stream = new InputStream(packet.getData());
 		if (packetId == WALKING_PACKET || packetId == MINI_WALKING_PACKET) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() > currentTime)
+			if (player.getMovement().getLockDelay() > currentTime)
 				return;
 			if (player.getFreezeDelay() >= currentTime) {
 				player.getPackets().sendGameMessage("A magical force prevents you from moving.");
@@ -416,10 +419,10 @@ public final class WorldPacketsDecoder extends Decoder {
 			//3095, 0, 17010, 44498944, 11694, 0, 3503
 //			0, 17010,
 			
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
+			if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 				return;
 			final WorldTile tile = new WorldTile(x, y, player.getPlane());
 			int regionId = tile.getRegionId();
@@ -432,7 +435,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			final Item item = player.getInventory().getItem(slot);
 			if (player.isDead() || Utils.getInterfaceDefinitionsSize() <= interfaceId)
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			if (!player.getInterfaceManager().containsInterface(interfaceId))
 				return;
@@ -443,11 +446,11 @@ public final class WorldPacketsDecoder extends Decoder {
 				player.setRun(forceRun);
 			switch (interfaceId) {
 			case Inventory.INVENTORY_INTERFACE: // inventory
-				ObjectDispatcher.handleItemOnObject(player, object, interfaceId, item);
+				PluginManager.handle(new ItemOnObjectEvent(player, item, object, false));
 				break;
 			}
 		} else if (packetId == PLAYER_OPTION_2_PACKET) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
 			@SuppressWarnings("unused")
 			boolean unknown = stream.readByte() == 1;
@@ -455,7 +458,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			Player p2 = World.getPlayers().get(playerIndex);
 			if (p2 == null || p2.isDead() || p2.hasFinished() || !player.getMapRegionsIds().contains(p2.getRegionId()))
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			player.stopAll(false);
 			player.getActionManager().setAction(new PlayerFollow(p2));
@@ -466,7 +469,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			Player p2 = World.getPlayers().get(playerIndex);
 			if (p2 == null || p2.isDead() || p2.hasFinished() || !player.getMapRegionsIds().contains(p2.getRegionId()))
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			player.stopAll(false);
 			if (player.isCantTrade()) {
@@ -492,7 +495,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.getPackets().sendGameMessage("Sending " + p2.getDisplayName() + " a request...");
 			p2.getPackets().sendTradeRequestMessage(player);
 		} else if (packetId == PLAYER_OPTION_1_PACKET) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
 			int playerIndex = stream.readUnsignedShort(); //incorrect returns 32k
 			boolean forceRun = stream.read128Byte() == 1;
@@ -505,7 +508,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (targetPlayer == null || targetPlayer.isDead() || targetPlayer.hasFinished() || !player.getMapRegionsIds().contains(targetPlayer.getRegionId()))
 				return;
 			
-			if (player.getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
 				return;
 			if (!player.isCanPvp())
 				return;
@@ -536,10 +539,10 @@ public final class WorldPacketsDecoder extends Decoder {
 			player.stopAll(false);
 			player.getActionManager().setAction(new PlayerCombat(targetPlayer));
 		} else if (packetId == ATTACK_NPC) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead()) {
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead()) {
 				return;
 			}
-			if (player.getLockDelay() > Utils.currentTimeMillis()) {
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis()) {
 				return;
 			}
 			int npcIndex = stream.readUnsignedShort();//stream.readUnsignedShort128();
@@ -579,9 +582,9 @@ public final class WorldPacketsDecoder extends Decoder {
 		
 		
 		else if (packetId == INTERFACE_ON_PLAYER) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 			
 			int slot = stream.readUnsignedShort();
@@ -734,12 +737,15 @@ public final class WorldPacketsDecoder extends Decoder {
 				}
 				break;
 			}
+			if (PluginManager.handle(new ItemOnPlayerEvent(player, p2, new Item(itemId)))) {
+				return;
+			}
 			if (Settings.DEBUG)
 				System.out.println("Spell:" + componentId);
 		} else if (packetId == INTERFACE_ON_NPC) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
-			if (player.getLockDelay() > Utils.currentTimeMillis())
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 	
 			int interfaceHash = stream.readIntV2();
@@ -874,7 +880,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (Settings.DEBUG)
 				System.out.println("Spell:" + componentId);
 		}
-		
 	 	if (packetId == OBJECT_CLICK1_PACKET)
 			ObjectDispatcher.handleOption(player, stream, 1);
 		else if (packetId == OBJECT_CLICK2_PACKET)
@@ -886,27 +891,18 @@ public final class WorldPacketsDecoder extends Decoder {
 		else if (packetId == OBJECT_CLICK5_PACKET)
 			ObjectDispatcher.handleOption(player, stream, 5);
 		else if (packetId == ITEM_TAKE_PACKET) {
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion() || player.isDead())
+			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
 			long currentTime = Utils.currentTimeMillis();
-			if (player.getLockDelay() > currentTime)
-				// || player.getFreezeDelay() >= currentTime)
+			if (player.getMovement().getLockDelay() > currentTime || player.getFreezeDelay() >= currentTime)
 				return;
 
-//			int y = stream.readUnsignedShort();
-//			int x = stream.readUnsignedShortLE();
-//			final int id = stream.readUnsignedShort();
-//			boolean forceRun = stream.read128Byte() == 1;
-			
-			
 			final int id = stream.readShortLE128();
 			boolean forceRun =  stream.readUnsignedByteC() == 1; 
 			int y = stream.readUnsignedShort();
 			int x = stream.readUnsignedShort128();
 			
 			System.out.println(x+", "+ y +", "+id +", "+forceRun);
-			//0, 4153, 3503, 3216
-			//3216, 3503, 0, 4153
 			
 			final WorldTile tile = new WorldTile(x, y, player.getPlane());
 			final int regionId = tile.getRegionId();
@@ -916,7 +912,6 @@ public final class WorldPacketsDecoder extends Decoder {
 			final FloorItem item = World.getRegion(regionId).getGroundItem(id, tile, player);
 			if (item == null)
 				return;
-			System.out.println(item.getId());
 			player.stopAll(false);
 			if (forceRun)
 				player.setRun(forceRun);
@@ -931,7 +926,6 @@ public final class WorldPacketsDecoder extends Decoder {
 					 * player.getPackets().sendGameMessage("This item was dropped by [Username] "+item.getOwner().getUsername()+
 					 * " [DiplayName] "+item.getOwner().getDisplayName());
 					 */ player.setNextFaceWorldTile(tile);
-					
 					player.addWalkSteps(tile.getX(), tile.getY(), 1);
 					FloorItem.removeGroundItem(player, item);
 				}
@@ -1253,7 +1247,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			int byte0 = stream.readUnsignedByte();
 			String username = stream.readString();
 			String supposed_username = Utils.getCharacterFromByte(byte0) + username;
-			player.kickPlayerFromFriendsChannel(supposed_username);
+			player.getCurrentFriendChat().kickPlayerFromFriendsChannel(player, supposed_username);
 		} else if (packetId == CHANGE_FRIEND_CHAT_PACKET) {
 			if (!player.isStarted() || !player.getInterfaceManager().containsInterface(1108))
 				return;
@@ -1369,7 +1363,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			}
 			int effects = (colorEffect << 8) | (moveEffect & 0xff);
 			if (chatType == 1)
-				player.sendFriendsChannelMessage(Utils.fixChatMessage(message));
+				player.getCurrentFriendChat().sendFriendsChannelMessage(player, Utils.fixChatMessage(message));
 			else
 				player.sendPublicChatMessage(new PublicChatMessage(Utils.fixChatMessage(message), effects));
 			if (Settings.DEBUG)
@@ -1391,7 +1385,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				SkillCapeCustomizer.handleSkillCapeCustomizerColor(player, colorId);
 		} 
 		else if (packetId == GROUND_ITEM_EXAMINE){
-			if (!player.isStarted() || !player.clientHasLoadedMapRegion()
+			if (!player.isStarted() || !player.isClientLoadedMapRegion()
 					|| player.isDead())
 				return;
 			final int id = stream.readShortLE128();
@@ -1445,7 +1439,7 @@ public final class WorldPacketsDecoder extends Decoder {
 //			player.getPackets().sendGameMessage("pressed: "+Utils.getKeyPressedFromListenerByte(short0));
 			switch (short0) {
 				case 3328:
-					player.closeInterfaces();
+					player.getInterfaceManager().closeInterfaces();
 			}
 		}
 		else if (packetId ==  INACTIVITY_PACKET){

@@ -1,5 +1,7 @@
 package com.jupiter.skills.magic;
 
+import java.util.Optional;
+
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
@@ -555,11 +557,11 @@ public class Magic {
 		if (!player.getControlerManager().processObjectTeleport(tile))
 			return;
 		player.setNextAnimation(new Animation(2140));
-		player.lock();
+		player.getMovement().lock();
 		World.get().submit(new Task(1) {
 			@Override
 			protected void execute() {
-				player.unlock();
+				player.getMovement().unlock();
 				Magic.sendObjectTeleportSpell(player, false, tile);
 			}
 		});
@@ -578,7 +580,7 @@ public class Magic {
 			int upGraphicId, final int downGraphicId, int level, final double xp, final WorldTile tile, int delay,
 			final boolean randomize, final int teleType, int... runes) {
 		long currentTime = Utils.currentTimeMillis();
-		if (player.getLockDelay() > currentTime)
+		if (player.getMovement().getLockDelay() > currentTime)
 			return false;
 		if (player.getSkills().getLevel(Skills.MAGIC) < level) {
 			player.getPackets().sendGameMessage("Your Magic level is not high enough for this spell.");
@@ -604,7 +606,7 @@ public class Magic {
 			player.setNextGraphics(new Graphics(upGraphicId));
 		if (teleType == MAGIC_TELEPORT)
 			player.getPackets().sendSound(5527, 0, 2);
-		player.lock(3 + delay);
+		player.getMovement().lock(3 + delay);
 		
 		World.get().submit(new Task(delay) {
 			boolean removeDamage;
@@ -621,7 +623,7 @@ public class Magic {
 							teleTile = tile;
 						}
 					}
-					player.setNextWorldTile(teleTile);
+					player.getMovement().move(Optional.empty(), teleTile);
 					player.getControlerManager().magicTeleported(teleType);
 					if (player.getControlerManager().getControler() == null)
 						teleControlersCheck(player, teleTile);
@@ -661,7 +663,7 @@ public class Magic {
 	public static boolean useTeleTab(final Player player, final WorldTile tile) {
 		if (!player.getControlerManager().processItemTeleport(tile))
 			return false;
-		player.lock();
+		player.getMovement().lock();
 		player.setNextAnimation(new Animation(9597));
 		player.setNextGraphics(new Graphics(1680));
 
@@ -676,7 +678,7 @@ public class Magic {
 					break;
 				teleTile = tile;
 			}
-			player.setNextWorldTile(teleTile);
+			player.getMovement().move(Optional.empty(), teleTile);
 			player.getControlerManager().magicTeleported(ITEM_TELEPORT);
 			if (player.getControlerManager().getControler() == null)
 				teleControlersCheck(player, teleTile);
@@ -685,7 +687,7 @@ public class Magic {
 			player.setDirection(6);
 			player.setNextAnimation(new Animation(-1));
 			player.resetReceivedDamage();
-			player.unlock();
+			player.getMovement().unlock();
 		});
 		seq.start();
 		return true;

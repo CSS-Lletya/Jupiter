@@ -41,13 +41,13 @@ public class DragonSpear implements WeaponSpecials {
 
 		if (target instanceof Player) {
 			final Player defendingPlayer = (Player) target;
-			defendingPlayer.lock();
+			defendingPlayer.getMovement().lock();
 			defendingPlayer.setDisableEquip(true);
 			World.get().submit(new Task(5) {
 				@Override
 				protected void execute() {
 					defendingPlayer.setDisableEquip(false);
-					defendingPlayer.unlock();
+					defendingPlayer.getMovement().unlock();
 					this.cancel();
 				}
 			});

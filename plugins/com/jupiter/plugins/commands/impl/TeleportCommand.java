@@ -3,8 +3,8 @@ package com.jupiter.plugins.commands.impl;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"tele"}, rights = {Rights.ADMINISTRATOR}, syntax = "Teleports you to a specified location")
 public final class TeleportCommand implements Command {

@@ -1,4 +1,4 @@
-package com.jupiter.plugins.listener;
+package com.jupiter.plugins.rsinterface;
 
 import com.jupiter.game.player.Player;
 

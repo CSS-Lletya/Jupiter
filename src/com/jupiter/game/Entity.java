@@ -1,12 +1,16 @@
 package com.jupiter.game;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
+import com.google.common.base.Preconditions;
 import com.jupiter.Settings;
 import com.jupiter.cache.loaders.AnimationDefinitions;
 import com.jupiter.cache.loaders.ObjectDefinitions;
@@ -31,11 +35,14 @@ import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.MutableNumber;
 import com.jupiter.utils.Utils;
 
+import lombok.Getter;
+
 public abstract class Entity extends WorldTile {
 
 	// creates Entity and saved classes
-	public Entity(WorldTile tile) {
+	public Entity(WorldTile tile, EntityType type) {
 		super(tile);
+		this.type = requireNonNull(type);
 	}
 	
 	// transient stuff
@@ -54,9 +61,7 @@ public abstract class Entity extends WorldTile {
 	private transient int nextRunDirection;
 	private transient WorldTile nextFaceWorldTile;
 	private transient boolean teleported;
-	private transient ConcurrentLinkedQueue<Object[]> walkSteps;// called by more
-																// than 1thread
-																// so concurent
+	
 	private transient ConcurrentLinkedQueue<Hit> receivedHits;
 	private transient Map<Entity, Integer> receivedDamage;
 	private transient boolean finished; // if removed
@@ -83,12 +88,13 @@ public abstract class Entity extends WorldTile {
 	private transient long frozenBlocked;
 	private transient long findTargetDelay;
 	private transient ConcurrentHashMap<Object, Object> temporaryAttributes;
+	@Getter
+	private transient Movement movement;
 
 	// saving stuff
 	private int hitpoints;
 	private transient int mapSize; // default 0, can be setted other value usefull on
 							// static maps
-	private transient boolean run;
 	
 	public boolean inArea(int a, int b, int c, int d) {
 		return getX() >= a && getY() >= b && getX() <= c && getY() <= d;
@@ -96,7 +102,6 @@ public abstract class Entity extends WorldTile {
 
 	public final void initEntity() {
 		mapRegionsIds = new CopyOnWriteArrayList<Integer>();
-		walkSteps = new ConcurrentLinkedQueue<Object[]>();
 		receivedHits = new ConcurrentLinkedQueue<Hit>();
 		receivedDamage = new ConcurrentHashMap<Entity, Integer>();
 		temporaryAttributes = new ConcurrentHashMap<Object, Object>();
@@ -106,6 +111,7 @@ public abstract class Entity extends WorldTile {
 		nextWalkDirection = nextRunDirection - 1;
 		lastFaceEntity = -1;
 		nextFaceEntity = -2;
+		movement = new Movement(this);
 	}
 
 	public int getClientIndex() {
@@ -115,16 +121,7 @@ public abstract class Entity extends WorldTile {
 	public void applyHit(Hit hit) {
 		if (isDead())
 			return;
-		if (this instanceof Player) {
-			Player player = (Player) this;
-			if (player.getUsername().equalsIgnoreCase("apache_ah64") || player.getUsername().equalsIgnoreCase("emperor")) {
-				// return;
-			}
-		}
-		// todo damage for who gets drop
-		receivedHits.add(hit); // added hit first because, soaking added after,
-								// if applyhit used right there shouldnt be any
-								// problem
+		receivedHits.add(hit); 
 		handleIngoingHit(hit);
 	}
 
@@ -134,10 +131,24 @@ public abstract class Entity extends WorldTile {
 		setHitpoints(getMaxHitpoints());
 		receivedHits.clear();
 		resetCombat();
-		walkSteps.clear();
+		getMovement().getWalkSteps().clear();
 		resetReceivedDamage();
 		if (attributes)
 			temporaryAttributes.clear();
+		if (attributes && isPlayer()) {
+			toPlayer().getSkills().refreshHitPoints();
+			toPlayer().getHintIconsManager().removeAll();
+			toPlayer().getSkills().restoreAllSkills();
+			toPlayer().getCombatDefinitions().resetSpecialAttack();
+			toPlayer().getPrayer().reset();
+			toPlayer().getCombatDefinitions().resetSpells(true);
+			toPlayer().getMovement().setRestingMode(false);
+			toPlayer().getPoisonDamage().set(0);
+			toPlayer().setCastedVeng(false);
+			toPlayer().getPlayerDetails().setRunEnergy(100);
+			toPlayer().getAppearence().getAppeareanceBlocks();
+		}
+		
 	}
 
 	public void reset() {
@@ -152,7 +163,7 @@ public abstract class Entity extends WorldTile {
 
 	public void processReceivedHits() {
 		if (this instanceof Player) {
-			if (((Player) this).getNextEmoteEnd() >= Utils.currentTimeMillis())
+			if (((Player) this).getNextEmoteEnd() >= Utils.currentTimeMillis() || getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 		}
 		Hit hit;
@@ -223,6 +234,7 @@ public abstract class Entity extends WorldTile {
 				player.getPackets().sendGameMessage("Your pheonix necklace heals you, but is destroyed in the process.");
 			}
 		}
+		ifPlayer(p -> p.getSkills().refreshHitPoints());
 	}
 
 	public void resetReceivedDamage() {
@@ -281,6 +293,7 @@ public abstract class Entity extends WorldTile {
 
 	public void heal(int ammount) {
 		heal(ammount, 0);
+		ifPlayer(p -> p.getSkills().refreshHitPoints());
 	}
 
 	public void heal(int ammount, int extra) {
@@ -288,16 +301,13 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public boolean hasWalkSteps() {
-		return !walkSteps.isEmpty();
+		return !getMovement().getWalkSteps().isEmpty();
 	}
 
 	public abstract void sendDeath(Entity source);
 
 	public void processMovement() {
-		boolean run = this.run;
-		// if (this instanceof Player)
-		// run = ((Player) this).getEmoteManager().isRunning();
-
+		boolean run = toPlayer().getMovement().isRun();
 		lastWorldTile = new WorldTile(this);
 		if (lastFaceEntity >= 0) {
 			Entity target = lastFaceEntity >= 32768 ? World.getPlayers().get(lastFaceEntity - 32768) : World.getNPCs().get(lastFaceEntity);
@@ -315,26 +325,21 @@ public abstract class Entity extends WorldTile {
 			nextWorldTile = null;
 			teleported = true;
 			if (this instanceof Player && ((Player) this).getTemporaryMovementType() == -1)
-				((Player) this).setTemporaryMovementType(Player.TELE_MOVE_TYPE);
+				((Player) this).setTemporaryMovementType(toPlayer().getMovement().TELE_MOVE_TYPE);
 			updateEntityRegion(this);
 			if (needMapUpdate())
 				loadMapRegions();
 			else if (this instanceof Player && lastPlane != getPlane())
-				((Player) this).setClientHasntLoadedMapRegion();
+				((Player) this).setClientLoadedMapRegion(true);
 			resetWalkSteps();
 			return;
 		}
 		teleported = false;
-		if (walkSteps.isEmpty()/* || isStunned() */ /* || (this instanceof NPC && lastFaceEntity >= 0) */) { // <- TODO why was this part even here?
-			resetWalkSteps();
-			return;
-		}
-
 		for (int stepCount = 0; stepCount < (run ? 2 : 1); stepCount++) {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
 				if (stepCount == 1 && this instanceof Player)
-					((Player) this).setTemporaryMovementType(Player.WALK_MOVE_TYPE);
+					((Player) this).setTemporaryMovementType(toPlayer().getMovement().WALK_MOVE_TYPE);
 				break;
 			}
 			int dir = (int) nextStep[0];
@@ -353,7 +358,7 @@ public abstract class Entity extends WorldTile {
 						resetWalkSteps();
 						return;
 					}
-					((Player) this).drainRunEnergy();
+					((Player) this).getMovement().drainRunEnergy();
 				}
 			}
 			moveLocation(Utils.DIRECTION_DELTA_X[dir], Utils.DIRECTION_DELTA_Y[dir], 0);
@@ -542,7 +547,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int getPreviewNextWalkStep() {
-		Object[] step = walkSteps.poll();
+		Object[] step = getMovement().getWalkSteps().poll();
 		if (step == null)
 			return -1;
 		return (int) step[0];
@@ -725,7 +730,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private int[] getLastWalkTile() {
-		Object[] objects = walkSteps.toArray();
+		Object[] objects = getMovement().getWalkSteps().toArray();
 		if (objects.length == 0)
 			return new int[] { getX(), getY() };
 		Object step[] = (Object[]) objects[objects.length - 1];
@@ -757,16 +762,16 @@ public abstract class Entity extends WorldTile {
 			if (!((Player) this).getControlerManager().addWalkStep(lastX, lastY, nextX, nextY))
 				return false;
 		}
-		walkSteps.add(new Object[] { dir, nextX, nextY, check });
+		getMovement().getWalkSteps().add(new Object[] { dir, nextX, nextY, check });
 		return true;
 	}
 
 	public ConcurrentLinkedQueue<Object[]> getWalkSteps() {
-		return walkSteps;
+		return getMovement().getWalkSteps();
 	}
 
 	public void resetWalkSteps() {
-		walkSteps.clear();
+		getMovement().getWalkSteps().clear();
 	}
 
 	public boolean restoreHitPoints() {
@@ -791,11 +796,35 @@ public abstract class Entity extends WorldTile {
 			}
 			return true;
 		}
+		ifPlayer(p -> {
+			if (isDead()) {
+				return;
+			}
+			boolean update = restoreHitPoints();
+			if (update) {
+				if (p.getPrayer().usingPrayer(0, 9))
+					restoreHitPoints();
+				if (p.getMovement().isResting())
+					restoreHitPoints();
+				p.getSkills().refreshHitPoints();
+			}
+		});
 		return false;
 	}
 
 	public boolean needMasksUpdate() {
-		return nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null || nextGraphics3 != null || nextGraphics4 != null || (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty() || !nextBars.isEmpty() || nextForceMovement != null || nextForceTalk != null;
+		if (isPlayer())
+			return (toPlayer().getTemporaryMovementType() != -1)
+					|| (toPlayer().isUpdateMovementType()) || nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+							|| nextGraphics3 != null || nextGraphics4 != null
+							|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+							|| nextForceMovement != null || nextForceTalk != null;
+		if (isNPC())
+			return (toNPC().getNextTransformation() != null)|| nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+					|| nextGraphics3 != null || nextGraphics4 != null
+					|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+					|| nextForceMovement != null || nextForceTalk != null;
+		return false;
 	}
 
 	/**
@@ -832,11 +861,27 @@ public abstract class Entity extends WorldTile {
 		nextFaceEntity = -2;
 		nextHits.clear();
 		nextBars.clear();
+		ifPlayer(player -> {
+			player.setTemporaryMovementType((byte) -1);
+			player.setUpdateMovementType(false);
+			if (!player.isClientLoadedMapRegion()) {
+				player.setClientLoadedMapRegion(true);
+				World.getRegion(getRegionId()).refreshSpawnedObjects(player);
+				World.getRegion(getRegionId()).refreshSpawnedItems(player);
+			}
+		});
+		ifNpc(npc -> {
+			npc.nextTransformation = null;
+			npc.changedCombatLevel = false;
+			npc.changedName = false;
+		});
 	}
 
 	public abstract void finish();
 
-	public abstract int getMaxHitpoints();
+	public int getMaxHitpoints() {
+		return isNPC() ? toNPC().getCombatDefinitions().getHitpoints() : toPlayer().getSkills().getLevel(Skills.HITPOINTS) * 10 + toPlayer().getEquipment().getEquipmentHpIncrease();
+	}
 
 	public void processEntity() {
 		processMovement();
@@ -997,11 +1042,13 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void setRun(boolean run) {
-		this.run = run;
-	}
-
-	public boolean getRun() {
-		return run;
+		ifPlayer(p -> {
+			if (run != p.getMovement().isRun()) {
+				p.getMovement().setRun(run);
+				p.setUpdateMovementType(true);
+				p.getMovement().sendRunButtonConfig();
+			}
+		});
 	}
 
 	public WorldTile getNextFaceWorldTile() {
@@ -1018,7 +1065,9 @@ public abstract class Entity extends WorldTile {
 			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
 	}
 
-	public abstract int getSize();
+	public int getSize() {
+		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearence().getSize();
+	}
 
 	public void cancelFaceEntityNoCheck() {
 		nextFaceEntity = -2;
@@ -1080,11 +1129,17 @@ public abstract class Entity extends WorldTile {
 		}
 	}
 
-	public abstract double getMagePrayerMultiplier();
+	public double getMagePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
-	public abstract double getRangePrayerMultiplier();
+	public double getRangePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
-	public abstract double getMeleePrayerMultiplier();
+	public double getMeleePrayerMultiplier() {
+		return isPlayer() ? 0.6 : 0;
+	}
 
 	public Entity getAttackedBy() {
 		return attackedBy;
@@ -1104,6 +1159,18 @@ public abstract class Entity extends WorldTile {
 
 	public void checkMultiArea() {
 		multiArea = forceMultiArea ? true : World.isMultiArea(this);
+		ifPlayer(p -> {
+			if (!p.isStarted())
+				return;
+			boolean isAtMultiArea = p.isForceMultiArea() ? true : World.isMultiArea(this);
+			if (isAtMultiArea && !p.isAtMultiArea()) {
+				p.setAtMultiArea(isAtMultiArea);
+				p.getPackets().sendGlobalConfig(616, 1);
+			} else if (!isAtMultiArea && p.isAtMultiArea()) {
+				p.setAtMultiArea(isAtMultiArea);
+				p.getPackets().sendGlobalConfig(616, 0);
+			}
+		});
 	}
 
 	public boolean isAtMultiArea() {
@@ -1186,7 +1253,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	private Object[] getNextWalkStep() {
-		Object[] step = walkSteps.poll();
+		Object[] step = getMovement().getWalkSteps().poll();
 		if (step == null)
 			return null;
 		return step;
@@ -1338,43 +1405,7 @@ public abstract class Entity extends WorldTile {
 		attributes.put(key, value);
 		return value;
 	}
-	
-	/**
-	 * Verifies if this entity is a player
-	 *
-	 * @return A {@code Boolean} flag
-	 */
-	public boolean isPlayer() {
-		return toPlayer() != null;
-	}
-	
-	/**
-	 * Converts this node to a {@code Player} {@code Object}
-	 *
-	 * @return A {@code Player}
-	 */
-	public Player toPlayer() {
-		return null;
-	}
-	
-	/**
-	 * Verifies if this node is an npc
-	 *
-	 * @return A {@code Boolean} flag
-	 */
-	public boolean isNPC() {
-		return toNPC() != null;
-	}
-	
-	/**
-	 * Converts this entity to a {@code NPC} {@code Object}
-	 *
-	 * @return A {@code NPC}
-	 */
-	public NPC toNPC() {
-		return null;
-	}
-	
+
 	/**
 	 * Gets the center location.
 	 *
@@ -1383,5 +1414,74 @@ public abstract class Entity extends WorldTile {
 	public WorldTile getCenterLocation() {
 		int offset = getSize() >> 1;
 		return this.getLastWorldTile().transform(offset, offset, 0);
+	}
+	
+	/**
+	 * The type of node that this node is.
+	 */
+	@Getter
+	private final EntityType type;
+
+	/**
+	 * Determines if this entity is a {@link Player}.
+	 * 
+	 * @return {@code true} if this entity is a {@link Player}, {@code false}
+	 *         otherwise.
+	 */
+	public final boolean isPlayer() {
+		return getType() == EntityType.PLAYER;
+	}
+
+	/**
+	 * Executes the specified action if the underlying node is a player.
+	 * 
+	 * @param action the action to execute.
+	 */
+	public final void ifPlayer(Consumer<Player> action) {
+		if (!this.isPlayer()) {
+			return;
+		}
+		action.accept(this.toPlayer());
+	}
+
+	/**
+	 * Casts the {@link Actor} to a {@link Player}.
+	 * 
+	 * @return an instance of this {@link Actor} as a {@link Player}.
+	 */
+	public final Player toPlayer() {
+		Preconditions.checkArgument(isPlayer(), "Cannot cast this entity to player.");
+		return (Player) this;
+	}
+
+	/**
+	 * Determines if this entity is a {@link Mob}.
+	 * 
+	 * @return {@code true} if this entity is a {@link Mob}, {@code false}
+	 *         otherwise.
+	 */
+	public final boolean isNPC() {
+		return getType() == EntityType.NPC;
+	}
+
+	/**
+	 * Executes the specified action if the underlying node is a player.
+	 * 
+	 * @param action the action to execute.
+	 */
+	public final void ifNpc(Consumer<NPC> action) {
+		if (!this.isNPC())
+			return;
+		action.accept(this.toNPC());
+	}
+
+	/**
+	 * Casts the {@link Actor} to a {@link Mob}.
+	 * 
+	 * @return an instance of this {@link Actor} as a {@link Mob}.
+	 */
+	public final NPC toNPC() {
+		Preconditions.checkArgument(isNPC(), "Cannot cast this entity to npc.");
+		return (NPC) this;
 	}
 }

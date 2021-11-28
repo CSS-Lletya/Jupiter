@@ -2,8 +2,8 @@ package com.jupiter.plugins.commands.impl;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 import com.jupiter.utils.Utils;
 
 @CommandSignature(alias = {"hideicomp"}, rights = {Rights.ADMINISTRATOR}, syntax = "Hides interface components from first to an optional second")

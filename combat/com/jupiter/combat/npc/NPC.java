@@ -8,6 +8,7 @@ import com.jupiter.combat.npc.combat.NPCCombat;
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
+import com.jupiter.game.EntityType;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -52,12 +53,12 @@ public class NPC extends Entity {
 	private boolean noDistanceCheck;
 
 	// npc masks
-	private transient Transformation nextTransformation;
+	public transient Transformation nextTransformation;
 	// name changing masks
 	private String name;
-	private transient boolean changedName;
-	private int combatLevel;
-	private transient boolean changedCombatLevel;
+	public transient boolean changedName;
+	public int combatLevel;
+	public transient boolean changedCombatLevel;
 	private transient boolean locked;
 
 	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea) {
@@ -68,7 +69,7 @@ public class NPC extends Entity {
 	 * creates and adds npc
 	 */
 	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea, boolean spawned) {
-		super(tile);
+		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
 		this.mapAreaNameHash = mapAreaNameHash;
@@ -92,7 +93,7 @@ public class NPC extends Entity {
 	}
 	
 	public NPC(int id, WorldTile tile) {
-		super(tile);
+		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
 		this.mapAreaNameHash = -1;
@@ -115,10 +116,6 @@ public class NPC extends Entity {
 		checkMultiArea();
 	}
 
-	@Override
-	public boolean needMasksUpdate() {
-		return super.needMasksUpdate() || nextTransformation != null || changedCombatLevel || changedName;
-	}
 
 	public void transformIntoNPC(int id) {
 		setNPC(id);
@@ -156,11 +153,6 @@ public class NPC extends Entity {
 
 	public NPCCombatDefinitions getCombatDefinitions() {
 		return NPCCombatDefinitionsL.getNPCCombatDefinitions(id);
-	}
-
-	@Override
-	public int getMaxHitpoints() {
-		return getCombatDefinitions().getHitpoints();
 	}
 
 	public int getId() {
@@ -551,32 +543,12 @@ public class NPC extends Entity {
 		}
 	}
 
-	@Override
-	public int getSize() {
-		return getDefinitions().size;
-	}
-
 	public int getMaxHit() {
 		return getCombatDefinitions().getMaxHit();
 	}
 
 	public int[] getBonuses() {
 		return bonuses;
-	}
-
-	@Override
-	public double getMagePrayerMultiplier() {
-		return 0;
-	}
-
-	@Override
-	public double getRangePrayerMultiplier() {
-		return 0;
-	}
-
-	@Override
-	public double getMeleePrayerMultiplier() {
-		return 0;
 	}
 
 	public WorldTile getRespawnTile() {

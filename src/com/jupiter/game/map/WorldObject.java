@@ -269,4 +269,12 @@ public class WorldObject extends WorldTile {
 	public int getConfig() {
 		return getDefinitions().configId;
 	}
+	
+	public boolean isAt(int x, int y) {
+		return this.x == x && this.y == y;
+	}
+	
+	public boolean isAt(int x, int y, int z) {
+		return this.x == x && this.y == y && this.plane == z;
+	}
 }

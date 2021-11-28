@@ -107,7 +107,7 @@ public final class Fishing extends HarvestingSkillAction {
 				return false;
 			}
 		}
-		if(getPlayer().getInventory().getFreeSlots() < 1) {
+		if(getPlayer().getInventory().isFull()) {
 			getPackets().sendGameMessage("You do not have any space left in your inventory.");
 			return false;
 		}

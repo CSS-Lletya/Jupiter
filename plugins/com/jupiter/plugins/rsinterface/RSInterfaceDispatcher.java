@@ -1,4 +1,4 @@
-package com.jupiter.plugins;
+package com.jupiter.plugins.rsinterface;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.game.player.Player;
-import com.jupiter.plugins.listener.RSInterface;
-import com.jupiter.plugins.wrapper.RSInterfaceSignature;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.Utils;
 
@@ -103,7 +101,7 @@ public final class RSInterfaceDispatcher {
 			// player.getSession().getChannel().close();
 			return;
 		}
-		if (player.isDead() || player.isLocked()) {
+		if (player.isDead() || player.getMovement().isLocked()) {
 			return;
 		}
 		if (!player.getInterfaceManager().containsInterface(interfaceId)) {

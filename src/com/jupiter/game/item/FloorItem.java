@@ -7,6 +7,11 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Logger;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class FloorItem extends Item {
 
 	private WorldTile tile;
@@ -19,8 +24,9 @@ public class FloorItem extends Item {
 	}
 
 	@Override
-	public void setAmount(int amount) {
-		this.amount = amount;
+	public Item setAmount(int amount) {
+		setAmount(amount);
+		return this;
 	}
 
 	public FloorItem(Item item, WorldTile tile, Player owner, boolean underGrave, boolean invisible) {
@@ -28,26 +34,6 @@ public class FloorItem extends Item {
 		this.tile = tile;
 		this.owner = owner;
 		grave = underGrave;
-		this.invisible = invisible;
-	}
-
-	public WorldTile getTile() {
-		return tile;
-	}
-
-	public boolean isGrave() {
-		return grave;
-	}
-
-	public boolean isInvisible() {
-		return invisible;
-	}
-
-	public Player getOwner() {
-		return owner;
-	}
-
-	public void setInvisible(boolean invisible) {
 		this.invisible = invisible;
 	}
 	

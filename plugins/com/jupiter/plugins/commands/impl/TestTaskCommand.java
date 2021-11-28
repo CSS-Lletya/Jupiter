@@ -4,8 +4,8 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"task"}, rights = {Rights.PLAYER}, syntax = "Task testing.")
 public final class TestTaskCommand implements Command {

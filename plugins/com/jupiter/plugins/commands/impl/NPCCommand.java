@@ -3,8 +3,8 @@ package com.jupiter.plugins.commands.impl;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.plugins.listener.Command;
-import com.jupiter.plugins.wrapper.CommandSignature;
+import com.jupiter.plugins.commands.Command;
+import com.jupiter.plugins.commands.CommandSignature;
 
 @CommandSignature(alias = {"npc"}, rights = {Rights.ADMINISTRATOR}, syntax = "Spawns a npc with the specified ID")
 public final class NPCCommand implements Command {

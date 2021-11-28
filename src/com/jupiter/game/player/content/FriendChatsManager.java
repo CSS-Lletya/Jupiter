@@ -178,7 +178,8 @@ public class FriendChatsManager {
 
 	public void sendMessage(Player player, String message) {
 		synchronized (this) {
-			if (!player.getUsername().equals(owner) && !settings.canTalk(player) && !player.getPlayerDetails().getRights().isStaff()) {
+			if (!player.getUsername().equals(owner) && !settings.canTalk(player)
+					&& !player.getPlayerDetails().getRights().isStaff()) {
 				player.getPackets()
 						.sendGameMessage("You do not have a enough rank to talk on this friends chat channel.");
 				return;
@@ -194,7 +195,8 @@ public class FriendChatsManager {
 
 	public void sendDiceMessage(Player player, String message) {
 		synchronized (this) {
-			if (!player.getUsername().equals(owner) && !settings.canTalk(player) && !player.getPlayerDetails().getRights().isStaff()) {
+			if (!player.getUsername().equals(owner) && !settings.canTalk(player)
+					&& !player.getPlayerDetails().getRights().isStaff()) {
 				player.getPackets()
 						.sendGameMessage("You do not have a enough rank to talk on this friends chat channel.");
 				return;
@@ -318,5 +320,17 @@ public class FriendChatsManager {
 				chat.joinChat(player);
 		}
 
+	}
+
+	public void kickPlayerFromFriendsChannel(Player player,String name) {
+		if (player.getCurrentFriendChat() == null)
+			return;
+		kickPlayerFromChat(player, name);
+	}
+
+	public void sendFriendsChannelMessage(Player player,String message) {
+		if (player.getCurrentFriendChat() == null)
+			return;
+		sendMessage(player, message);
 	}
 }
