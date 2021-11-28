@@ -14,14 +14,11 @@ import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.combat.player.type.AntifireDetails;
 import com.jupiter.combat.player.type.CombatEffect;
-import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
 import com.jupiter.game.EntityType;
 import com.jupiter.game.dialogue.Conversation;
 import com.jupiter.game.dialogue.Dialogue;
-import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.map.World;
-import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.content.AuraManager;
@@ -42,7 +39,6 @@ import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.net.encoders.WorldPacketsEncoder;
-import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.HintIconsManager;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.LocalNPCUpdate;
@@ -53,7 +49,6 @@ import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utils.IsaacKeyPair;
-import com.jupiter.utils.Logger;
 import com.jupiter.utils.MutableNumber;
 import com.jupiter.utils.Utils;
 
@@ -63,8 +58,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Player extends Entity {
-
-	public transient static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
 
 	private transient String username;
 	private transient Session session;
@@ -85,7 +78,6 @@ public class Player extends Entity {
 	 * Creates a new instance of a Players details
 	 */
 	private PlayerDetails playerDetails = new PlayerDetails();
-	
 	private Appearance appearence;
 	private Inventory inventory;
 	private Equipment equipment;
@@ -101,23 +93,15 @@ public class Player extends Entity {
 	private transient RouteEvent routeEvent;
 	private transient Conversation conversation;
 	private transient VarManager varsManager;
-	
-	// used for packets logic
 	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
-
-	// used for update
 	private transient LocalPlayerUpdate localPlayerUpdate;
 	private transient LocalNPCUpdate localNPCUpdate;
 
 	private transient byte temporaryMovementType;
 	private transient boolean updateMovementType;
-
-	// player stages - not personal
 	private transient boolean started;
 	private transient boolean isActive;
-
 	private transient long packetsDecoderPing;
-	private transient boolean resting;
 	private transient boolean canPvp;
 	private transient boolean cantTrade;
 	private transient Runnable closeInterfacesEvent;
@@ -134,9 +118,6 @@ public class Player extends Entity {
 	private transient long nextEmoteEnd;
 	private transient boolean forceNextMapLoadRefresh;
 
-	
-
-	// creates Player and saved classes
 	public Player(String password) {
 		super(Settings.START_PLAYER_LOCATION, EntityType.PLAYER);
 		setHitpoints(100);
@@ -186,7 +167,6 @@ public class Player extends Entity {
 		actionManager = new ActionManager(this);
 		trade = new Trade(this);
 		lodeStone.setPlayer(this);
-		// loads player on saved instances
 		appearence.setPlayer(this);
 		inventory.setPlayer(this);
 		equipment.setPlayer(this);
@@ -214,62 +194,6 @@ public class Player extends Entity {
 			getPlayerDetails().setIpList(new ArrayList<String>());
 		getSession().updateIPnPass(this);
 	}
-	
-	public boolean hasSkull() {
-		return getSkullTimer().get() > 0;
-	}
-
-	public void refreshSpawnedItems() {
-		for (int regionId : getMapRegionsIds()) {
-			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
-			if (floorItems == null)
-				continue;
-			for (FloorItem item : floorItems) {
-				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getPlane() != getPlane())
-					continue;
-				getPackets().sendRemoveGroundItem(item);
-			}
-		}
-		for (int regionId : getMapRegionsIds()) {
-			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
-			if (floorItems == null)
-				continue;
-			for (FloorItem item : floorItems) {
-				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getPlane() != getPlane())
-					continue;
-				getPackets().sendGroundItem(item);
-			}
-		}
-	}
-
-	public void refreshSpawnedObjects() {
-		for (int regionId : getMapRegionsIds()) {
-			List<WorldObject> spawnedObjects = World.getRegion(regionId).getSpawnedObjects();
-			if (spawnedObjects != null) {
-				for (WorldObject object : spawnedObjects)
-					if (object.getPlane() == getPlane())
-						getPackets().sendSpawnedObject(object);
-			}
-			List<WorldObject> removedObjects = World.getRegion(regionId).getRemovedObjects();
-			if (removedObjects != null) {
-				for (WorldObject object : removedObjects)
-					if (object.getPlane() == getPlane())
-						getPackets().sendDestroyObject(object);
-			}
-		}
-	}
-
-	// now that we inited we can start showing game
-	public void start() {
-		loadMapRegions();
-		started = true;
-		run();
-
-		if (isDead())
-			sendDeath(null);
-	}
 
 	public void stopAll() {
 		stopAll(true);
@@ -286,7 +210,7 @@ public class Player extends Entity {
 	// as walk done clientsided - not anymore buddy
 	public void stopAll(boolean stopWalk, boolean stopInterfaces, boolean stopActions) {
 		if (stopInterfaces)
-			closeInterfaces();
+			getInterfaceManager().closeInterfaces();
 		if (stopWalk){
 			coordsEvent = null;
 			routeEvent = null;
@@ -296,19 +220,6 @@ public class Player extends Entity {
 		if (stopActions)
 			actionManager.forceStop();
 		combatDefinitions.resetSpells(false);
-	}
-
-	public void closeInterfaces() {
-		if (interfaceManager.containsScreenInter())
-			interfaceManager.closeScreenInterface();
-		if (interfaceManager.containsInventoryInter())
-			interfaceManager.closeInventoryInterface();
-		endConversation();
-		getInterfaceManager().closeChatBoxInterface();
-		if (closeInterfacesEvent != null) {
-			closeInterfacesEvent.run();
-			closeInterfacesEvent = null;
-		}
 	}
 	
 	public void startConversation(Dialogue dialogue) {
@@ -329,24 +240,7 @@ public class Player extends Entity {
 		if (getInterfaceManager().containsChatBoxInter())
 			getInterfaceManager().closeChatBoxInterface();
 	}
-
-	@Override
-	public void loadMapRegions() {
-		boolean wasAtDynamicRegion = isAtDynamicRegion();
-		super.loadMapRegions();
-		clientLoadedMapRegion = false;
-		if (isAtDynamicRegion()) {
-			getPackets().sendDynamicMapRegion(!started);
-			if (!wasAtDynamicRegion)
-				localNPCUpdate.reset();
-		} else {
-			getPackets().sendMapRegion(!started);
-			if (wasAtDynamicRegion)
-				localNPCUpdate.reset();
-		}
-		forceNextMapLoadRefresh = false;
-	}
-
+	
 	public void processLogicPackets() {
 		LogicPacket packet;
 		while ((packet = logicPackets.poll()) != null)
@@ -359,7 +253,7 @@ public class Player extends Entity {
 			return;
 		}
 		if (finishing)
-			finish(0);
+			getSession().finish(this, 0);
 		processLogicPackets();
 		super.processEntity();
 		if (coordsEvent != null && coordsEvent.processEvent(this))
@@ -379,41 +273,6 @@ public class Player extends Entity {
 		actionManager.process();
 		controlerManager.process();
 	}
-    
-
-	@Override
-	public void processReceivedHits() {
-		if (getMovement().getLockDelay() > Utils.currentTimeMillis())
-			return;
-		super.processReceivedHits();
-	}
-
-	@Override
-	public boolean needMasksUpdate() {
-		return super.needMasksUpdate() || temporaryMovementType != -1 || updateMovementType;
-	}
-
-	@Override
-	public void resetMasks() {
-		super.resetMasks();
-		temporaryMovementType = -1;
-		updateMovementType = false;
-		if (!isClientLoadedMapRegion()) {
-			// load objects and items here
-			setClientLoadedMapRegion(true);
-			refreshSpawnedObjects();
-			refreshSpawnedItems();
-		}
-	}
-
-	@Override
-	public void setRun(boolean run) {
-		if (run != getRun()) {
-			super.setRun(run);
-			updateMovementType = true;
-			getMovement().sendRunButtonConfig();
-		}
-	}
 
 	public void run() {
 		if (World.exiting_start != 0) {
@@ -425,18 +284,8 @@ public class Player extends Entity {
 		getInterfaceManager().sendInterfaces();
 		getPackets().sendRunEnergy();
 		getPackets().sendItemsLook();
-		refreshAllowChatEffects();
-		refreshMouseButtons();
-		refreshPrivateChatSetup();
-		refreshOtherChatsSetup();
-		CombatEffect.values().forEach($it -> {
-			if($it.onLogin(this))
-				World.get().submit(new CombatEffectTask(this, $it));
-		});
-		Settings.STAFF.entrySet().forEach(staff -> {
-			if (getUsername().equalsIgnoreCase(staff.getKey()))
-				getPlayerDetails().setRights(staff.getValue());
-		});
+		CombatEffect.values().parallelStream().filter(effects -> effects.onLogin(this)).forEach(effects -> World.get().submit(new CombatEffectTask(this, effects)));
+		Settings.STAFF.entrySet().parallelStream().filter(staff -> getUsername().equalsIgnoreCase(staff.getKey())).forEach(staff -> getPlayerDetails().setRights(staff.getValue()));
 		getPlayerDetails().getVarBitList().entrySet().forEach(varbit -> getVarsManager().forceSendVarBit(varbit.getKey(), varbit.getValue()));
 		getMovement().sendRunButtonConfig();
 		getPackets().sendGameMessage("Welcome to " + Settings.SERVER_NAME + ".");
@@ -486,44 +335,6 @@ public class Player extends Entity {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void sendUnlockedObjectConfigs() {
-		refreshLodestoneNetwork();
-	}
-
-	private void refreshLodestoneNetwork() {
-		// unlocks bandit camp lodestone
-		getPackets().sendConfigByFile(358, 15);
-		// unlocks lunar isle lodestone
-		getPackets().sendConfigByFile(2448, 190);
-		// unlocks alkarid lodestone
-		getPackets().sendConfigByFile(10900, 1);
-		// unlocks ardougne lodestone
-		getPackets().sendConfigByFile(10901, 1);
-		// unlocks burthorpe lodestone
-		getPackets().sendConfigByFile(10902, 1);
-		// unlocks catherbay lodestone
-		getPackets().sendConfigByFile(10903, 1);
-		// unlocks draynor lodestone
-		getPackets().sendConfigByFile(10904, 1);
-		// unlocks edgeville lodestone
-		getPackets().sendConfigByFile(10905, 1);
-		// unlocks falador lodestone
-		getPackets().sendConfigByFile(10906, 1);
-		// unlocks lumbridge lodestone
-		getPackets().sendConfigByFile(10907, 1);
-		// unlocks port sarim lodestone
-		getPackets().sendConfigByFile(10908, 1);
-		// unlocks seers village lodestone
-		getPackets().sendConfigByFile(10909, 1);
-		// unlocks taverley lodestone
-		getPackets().sendConfigByFile(10910, 1);
-		// unlocks varrock lodestone
-		getPackets().sendConfigByFile(10911, 1);
-		// unlocks yanille lodestone
-		getPackets().sendConfigByFile(10912, 1);
-	}
-
 	public void sendDefaultPlayersOptions() {
 		// To Debug full list of options possible
 //		for (int i = 1; i < 10; i++)
@@ -541,80 +352,28 @@ public class Player extends Entity {
 		World.get().queueLogout(this);
 	}
 
-	public void forceLogout() {
-		getPackets().sendLogout(false);
-		isActive = false;
-		realFinish();
-	}
-
 	private transient boolean finishing;
 
 	@Override
 	public void finish() {
-		finish(0);
-	}
-
-	public void finish(final int tryCount) {
-		if (finishing || hasFinished())
-			return;
-		finishing = true;
-		// if combating doesnt stop when xlog this way ends combat
-		stopAll(false, true, !(actionManager.getAction() instanceof PlayerCombat));
-		long currentTime = Utils.currentTimeMillis();
-		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
-				|| getNextEmoteEnd() >= currentTime || getMovement().getLockDelay() >= currentTime) {
-			CoresManager.schedule(() -> {
-				try {
-					packetsDecoderPing = Utils.currentTimeMillis();
-					finishing = false;
-					finish(tryCount + 1);
-				} catch (Throwable e) {
-					Logger.handle(e);
-				}
-			}, 10);
-			return;
-		}
-		realFinish();
-	}
-
-	public void realFinish() {
-		if (hasFinished())
-			return;
-		stopAll();
-		controlerManager.logout(); // checks what to do on before logout for
-		// login
-		isActive = false;
-		friendsIgnores.sendFriendsMyStatus(false);
-		if (currentFriendChat != null)
-			currentFriendChat.leaveChat(this, true);
-		World.get().getTask().cancel(this);
-		setAction(Optional.empty());
-		setFinished(true);
-		session.setDecoder(-1);
-		AccountCreation.savePlayer(this);
-		updateEntityRegion(this);
-		World.removePlayer(this);
+		getSession().finish(this, 0);
 	}
 
 	@Override
-	public boolean restoreHitPoints() {
-		if (isDead()) {
-			return false;
+	public void loadMapRegions() {
+		boolean wasAtDynamicRegion = isAtDynamicRegion();
+		super.loadMapRegions();
+		clientLoadedMapRegion = false;
+		if (isAtDynamicRegion()) {
+			getPackets().sendDynamicMapRegion(!started);
+			if (!wasAtDynamicRegion)
+				localNPCUpdate.reset();
+		} else {
+			getPackets().sendMapRegion(!started);
+			if (wasAtDynamicRegion)
+				localNPCUpdate.reset();
 		}
-		boolean update = super.restoreHitPoints();
-		if (update) {
-			if (prayer.usingPrayer(0, 9))
-				super.restoreHitPoints();
-			if (resting)
-				super.restoreHitPoints();
-			getSkills().refreshHitPoints();
-		}
-		return update;
-	}
-
-	@Override
-	public int getMaxHitpoints() {
-		return skills.getLevel(Skills.HITPOINTS) * 10 + equipment.getEquipmentHpIncrease();
+		forceNextMapLoadRefresh = false;
 	}
 	
 	public int getMessageIcon() {
@@ -627,23 +386,6 @@ public class Player extends Entity {
 	
 	public String getDisplayName() {
 		return Utils.formatPlayerNameForDisplay(username);
-	}
-
-	public void sendSoulSplit(final Hit hit, final Entity user) {
-		final Player target = this;
-		if (hit.getDamage() > 0)
-			World.sendProjectile(user, this, 2263, 11, 11, 20, 5, 0, 0);
-		user.heal(hit.getDamage() / 5);
-		prayer.drainPrayer(hit.getDamage() / 5);
-		World.get().submit(new Task(0) {
-			@Override
-			protected void execute() {
-				setNextGraphics(new Graphics(2264));
-				if (hit.getDamage() > 0)
-					World.sendProjectile(target, user, 2263, 11, 11, 20, 5, 0, 0);
-				this.cancel();
-			}
-		});
 	}
 
 	@Override
@@ -661,33 +403,6 @@ public class Player extends Entity {
 		appearence.getAppeareanceBlocks();
 		getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
 		getPackets().sendPlayerUnderNPCPriority(canPvp);
-	}
-
-	public void switchMouseButtons() {
-		getPlayerDetails().setMouseButtons(getPlayerDetails().isMouseButtons());
-		refreshMouseButtons();
-	}
-
-	public void switchAllowChatEffects() {
-		getPlayerDetails().setAllowChatEffects(getPlayerDetails().isAllowChatEffects());
-		refreshAllowChatEffects();
-	}
-
-	public void refreshAllowChatEffects() {
-		getPackets().sendConfig(171, getPlayerDetails().isAllowChatEffects() ? 0 : 1);
-	}
-
-	public void refreshMouseButtons() {
-		getPackets().sendConfig(170, getPlayerDetails().isMouseButtons() ? 0 : 1);
-	}
-
-	public void refreshPrivateChatSetup() {
-		getPackets().sendConfig(287, getPlayerDetails().getPrivateChatSetup());
-	}
-
-	public void refreshOtherChatsSetup() {
-		int value = getPlayerDetails().getFriendChatSetup() << 6;
-		getPackets().sendConfig(1438, value);
 	}
 
 	public void sendPublicChatMessage(PublicChatMessage message) {
@@ -733,12 +448,6 @@ public class Player extends Entity {
 		return teleblock;
 	}
 
-	public byte getMovementType() {
-		if (getTemporaryMovementType() != -1)
-			return getTemporaryMovementType();
-		return getRun() ? RUN_MOVE_TYPE : WALK_MOVE_TYPE;
-	}
-
 	public List<String> getOwnedObjectManagerKeys() {
 		if (getPlayerDetails().getOwnedObjectsManagerKeys() == null) // temporary
 			getPlayerDetails().setOwnedObjectsManagerKeys(new LinkedList<String>());
@@ -770,11 +479,7 @@ public class Player extends Entity {
 	 * Holds an optional wrapped inside the Antifire details.
 	 */
 	private Optional<AntifireDetails> antifireDetails = Optional.empty();
-	
-	public void sendSound(int id) {
-		getPackets().sendSound(id, 0, 1);
-	}
-	
+
 	private Toolbelt toolbelt;
 	
 	public void sendTab(Tab tab) {

@@ -95,7 +95,6 @@ public abstract class Entity extends WorldTile {
 	private int hitpoints;
 	private transient int mapSize; // default 0, can be setted other value usefull on
 							// static maps
-	private transient boolean run;
 	
 	public boolean inArea(int a, int b, int c, int d) {
 		return getX() >= a && getY() >= b && getX() <= c && getY() <= d;
@@ -143,7 +142,7 @@ public abstract class Entity extends WorldTile {
 			toPlayer().getCombatDefinitions().resetSpecialAttack();
 			toPlayer().getPrayer().reset();
 			toPlayer().getCombatDefinitions().resetSpells(true);
-			toPlayer().setResting(false);
+			toPlayer().getMovement().setRestingMode(false);
 			toPlayer().getPoisonDamage().set(0);
 			toPlayer().setCastedVeng(false);
 			toPlayer().getPlayerDetails().setRunEnergy(100);
@@ -164,7 +163,7 @@ public abstract class Entity extends WorldTile {
 
 	public void processReceivedHits() {
 		if (this instanceof Player) {
-			if (((Player) this).getNextEmoteEnd() >= Utils.currentTimeMillis())
+			if (((Player) this).getNextEmoteEnd() >= Utils.currentTimeMillis() || getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
 		}
 		Hit hit;
@@ -308,7 +307,7 @@ public abstract class Entity extends WorldTile {
 	public abstract void sendDeath(Entity source);
 
 	public void processMovement() {
-		boolean run = this.run;
+		boolean run = toPlayer().getMovement().isRun();
 		lastWorldTile = new WorldTile(this);
 		if (lastFaceEntity >= 0) {
 			Entity target = lastFaceEntity >= 32768 ? World.getPlayers().get(lastFaceEntity - 32768) : World.getNPCs().get(lastFaceEntity);
@@ -326,7 +325,7 @@ public abstract class Entity extends WorldTile {
 			nextWorldTile = null;
 			teleported = true;
 			if (this instanceof Player && ((Player) this).getTemporaryMovementType() == -1)
-				((Player) this).setTemporaryMovementType(Player.TELE_MOVE_TYPE);
+				((Player) this).setTemporaryMovementType(toPlayer().getMovement().TELE_MOVE_TYPE);
 			updateEntityRegion(this);
 			if (needMapUpdate())
 				loadMapRegions();
@@ -340,7 +339,7 @@ public abstract class Entity extends WorldTile {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
 				if (stepCount == 1 && this instanceof Player)
-					((Player) this).setTemporaryMovementType(Player.WALK_MOVE_TYPE);
+					((Player) this).setTemporaryMovementType(toPlayer().getMovement().WALK_MOVE_TYPE);
 				break;
 			}
 			int dir = (int) nextStep[0];
@@ -797,11 +796,35 @@ public abstract class Entity extends WorldTile {
 			}
 			return true;
 		}
+		ifPlayer(p -> {
+			if (isDead()) {
+				return;
+			}
+			boolean update = restoreHitPoints();
+			if (update) {
+				if (p.getPrayer().usingPrayer(0, 9))
+					restoreHitPoints();
+				if (p.getMovement().isResting())
+					restoreHitPoints();
+				p.getSkills().refreshHitPoints();
+			}
+		});
 		return false;
 	}
 
 	public boolean needMasksUpdate() {
-		return nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null || nextGraphics3 != null || nextGraphics4 != null || (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty() || !nextBars.isEmpty() || nextForceMovement != null || nextForceTalk != null;
+		if (isPlayer())
+			return (toPlayer().getTemporaryMovementType() != -1)
+					|| (toPlayer().isUpdateMovementType()) || nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+							|| nextGraphics3 != null || nextGraphics4 != null
+							|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+							|| nextForceMovement != null || nextForceTalk != null;
+		if (isNPC())
+			return (toNPC().getNextTransformation() != null)|| nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+					|| nextGraphics3 != null || nextGraphics4 != null
+					|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+					|| nextForceMovement != null || nextForceTalk != null;
+		return false;
 	}
 
 	/**
@@ -838,11 +861,27 @@ public abstract class Entity extends WorldTile {
 		nextFaceEntity = -2;
 		nextHits.clear();
 		nextBars.clear();
+		ifPlayer(player -> {
+			player.setTemporaryMovementType((byte) -1);
+			player.setUpdateMovementType(false);
+			if (!player.isClientLoadedMapRegion()) {
+				player.setClientLoadedMapRegion(true);
+				World.getRegion(getRegionId()).refreshSpawnedObjects(player);
+				World.getRegion(getRegionId()).refreshSpawnedItems(player);
+			}
+		});
+		ifNpc(npc -> {
+			npc.nextTransformation = null;
+			npc.changedCombatLevel = false;
+			npc.changedName = false;
+		});
 	}
 
 	public abstract void finish();
 
-	public abstract int getMaxHitpoints();
+	public int getMaxHitpoints() {
+		return isNPC() ? toNPC().getCombatDefinitions().getHitpoints() : toPlayer().getSkills().getLevel(Skills.HITPOINTS) * 10 + toPlayer().getEquipment().getEquipmentHpIncrease();
+	}
 
 	public void processEntity() {
 		processMovement();
@@ -1003,11 +1042,13 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void setRun(boolean run) {
-		this.run = run;
-	}
-
-	public boolean getRun() {
-		return run;
+		ifPlayer(p -> {
+			if (run != p.getMovement().isRun()) {
+				p.getMovement().setRun(run);
+				p.setUpdateMovementType(true);
+				p.getMovement().sendRunButtonConfig();
+			}
+		});
 	}
 
 	public WorldTile getNextFaceWorldTile() {

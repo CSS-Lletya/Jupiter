@@ -5,10 +5,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import com.jupiter.game.map.WorldTile;
+import com.jupiter.game.player.Player;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public class Movement {
@@ -109,13 +112,13 @@ public class Movement {
 		entity.toPlayer().getPackets().sendRunEnergy();
 	}
 
-	public void setResting(boolean resting) {
-		entity.toPlayer().setResting(resting);
+	public void setRestingMode(boolean resting) {
+		setRestingMode(resting);
 		sendRunButtonConfig();
 	}
 	
 	public void toogleRun(boolean update) {
-		entity.setRun(!entity.getRun());
+		entity.setRun(!isRun());
 		entity.toPlayer().setUpdateMovementType(update);
 		if (update)
 			sendRunButtonConfig();
@@ -127,6 +130,22 @@ public class Movement {
 	}
 	
 	public void sendRunButtonConfig() {
-		entity.toPlayer().getPackets().sendConfig(173, entity.toPlayer().isResting() ? 3 : entity.getRun() ? 1 : 0);
+		entity.toPlayer().getPackets().sendConfig(173, isResting() ? 3 : isRun() ? 1 : 0);
 	}
+	
+	@Getter
+	@Setter
+	private transient boolean resting;
+	
+	public transient final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
+	
+	public byte getMovementType(Player player) {
+		if (player.getTemporaryMovementType() != -1)
+			return player.getTemporaryMovementType();
+		return isRun() ? RUN_MOVE_TYPE : WALK_MOVE_TYPE;
+	}
+	
+	@Getter
+	@Setter
+	private transient boolean run;
 }

@@ -75,7 +75,11 @@ public class InterfaceManager {
 //		if (player.getFamiliar() != null && player.isActive())
 //			player.getFamiliar().unlock();
 		player.getControlerManager().sendInterfaces();
-		player.getInterfaceManager().sendOverlay(1252, false);
+//		player.getInterfaceManager().sendOverlay(1252, false); //sof
+		refreshAllowChatEffects();
+		refreshMouseButtons();
+		refreshPrivateChatSetup();
+		refreshOtherChatsSetup();
 	}
 
 	public void replaceRealChatBoxInterface(int interfaceId) {
@@ -481,6 +485,46 @@ public class InterfaceManager {
 		private Tab(int interfaceId, Consumer<Player> action) {
 			this(interfaceId);
 			this.action = action;
+		}
+	}
+	
+	public void switchMouseButtons() {
+		player.getPlayerDetails().setMouseButtons(player.getPlayerDetails().isMouseButtons());
+		refreshMouseButtons();
+	}
+
+	public void switchAllowChatEffects() {
+		player.getPlayerDetails().setAllowChatEffects(player.getPlayerDetails().isAllowChatEffects());
+		refreshAllowChatEffects();
+	}
+
+	public void refreshAllowChatEffects() {
+		player.getPackets().sendConfig(171, player.getPlayerDetails().isAllowChatEffects() ? 0 : 1);
+	}
+
+	public void refreshMouseButtons() {
+		player.getPackets().sendConfig(170, player.getPlayerDetails().isMouseButtons() ? 0 : 1);
+	}
+
+	public void refreshPrivateChatSetup() {
+		player.getPackets().sendConfig(287, player.getPlayerDetails().getPrivateChatSetup());
+	}
+
+	public void refreshOtherChatsSetup() {
+		int value = player.getPlayerDetails().getFriendChatSetup() << 6;
+		player.getPackets().sendConfig(1438, value);
+	}
+	
+	public void closeInterfaces() {
+		if (containsScreenInter())
+			closeScreenInterface();
+		if (containsInventoryInter())
+			closeInventoryInterface();
+		player.endConversation();
+		player.getInterfaceManager().closeChatBoxInterface();
+		if (player.getCloseInterfacesEvent() != null) {
+			player.getCloseInterfacesEvent().run();
+			player.setCloseInterfacesEvent(null);
 		}
 	}
 }

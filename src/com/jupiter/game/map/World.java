@@ -397,7 +397,7 @@ public final class World {
 			@Override
 			public void run() {
 				try {
-					players().forEach(p -> p.realFinish());
+					players().forEach(p -> p.getSession().realFinish(p));
 					Launcher.shutdown();
 				} catch (Throwable e) {
 					Logger.handle(e);

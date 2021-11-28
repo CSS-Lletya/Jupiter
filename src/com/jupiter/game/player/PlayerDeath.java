@@ -88,7 +88,7 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 			return;
 		int keptAmount = 0;
 //		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
-			keptAmount = player.hasSkull() ? 0 : 3;
+			keptAmount = player.getCombatDefinitions().hasSkull() ? 0 : 3;
 			if (player.getPrayer().usingPrayer(0, 10) || player.getPrayer().usingPrayer(1, 0))
 				keptAmount++;
 //		}

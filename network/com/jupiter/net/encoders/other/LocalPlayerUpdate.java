@@ -414,7 +414,7 @@ public final class LocalPlayerUpdate {
 	}
 
 	private void applyMoveTypeMask(Player p, OutputStream data) {
-		data.write128Byte(p.getRun() ? 2 : 1);
+		data.write128Byte(p.getMovement().isRun() ? 2 : 1);
 	}
 
 	private void applyTemporaryMoveTypeMask(Player p, OutputStream data) {
