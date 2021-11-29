@@ -1011,10 +1011,6 @@ public class WorldPacketsEncoder extends Encoder {
 			sendIndex15Sound(id, delay);
 	}
 
-	public void sendSound(int id) {
-		sendSound(id, 0, 1);
-	}
-	
 	public void sendVoice(int id) {
 		resetSounds();
 		sendSound(id, 0, 2);

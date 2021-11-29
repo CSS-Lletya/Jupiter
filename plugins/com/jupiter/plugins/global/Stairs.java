@@ -2,6 +2,7 @@ package com.jupiter.plugins.global;
 
 import java.util.Optional;
 
+import com.jupiter.game.map.WorldTile;
 import com.jupiter.plugin.annotations.PluginEventHandler;
 import com.jupiter.plugin.events.ObjectClickEvent;
 import com.jupiter.plugin.handlers.ObjectClickHandler;

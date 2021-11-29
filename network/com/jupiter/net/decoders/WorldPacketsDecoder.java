@@ -1439,7 +1439,7 @@ public final class WorldPacketsDecoder extends Decoder {
 //			player.getPackets().sendGameMessage("pressed: "+Utils.getKeyPressedFromListenerByte(short0));
 			switch (short0) {
 				case 3328:
-					player.getInterfaceManager().closeInterfaces();
+					player.closeInterfaces();
 			}
 		}
 		else if (packetId ==  INACTIVITY_PACKET){

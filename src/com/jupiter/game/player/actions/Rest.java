@@ -18,7 +18,7 @@ public class Rest extends Action {
 		if (!process(player))
 			return false;
 		index = Utils.random(REST_DEFS.length);
-		player.getMovement().setResting(true);
+		player.setResting(true);
 		player.setNextAnimation(new Animation(REST_DEFS[index][0]));
 		player.getAppearence().setRenderEmote((short) REST_DEFS[index][1]);
 		return true;
@@ -44,7 +44,7 @@ public class Rest extends Action {
 
 	@Override
 	public void stop(Player player) {
-		player.getMovement().setResting(false);
+		player.setResting(false);
 		player.setNextAnimation(new Animation(REST_DEFS[index][2]));
 		Emotes.setNextEmoteEnd(player);
 		player.getAppearence().setRenderEmote((short) -1);

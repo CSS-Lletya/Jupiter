@@ -37,7 +37,7 @@ public class PlayerFollow extends Action {
 				|| distanceX < -1 - maxDistance || distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 			if (player.hasWalkSteps())
 				player.resetWalkSteps();
-			player.addWalkStepsInteract(target.getX(), target.getY(), player.getMovement().isRun() ? 2 : 1, size, true);
+			player.addWalkStepsInteract(target.getX(), target.getY(), player.getRun() ? 2 : 1, size, true);
 			// }
 			return true;
 		} else {

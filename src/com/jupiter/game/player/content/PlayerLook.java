@@ -86,7 +86,7 @@ public final class PlayerLook {
 		else if (buttonId == 7)
 			player.getTemporaryAttributtes().put("hairSaloon", false);
 		else if (buttonId == 18) {
-			player.getInterfaceManager().closeInterfaces();
+			player.closeInterfaces();
 		} else if (buttonId == 10) {
 			Boolean hairSalon = (Boolean) player.getTemporaryAttributtes().get("hairSaloon");
 			if (hairSalon != null && hairSalon)
@@ -125,7 +125,7 @@ public final class PlayerLook {
 		} else if (buttonId == 9)
 			player.getTemporaryAttributtes().put("ThessaliasMakeOver", 3);
 		else if (buttonId == 19) { // confirm
-			player.getInterfaceManager().closeInterfaces();
+			player.closeInterfaces();
 		} else if (buttonId == 12) { // set part
 			Integer stage = (Integer) player.getTemporaryAttributtes().get("ThessaliasMakeOver");
 			if (stage == null || stage == 0) {

@@ -103,11 +103,11 @@ public class WorldMapInterfacePlugin implements RSInterface {
 		} else if (interfaceId == 750) {
 			if (componentId == 4) {
 				if (packetId == WorldPacketsDecoder.ACTION_BUTTON1_PACKET) {
-					player.getMovement().toogleRun(!player.getMovement().isResting());
-					if (player.getMovement().isResting())
+					player.getMovement().toogleRun(!player.isResting());
+					if (player.isResting())
 						player.stopAll();
 				} else if (packetId == WorldPacketsDecoder.ACTION_BUTTON2_PACKET) {
-					if (player.getMovement().isResting()) {
+					if (player.isResting()) {
 						player.stopAll();
 						return;
 					}

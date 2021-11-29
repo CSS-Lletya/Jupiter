@@ -53,12 +53,12 @@ public class NPC extends Entity {
 	private boolean noDistanceCheck;
 
 	// npc masks
-	public transient Transformation nextTransformation;
+	private transient Transformation nextTransformation;
 	// name changing masks
 	private String name;
-	public transient boolean changedName;
-	public int combatLevel;
-	public transient boolean changedCombatLevel;
+	private transient boolean changedName;
+	private int combatLevel;
+	private transient boolean changedCombatLevel;
 	private transient boolean locked;
 
 	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea) {
@@ -116,6 +116,10 @@ public class NPC extends Entity {
 		checkMultiArea();
 	}
 
+	@Override
+	public boolean needMasksUpdate() {
+		return super.needMasksUpdate() || nextTransformation != null || changedCombatLevel || changedName;
+	}
 
 	public void transformIntoNPC(int id) {
 		setNPC(id);
@@ -153,6 +157,11 @@ public class NPC extends Entity {
 
 	public NPCCombatDefinitions getCombatDefinitions() {
 		return NPCCombatDefinitionsL.getNPCCombatDefinitions(id);
+	}
+
+	@Override
+	public int getMaxHitpoints() {
+		return getCombatDefinitions().getHitpoints();
 	}
 
 	public int getId() {

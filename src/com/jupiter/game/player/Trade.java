@@ -176,7 +176,7 @@ public class Trade {
 							target.getTrade().nextStage();
 					} else {
 						player.setCloseInterfacesEvent(null);
-						player.getInterfaceManager().closeInterfaces();
+						player.closeInterfaces();
 						closeTrade(CloseTradeStage.DONE);
 					}
 					return;
@@ -227,7 +227,7 @@ public class Trade {
 			return false;
 		if (player.getInventory().getItems().getUsedSlots() + target.getTrade().items.getUsedSlots() > 28) {
 			player.setCloseInterfacesEvent(null);
-			player.getInterfaceManager().closeInterfaces();
+			player.closeInterfaces();
 			closeTrade(CloseTradeStage.NO_SPACE);
 			return false;
 		}
@@ -307,7 +307,7 @@ public class Trade {
 				}
 				if (oldTarget.getTrade().isTrading()) {
 					oldTarget.setCloseInterfacesEvent(null);
-					oldTarget.getInterfaceManager().closeInterfaces();
+					oldTarget.closeInterfaces();
 					oldTarget.getTrade().closeTrade(stage);
 					if (CloseTradeStage.CANCEL == stage)
 						oldTarget.getPackets().sendGameMessage("<col=ff0000>Other player declined trade!");

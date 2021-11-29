@@ -51,7 +51,7 @@ public final class WeaponSpecialDispatcher {
 			player.faceEntity(entity);
 			specials.get().getAnimation().ifPresent(player::setNextAnimation);
 			specials.get().getGraphics().ifPresent(player::setNextGraphics);
-			specials.get().getSound().ifPresent(player.getPackets()::sendSound);
+			specials.get().getSound().ifPresent(player::sendSound);
 			specials.get().execute(player, entity, combat);
 			return true;
 		} catch (Exception e) {

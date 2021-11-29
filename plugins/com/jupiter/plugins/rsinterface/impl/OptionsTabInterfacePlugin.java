@@ -20,11 +20,11 @@ public class OptionsTabInterfacePlugin implements RSInterface {
 			player.stopAll();
 			player.getInterfaceManager().sendInterface(742);
 		} else if (componentId == 12)
-			player.getInterfaceManager().switchAllowChatEffects();
+			player.switchAllowChatEffects();
 		else if (componentId == 13) { // chat setup
 			player.getInterfaceManager().sendSettings(982);
 		} else if (componentId == 14)
-			player.getInterfaceManager().switchMouseButtons();
+			player.switchMouseButtons();
 		else if (componentId == 24) // audio options
 			player.getInterfaceManager().sendSettings(429);
 		else if (componentId == 26)

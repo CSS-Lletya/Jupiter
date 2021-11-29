@@ -104,7 +104,7 @@ public class Appearance {
 		if (title != null)
 			stream.writeGJString(title);
 
-		stream.writeByte(player.getCombatDefinitions().hasSkull() ? player.getPlayerDetails().getSkullId() : -1);
+		stream.writeByte(player.hasSkull() ? player.getPlayerDetails().getSkullId() : -1);
 		stream.writeByte(player.getPrayer().getPrayerHeadIcon());
 		stream.writeByte(hidePlayer ? 1 : 0);
 
@@ -353,7 +353,7 @@ public class Appearance {
 			String titleName = title == 666 ? "<col=C12006>Phantom </col>" : ClientScriptMap.getMap(male ? 1093 : 3872).getStringValue(title);
 			stream.writeGJString(titleName);
 		}
-		stream.writeByte(player.getCombatDefinitions().hasSkull() ? player.getPlayerDetails().getSkullId() : -1); // pk// icon
+		stream.writeByte(player.hasSkull() ? player.getPlayerDetails().getSkullId() : -1); // pk// icon
 		stream.writeByte(player.getPrayer().getPrayerHeadIcon()); // prayer icon
 		stream.writeByte(hidePlayer ? 1 : 0);
 		// npc
@@ -522,7 +522,7 @@ public class Appearance {
 			String titleName = title == 666 ? "<col=C12006>Phantom </col>" : ClientScriptMap.getMap(male ? 1093 : 3872).getStringValue(title);
 			stream.writeGJString(titleName);
 		}
-		stream.writeByte(player.getCombatDefinitions().hasSkull() ? player.getPlayerDetails().getSkullId() : -1); // pk// icon
+		stream.writeByte(player.hasSkull() ? player.getPlayerDetails().getSkullId() : -1); // pk// icon
 		stream.writeByte(player.getPrayer().getPrayerHeadIcon()); // prayer icon
 		stream.writeByte(hidePlayer ? 1 : 0);
 		// npc

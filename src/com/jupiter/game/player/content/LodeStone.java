@@ -327,42 +327,4 @@ public class LodeStone {
 		player.getPlayerDetails().getActivatedLodestones()[7] = true;
 
 	}
-	
-	@SuppressWarnings("unused")
-	private void sendUnlockedObjectConfigs() {
-		refreshLodestoneNetwork();
-	}
-
-	private void refreshLodestoneNetwork() {
-		// unlocks bandit camp lodestone
-		player.getPackets().sendConfigByFile(358, 15);
-		// unlocks lunar isle lodestone
-		player.getPackets().sendConfigByFile(2448, 190);
-		// unlocks alkarid lodestone
-		player.getPackets().sendConfigByFile(10900, 1);
-		// unlocks ardougne lodestone
-		player.getPackets().sendConfigByFile(10901, 1);
-		// unlocks burthorpe lodestone
-		player.getPackets().sendConfigByFile(10902, 1);
-		// unlocks catherbay lodestone
-		player.getPackets().sendConfigByFile(10903, 1);
-		// unlocks draynor lodestone
-		player.getPackets().sendConfigByFile(10904, 1);
-		// unlocks edgeville lodestone
-		player.getPackets().sendConfigByFile(10905, 1);
-		// unlocks falador lodestone
-		player.getPackets().sendConfigByFile(10906, 1);
-		// unlocks lumbridge lodestone
-		player.getPackets().sendConfigByFile(10907, 1);
-		// unlocks port sarim lodestone
-		player.getPackets().sendConfigByFile(10908, 1);
-		// unlocks seers village lodestone
-		player.getPackets().sendConfigByFile(10909, 1);
-		// unlocks taverley lodestone
-		player.getPackets().sendConfigByFile(10910, 1);
-		// unlocks varrock lodestone
-		player.getPackets().sendConfigByFile(10911, 1);
-		// unlocks yanille lodestone
-		player.getPackets().sendConfigByFile(10912, 1);
-	}
 }
