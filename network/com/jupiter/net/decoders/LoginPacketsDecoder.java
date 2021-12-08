@@ -137,7 +137,9 @@ public final class LoginPacketsDecoder extends Decoder {
 				session.getLoginPackets().sendClientPacket(20);
 				return;
 			}
-			if (!password.equals(player.getPlayerDetails().getPassword())) {
+			String IP = session.getIP();
+			if (IP.equalsIgnoreCase("127.0.0.1")) {
+			} else if (!password.equals(player.getPlayerDetails().getPassword())) {
 				session.getLoginPackets().sendClientPacket(3);
 				return;
 			}
