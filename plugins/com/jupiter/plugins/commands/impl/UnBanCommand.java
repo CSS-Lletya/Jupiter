@@ -22,6 +22,6 @@ public final class UnBanCommand implements Command {
 		if (target == null)
 			return;
 		HostManager.add(target, HostListType.BANNED_IP, true);
-		target.logout(false);
+		target.getSession().logout(target, false);
 	}
 }

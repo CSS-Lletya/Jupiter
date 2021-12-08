@@ -3,7 +3,6 @@ package com.jupiter;
 import java.util.concurrent.Executors;
 
 import com.jupiter.cache.Cache;
-import com.jupiter.cache.loaders.ItemsEquipIds;
 import com.jupiter.combat.npc.combat.scripts.NPCCombatDispatcher;
 import com.jupiter.combat.player.specials.WeaponSpecialDispatcher;
 import com.jupiter.cores.BlockingExecutorService;
@@ -20,7 +19,6 @@ import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.utils.Huffman;
-import com.jupiter.utils.ItemBonuses;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapArchiveKeys;
@@ -48,10 +46,7 @@ public class GameLoader {
 		World.get().init();
 		WorldThread.init();
 		getBackgroundLoader().submit(() -> {
-			ItemsEquipIds.init();
 			Huffman.init();
-		});
-		getBackgroundLoader().submit(() -> {
 			MapArchiveKeys.init();
 			MapAreas.init();
 			NPCCombatDefinitionsL.init();
@@ -59,7 +54,6 @@ public class GameLoader {
 		getBackgroundLoader().submit(() -> {
 			NPCBonuses.init();
 			ItemExamines.init();
-			ItemBonuses.init();
 		});
 		getBackgroundLoader().submit(() -> {
 			ControlerHandler.init();

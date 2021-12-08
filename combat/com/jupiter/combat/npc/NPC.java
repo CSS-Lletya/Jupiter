@@ -25,6 +25,11 @@ import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
 import com.jupiter.utils.Utils;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class NPC extends Entity {
 
 	public static int NORMAL_WALK = 0x2, WATER_WALK = 0x4, FLY_WALK = 0x8;
@@ -116,11 +121,6 @@ public class NPC extends Entity {
 		checkMultiArea();
 	}
 
-	@Override
-	public boolean needMasksUpdate() {
-		return super.needMasksUpdate() || nextTransformation != null || changedCombatLevel || changedName;
-	}
-
 	public void transformIntoNPC(int id) {
 		setNPC(id);
 		nextTransformation = new Transformation(id);
@@ -129,14 +129,6 @@ public class NPC extends Entity {
 	public void setNPC(int id) {
 		this.id = id;
 		bonuses = NPCBonuses.getBonuses(id);
-	}
-
-	@Override
-	public void resetMasks() {
-		super.resetMasks();
-		nextTransformation = null;
-		changedCombatLevel = false;
-		changedName = false;
 	}
 
 	public int getMapAreaNameHash() {
@@ -157,11 +149,6 @@ public class NPC extends Entity {
 
 	public NPCCombatDefinitions getCombatDefinitions() {
 		return NPCCombatDefinitionsL.getNPCCombatDefinitions(id);
-	}
-
-	@Override
-	public int getMaxHitpoints() {
-		return getCombatDefinitions().getHitpoints();
 	}
 
 	public int getId() {
@@ -531,11 +518,6 @@ public class NPC extends Entity {
 
 	public NPCCombat getCombat() {
 		return combat;
-	}
-
-	@Override
-	public void sendDeath(Entity source) {
-		World.get().submit(new MobDeath(this));
 	}
 
 	public void drop() {

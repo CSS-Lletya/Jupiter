@@ -8,6 +8,7 @@ import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
 
+import io.vavr.collection.Array;
 import lombok.Getter;
 
 public final class Inventory {
@@ -34,14 +35,11 @@ public final class Inventory {
 	public void unlockInventoryOptions() {
 		player.getPackets().sendAccessMask(INVENTORY_INTERFACE, 0, 0, 27, 12942734);
 		player.getPackets().sendAccessMask(INVENTORY_INTERFACE, 0, 28, 55, 2097152);
-		//old matrix 718:
-		//	player.getPackets().sendIComponentSettings(INVENTORY_INTERFACE, 0, 0, 27, 4554126);
-		//  player.getPackets().sendIComponentSettings(INVENTORY_INTERFACE, 0, 28, 55, 2097152);
 	}
 
 	public void reset() {
 		items.reset();
-		init(); // as all slots reseted better just send all again
+		init();
 	}
 
 	public void refresh(byte... slots) {
@@ -86,13 +84,8 @@ public final class Inventory {
 		refreshItems(itemsBefore);
 	}
 
-	public boolean removeItems(Item... list) {
-		for (Item item : list) {
-			if (item == null)
-				continue;
-			deleteItem(item);
-		}
-		return true;
+	public void removeItems(Item... list) {
+		Array.of(list).filter(item -> item == null).forEach(item -> deleteItem(item));
 	}
 
 	public void deleteItem(int itemId, int amount) {

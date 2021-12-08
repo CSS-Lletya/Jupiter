@@ -483,4 +483,17 @@ public class InterfaceManager {
 			this.action = action;
 		}
 	}
+	
+	public void closeInterfaces() {
+		if (containsScreenInter())
+			closeScreenInterface();
+		if (containsInventoryInter())
+			closeInventoryInterface();
+		player.endConversation();
+		closeChatBoxInterface();
+		if (player.getCloseInterfacesEvent() != null) {
+			player.getCloseInterfacesEvent().run();
+			player.setCloseInterfacesEvent(null);
+		}
+	}
 }

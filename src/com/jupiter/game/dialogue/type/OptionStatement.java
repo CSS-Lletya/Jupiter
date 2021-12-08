@@ -1,4 +1,4 @@
-package com.jupiter.game.dialogue.statment;
+package com.jupiter.game.dialogue.type;
 
 import java.security.InvalidParameterException;
 

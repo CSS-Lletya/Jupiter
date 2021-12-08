@@ -2386,7 +2386,7 @@ public class PlayerCombat extends Action {
 			if (target instanceof Player) {
 				Player p2 = (Player) target;
 				if (player.getPrayer().usingPrayer(1, 18))
-					p2.sendSoulSplit(hit, player);
+					p2.getCombatDefinitions().sendSoulSplit(hit, player);
 			}
 			int damage = hit.getDamage() > target.getHitpoints() ? target.getHitpoints() : hit.getDamage();
 			if (hit.getLook() == HitLook.RANGE_DAMAGE || hit.getLook() == HitLook.MELEE_DAMAGE) {
@@ -2536,7 +2536,7 @@ public class PlayerCombat extends Action {
 //					}
 					if (target instanceof Player) {
 						Player p2 = (Player) target;
-						p2.closeInterfaces();
+						p2.getInterfaceManager().closeInterfaces();
 						if (p2.getCombatDefinitions().isAutoRelatie() && !p2.getActionManager().hasSkillWorking()
 								&& !p2.hasWalkSteps())
 							p2.getActionManager().setAction(new PlayerCombat(player));
@@ -3895,7 +3895,7 @@ public class PlayerCombat extends Action {
 		} else {
 			NPC n = (NPC) source;
 			if (n.getId() == 13448)
-				player.sendSoulSplit(hit, n);
+				player.getCombatDefinitions().sendSoulSplit(hit, n);
 		}
 	}
 }

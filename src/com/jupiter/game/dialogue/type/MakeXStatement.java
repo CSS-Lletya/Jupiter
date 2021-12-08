@@ -1,4 +1,4 @@
-package com.jupiter.game.dialogue.statment;
+package com.jupiter.game.dialogue.type;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.player.Player;

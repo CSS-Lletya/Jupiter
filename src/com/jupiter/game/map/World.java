@@ -14,6 +14,7 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
 import com.jupiter.game.EntityList;
+import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.controlers.Wilderness;
@@ -615,5 +616,47 @@ public final class World {
 		return (getMask(plane, x, y) & (Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_NORTHWEST
 				| Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST | Flags.WALLOBJ_EAST | Flags.WALLOBJ_NORTH
 				| Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST)) == 0;
+	}
+	
+	public void refreshSpawnedItems(Player player) {
+		for (int regionId : player.getMapRegionsIds()) {
+			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
+			if (floorItems == null)
+				continue;
+			for (FloorItem item : floorItems) {
+				if ((item.isInvisible() || item.isGrave()) && player != item.getOwner()
+						|| item.getTile().getPlane() != player.getPlane())
+					continue;
+				player.getPackets().sendRemoveGroundItem(item);
+			}
+		}
+		for (int regionId : player.getMapRegionsIds()) {
+			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
+			if (floorItems == null)
+				continue;
+			for (FloorItem item : floorItems) {
+				if ((item.isInvisible() || item.isGrave()) && player != item.getOwner()
+						|| item.getTile().getPlane() != player.getPlane())
+					continue;
+				player.getPackets().sendGroundItem(item);
+			}
+		}
+	}
+
+	public void refreshSpawnedObjects(Player player) {
+		for (int regionId : player.getMapRegionsIds()) {
+			List<WorldObject> spawnedObjects = World.getRegion(regionId).getSpawnedObjects();
+			if (spawnedObjects != null) {
+				for (WorldObject object : spawnedObjects)
+					if (object.getPlane() == player.getPlane())
+						player.getPackets().sendSpawnedObject(object);
+			}
+			List<WorldObject> removedObjects = World.getRegion(regionId).getRemovedObjects();
+			if (removedObjects != null) {
+				for (WorldObject object : removedObjects)
+					if (object.getPlane() == player.getPlane())
+						player.getPackets().sendDestroyObject(object);
+			}
+		}
 	}
 }

@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.jupiter.Settings;
 import com.jupiter.cache.loaders.AnimationDefinitions;
 import com.jupiter.cache.loaders.ObjectDefinitions;
+import com.jupiter.combat.npc.MobDeath;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.combat.player.type.CombatEffectType;
@@ -24,6 +25,7 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.PlayerDeath;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.ForceMovement;
 import com.jupiter.net.encoders.other.ForceTalk;
@@ -43,6 +45,9 @@ public abstract class Entity extends WorldTile {
 	public Entity(WorldTile tile, EntityType type) {
 		super(tile);
 		this.type = requireNonNull(type);
+		ifPlayer(p -> {
+			p.setHitpoints(100);
+		});
 	}
 	
 	// transient stuff
@@ -163,10 +168,11 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void processReceivedHits() {
-		if (this instanceof Player) {
-			if (((Player) this).getNextEmoteEnd() >= Utils.currentTimeMillis())
+		ifPlayer(p -> {
+			if (p.getMovement().getLockDelay() > Utils.currentTimeMillis() ||
+				p.getNextEmoteEnd() >= Utils.currentTimeMillis())
 				return;
-		}
+		});
 		Hit hit;
 		int count = 0;
 		while ((hit = receivedHits.poll()) != null && count++ < 10)
@@ -305,7 +311,11 @@ public abstract class Entity extends WorldTile {
 		return !getMovement().getWalkSteps().isEmpty();
 	}
 
-	public abstract void sendDeath(Entity source);
+	public void sendDeath(Entity source) {
+		ifPlayer(p -> World.get().submit(new PlayerDeath(p)));
+		ifNpc(npc -> World.get().submit(new MobDeath(npc)));
+	}
+	
 
 	public void processMovement() {
 		boolean run = this.run;
@@ -801,7 +811,18 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public boolean needMasksUpdate() {
-		return nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null || nextGraphics3 != null || nextGraphics4 != null || (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty() || !nextBars.isEmpty() || nextForceMovement != null || nextForceTalk != null;
+		if (isPlayer())
+			return (toPlayer().getTemporaryMovementType() != -1)
+					|| (toPlayer().isUpdateMovementType()) || nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+							|| nextGraphics3 != null || nextGraphics4 != null
+							|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+							|| nextForceMovement != null || nextForceTalk != null;
+		if (isNPC())
+			return (toNPC().getNextTransformation() != null)|| nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+					|| nextGraphics3 != null || nextGraphics4 != null
+					|| (nextWalkDirection == -1 && nextFaceWorldTile != null) || !nextHits.isEmpty()
+					|| nextForceMovement != null || nextForceTalk != null;
+		return false;
 	}
 
 	/**
@@ -838,11 +859,27 @@ public abstract class Entity extends WorldTile {
 		nextFaceEntity = -2;
 		nextHits.clear();
 		nextBars.clear();
+		ifPlayer(p -> {
+			p.setTemporaryMovementType((byte) -1);
+			p.setUpdateMovementType(false);
+			if (!p.isClientLoadedMapRegion()) {
+				p.setClientLoadedMapRegion(true);
+				World.get().refreshSpawnedObjects(p);
+				World.get().refreshSpawnedItems(p);
+			}
+		});
+		ifNpc(npc -> {
+			npc.setNextTransformation(null);
+			npc.setChangedCombatLevel(false);
+			npc.setChangedName(false);
+		});
 	}
 
 	public abstract void finish();
 
-	public abstract int getMaxHitpoints();
+	public int getMaxHitpoints() {
+		return isNPC() ? toNPC().getCombatDefinitions().getHitpoints() : toPlayer().getSkills().getLevel(Skills.HITPOINTS) * 10 + toPlayer().getEquipment().getEquipmentHpIncrease();
+	}
 
 	public void processEntity() {
 		processMovement();

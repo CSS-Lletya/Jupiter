@@ -1004,6 +1004,10 @@ public class WorldPacketsEncoder extends Encoder {
 		session.write(stream);
 	}
 
+	public void sendSound(int id) {
+		player.getPackets().sendSound(id, 0, 1);
+	}
+	
 	public void sendSound(int id, int delay, int effectType) {
 		if (effectType == 1)
 			sendIndex14Sound(id, delay);

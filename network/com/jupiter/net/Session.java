@@ -9,6 +9,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
 import com.jupiter.cache.io.OutputStream;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.net.decoders.ClientPacketsDecoder;
 import com.jupiter.net.decoders.Decoder;
@@ -158,5 +159,19 @@ public class Session {
 		if (!player.getPlayerDetails().getIpList().contains(player.getPlayerDetails().getLastIP()))
 			player.getPlayerDetails().getIpList().add(player.getPlayerDetails().getLastIP());
 		return;
+	}
+	
+	/**
+	 * Logs the player out.
+	 * @param lobby If we're logging out to the lobby.
+	 */
+	public void logout(Player player, boolean lobby) {
+		World.get().queueLogout(player);
+	}
+
+	public void forceLogout(Player player) {
+		player.getPackets().sendLogout(false);
+		player.setActive(false);
+		player.realFinish();
 	}
 }

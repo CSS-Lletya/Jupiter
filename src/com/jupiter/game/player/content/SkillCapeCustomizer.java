@@ -80,7 +80,7 @@ public final class SkillCapeCustomizer {
 			player.getPackets().sendConfig(2174, skillCape[3]);
 		} else if (buttonId == 114 || buttonId == 142) { // done / close
 			player.getAppearence().generateAppearenceData();
-			player.closeInterfaces();
+			player.getInterfaceManager().closeInterfaces();
 		}
 	}
 }

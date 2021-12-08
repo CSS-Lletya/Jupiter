@@ -19,9 +19,7 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.EntityType;
 import com.jupiter.game.dialogue.Conversation;
 import com.jupiter.game.dialogue.Dialogue;
-import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.map.World;
-import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.content.AuraManager;
@@ -42,7 +40,6 @@ import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.net.encoders.WorldPacketsEncoder;
-import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.HintIconsManager;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.LocalNPCUpdate;
@@ -85,7 +82,6 @@ public class Player extends Entity {
 	 * Creates a new instance of a Players details
 	 */
 	private PlayerDetails playerDetails = new PlayerDetails();
-	
 	private Appearance appearence;
 	private Inventory inventory;
 	private Equipment equipment;
@@ -98,24 +94,19 @@ public class Player extends Entity {
 	private FriendsIgnores friendsIgnores;
 	private AuraManager auraManager;
 	private LodeStone lodeStone;
+	private Toolbelt toolbelt;
+	
 	private transient RouteEvent routeEvent;
 	private transient Conversation conversation;
 	private transient VarManager varsManager;
-	
-	// used for packets logic
 	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
-
-	// used for update
 	private transient LocalPlayerUpdate localPlayerUpdate;
 	private transient LocalNPCUpdate localNPCUpdate;
 
 	private transient byte temporaryMovementType;
 	private transient boolean updateMovementType;
-
-	// player stages - not personal
 	private transient boolean started;
 	private transient boolean isActive;
-
 	private transient long packetsDecoderPing;
 	private transient boolean resting;
 	private transient boolean canPvp;
@@ -127,23 +118,22 @@ public class Player extends Entity {
 	private transient boolean castedVeng;
 	private transient double hpBoostMultiplier;
 	private transient boolean largeSceneView;
-	
-	/**
-	 * Represents a Player's last Emote delay (used for various things)
-	 */
 	private transient long nextEmoteEnd;
 	private transient boolean forceNextMapLoadRefresh;
 
-	
-
-	// creates Player and saved classes
 	public Player(String password) {
 		super(Settings.START_PLAYER_LOCATION, EntityType.PLAYER);
-		setHitpoints(100);
 		playerDetails = new PlayerDetails();
 		getPlayerDetails().setPassword(password);
-		this.toolbelt = new Toolbelt();
-		varsManager = new VarManager(this);
+	}
+
+	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
+		this.session = session;
+		this.username = username;
+		this.displayMode = displayMode;
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
+		this.isaacKeyPair = isaacKeyPair;
 		appearence = new Appearance();
 		inventory = new Inventory();
 		equipment = new Equipment();
@@ -154,20 +144,6 @@ public class Player extends Entity {
 		controlerManager = new ControlerManager();
 		musicsManager = new MusicsManager();
 		friendsIgnores = new FriendsIgnores();
-		auraManager = new AuraManager();
-		lodeStone = new LodeStone();
-	}
-
-	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
-		// temporary deleted after reset all chars
-		this.session = session;
-		this.username = username;
-		this.displayMode = displayMode;
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
-		this.isaacKeyPair = isaacKeyPair;
-		if (playerDetails == null)
-			playerDetails = new PlayerDetails();
 		if (auraManager == null)
 			auraManager = new AuraManager();
 		if(toolbelt == null)
@@ -207,66 +183,17 @@ public class Player extends Entity {
 		World.addPlayer(this);
 		updateEntityRegion(this);
 
-		// Do not delete >.>, useful for security purpose. this wont waste that much space..
 		if (getPlayerDetails().getPasswordList() == null)
 			getPlayerDetails().setPasswordList(new ArrayList<String>());
 		if (getPlayerDetails().getIpList() == null)
 			getPlayerDetails().setIpList(new ArrayList<String>());
 		getSession().updateIPnPass(this);
 	}
-	
-	public boolean hasSkull() {
-		return getSkullTimer().get() > 0;
-	}
 
-	public void refreshSpawnedItems() {
-		for (int regionId : getMapRegionsIds()) {
-			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
-			if (floorItems == null)
-				continue;
-			for (FloorItem item : floorItems) {
-				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getPlane() != getPlane())
-					continue;
-				getPackets().sendRemoveGroundItem(item);
-			}
-		}
-		for (int regionId : getMapRegionsIds()) {
-			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
-			if (floorItems == null)
-				continue;
-			for (FloorItem item : floorItems) {
-				if ((item.isInvisible() || item.isGrave()) && this != item.getOwner()
-						|| item.getTile().getPlane() != getPlane())
-					continue;
-				getPackets().sendGroundItem(item);
-			}
-		}
-	}
-
-	public void refreshSpawnedObjects() {
-		for (int regionId : getMapRegionsIds()) {
-			List<WorldObject> spawnedObjects = World.getRegion(regionId).getSpawnedObjects();
-			if (spawnedObjects != null) {
-				for (WorldObject object : spawnedObjects)
-					if (object.getPlane() == getPlane())
-						getPackets().sendSpawnedObject(object);
-			}
-			List<WorldObject> removedObjects = World.getRegion(regionId).getRemovedObjects();
-			if (removedObjects != null) {
-				for (WorldObject object : removedObjects)
-					if (object.getPlane() == getPlane())
-						getPackets().sendDestroyObject(object);
-			}
-		}
-	}
-
-	// now that we inited we can start showing game
 	public void start() {
 		loadMapRegions();
 		started = true;
 		run();
-
 		if (isDead())
 			sendDeath(null);
 	}
@@ -286,7 +213,7 @@ public class Player extends Entity {
 	// as walk done clientsided - not anymore buddy
 	public void stopAll(boolean stopWalk, boolean stopInterfaces, boolean stopActions) {
 		if (stopInterfaces)
-			closeInterfaces();
+			getInterfaceManager().closeInterfaces();
 		if (stopWalk){
 			coordsEvent = null;
 			routeEvent = null;
@@ -296,19 +223,6 @@ public class Player extends Entity {
 		if (stopActions)
 			actionManager.forceStop();
 		combatDefinitions.resetSpells(false);
-	}
-
-	public void closeInterfaces() {
-		if (interfaceManager.containsScreenInter())
-			interfaceManager.closeScreenInterface();
-		if (interfaceManager.containsInventoryInter())
-			interfaceManager.closeInventoryInterface();
-		endConversation();
-		getInterfaceManager().closeChatBoxInterface();
-		if (closeInterfacesEvent != null) {
-			closeInterfacesEvent.run();
-			closeInterfacesEvent = null;
-		}
 	}
 	
 	public void startConversation(Dialogue dialogue) {
@@ -379,32 +293,6 @@ public class Player extends Entity {
 		actionManager.process();
 		controlerManager.process();
 	}
-    
-
-	@Override
-	public void processReceivedHits() {
-		if (getMovement().getLockDelay() > Utils.currentTimeMillis())
-			return;
-		super.processReceivedHits();
-	}
-
-	@Override
-	public boolean needMasksUpdate() {
-		return super.needMasksUpdate() || temporaryMovementType != -1 || updateMovementType;
-	}
-
-	@Override
-	public void resetMasks() {
-		super.resetMasks();
-		temporaryMovementType = -1;
-		updateMovementType = false;
-		if (!isClientLoadedMapRegion()) {
-			// load objects and items here
-			setClientLoadedMapRegion(true);
-			refreshSpawnedObjects();
-			refreshSpawnedItems();
-		}
-	}
 
 	@Override
 	public void setRun(boolean run) {
@@ -469,11 +357,6 @@ public class Player extends Entity {
 			if (currentFriendChat == null) // failed
 				getPlayerDetails().setCurrentFriendChatOwner(null);
 		}
-//		if (getFamiliar() != null) {
-//			getFamiliar().respawnFamiliar(this);
-//		} else {
-//			getPetManager().init();
-//		}
 		isActive = true;
 		updateMovementType = true;
 		getAppearence().getAppeareanceBlocks();
@@ -486,65 +369,11 @@ public class Player extends Entity {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void sendUnlockedObjectConfigs() {
-		refreshLodestoneNetwork();
-	}
-
-	private void refreshLodestoneNetwork() {
-		// unlocks bandit camp lodestone
-		getPackets().sendConfigByFile(358, 15);
-		// unlocks lunar isle lodestone
-		getPackets().sendConfigByFile(2448, 190);
-		// unlocks alkarid lodestone
-		getPackets().sendConfigByFile(10900, 1);
-		// unlocks ardougne lodestone
-		getPackets().sendConfigByFile(10901, 1);
-		// unlocks burthorpe lodestone
-		getPackets().sendConfigByFile(10902, 1);
-		// unlocks catherbay lodestone
-		getPackets().sendConfigByFile(10903, 1);
-		// unlocks draynor lodestone
-		getPackets().sendConfigByFile(10904, 1);
-		// unlocks edgeville lodestone
-		getPackets().sendConfigByFile(10905, 1);
-		// unlocks falador lodestone
-		getPackets().sendConfigByFile(10906, 1);
-		// unlocks lumbridge lodestone
-		getPackets().sendConfigByFile(10907, 1);
-		// unlocks port sarim lodestone
-		getPackets().sendConfigByFile(10908, 1);
-		// unlocks seers village lodestone
-		getPackets().sendConfigByFile(10909, 1);
-		// unlocks taverley lodestone
-		getPackets().sendConfigByFile(10910, 1);
-		// unlocks varrock lodestone
-		getPackets().sendConfigByFile(10911, 1);
-		// unlocks yanille lodestone
-		getPackets().sendConfigByFile(10912, 1);
-	}
-
 	public void sendDefaultPlayersOptions() {
-		// To Debug full list of options possible
-//		for (int i = 1; i < 10; i++)
-//		getPackets().sendPlayerOption("Option-"+i, i, i == 1);
+//		IntStream.range(0, 8).forEach(option -> getPackets().sendPlayerOption(""+option, option, false));
 		getPackets().sendPlayerOption("Follow", 2, false);
 		getPackets().sendPlayerOption("Trade with", 4, false);
 		getPackets().sendPlayerOption("Req Assist", 5, false);
-	}
-
-	/**
-	 * Logs the player out.
-	 * @param lobby If we're logging out to the lobby.
-	 */
-	public void logout(boolean lobby) {
-		World.get().queueLogout(this);
-	}
-
-	public void forceLogout() {
-		getPackets().sendLogout(false);
-		isActive = false;
-		realFinish();
 	}
 
 	private transient boolean finishing;
@@ -611,11 +440,6 @@ public class Player extends Entity {
 		}
 		return update;
 	}
-
-	@Override
-	public int getMaxHitpoints() {
-		return skills.getLevel(Skills.HITPOINTS) * 10 + equipment.getEquipmentHpIncrease();
-	}
 	
 	public int getMessageIcon() {
 		return getPlayerDetails().getRights() == Rights.ADMINISTRATOR ? 2 : getPlayerDetails().getRights() == Rights.MODERATOR ? 1 : 0;
@@ -629,31 +453,9 @@ public class Player extends Entity {
 		return Utils.formatPlayerNameForDisplay(username);
 	}
 
-	public void sendSoulSplit(final Hit hit, final Entity user) {
-		final Player target = this;
-		if (hit.getDamage() > 0)
-			World.sendProjectile(user, this, 2263, 11, 11, 20, 5, 0, 0);
-		user.heal(hit.getDamage() / 5);
-		prayer.drainPrayer(hit.getDamage() / 5);
-		World.get().submit(new Task(0) {
-			@Override
-			protected void execute() {
-				setNextGraphics(new Graphics(2264));
-				if (hit.getDamage() > 0)
-					World.sendProjectile(target, user, 2263, 11, 11, 20, 5, 0, 0);
-				this.cancel();
-			}
-		});
-	}
-
 	@Override
 	public void handleIngoingHit(final Hit hit) {
 		PlayerCombat.handleIncomingHit(this, hit);
-	}
-
-	@Override
-	public void sendDeath(final Entity source) {
-		World.get().submit(new PlayerDeath(this));
 	}
 	
 	public void setCanPvp(boolean canPvp) {
@@ -770,12 +572,6 @@ public class Player extends Entity {
 	 * Holds an optional wrapped inside the Antifire details.
 	 */
 	private Optional<AntifireDetails> antifireDetails = Optional.empty();
-	
-	public void sendSound(int id) {
-		getPackets().sendSound(id, 0, 1);
-	}
-	
-	private Toolbelt toolbelt;
 	
 	public void sendTab(Tab tab) {
 		getPackets().sendGlobalConfig(168, tab.getBeltId());
