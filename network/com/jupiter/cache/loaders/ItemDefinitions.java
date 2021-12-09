@@ -1112,6 +1112,14 @@ public final class ItemDefinitions {
 		}
 		return null;
 	}
+	
+	public int getSellPrice() {
+		return (int) (value / (10.0 / 3.0));
+	}
+
+	public int getHighAlchPrice() {
+		return (int) (value / (10.0 / 6.0));
+	}
 
 	public String getEquipType(Item item) {
 		if (item.getDefinitions().name.contains("sword") || item.getDefinitions().name.contains("dagger")
@@ -1178,10 +1186,6 @@ public final class ItemDefinitions {
 			return "a ranged weapon";
 		}
 		return "an item";
-	}
-
-	public int getHighAlchPrice() {
-		return (int) (getValue() * 0.6);
 	}
 
 	public String getInventoryOption(int optionId) {

@@ -44,12 +44,10 @@ public class InterfaceManager {
 		sendTab(resizableScreen ? fullScreen ? 1 : 11 : 3, interfaceId); //3 for fixed
 	}
 
-	public void closeOverlay(boolean fullScreen) {
-		player.getPackets().closeInterface(resizableScreen ? fullScreen ? 1 : 11 : 3);
+	public void closeFixedOverlay() {
+		player.getPackets().closeInterface(resizableScreen ? 1 : 3);
 	}
 	
-	// simple method to close generic overlays which are pretty much always fullscreen.
-	//TODO: convert
 	public void closeFSOverlay() {
 		player.getPackets().closeInterface(resizableScreen ? 11 : 3);
 	}

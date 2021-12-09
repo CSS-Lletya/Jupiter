@@ -44,7 +44,7 @@ public final class PlayerDetails {
 	/**
 	 * The amount of authority this player has over others.
 	 */
-	public Rights rights = Rights.PLAYER;
+	private Rights rights = Rights.PLAYER;
 	
 	// game bar status
 	private byte publicStatus;

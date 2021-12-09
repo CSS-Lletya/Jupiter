@@ -290,7 +290,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("You can't do this here.", true);
 					return false;
 				}
-				final NPC reaper = new NPC(14388, new WorldTile(player.getX(), player.getY() - 2, player.getPlane()), 0,
+				final NPC reaper = new NPC(14388, new WorldTile(player.getX(), player.getY() - 2, player.getPlane()),
 						false);
 				reaper.setLocation(reaper);
 				reaper.setNextFaceEntity(player);
@@ -573,7 +573,7 @@ public class Emotes {
 				player.setNextEmoteEnd(Utils.currentTimeMillis() + (25 * 600));
 				final WorldTile npcTile = spawnTile;
 				LinkedTaskSequence maxCapeSeq = new LinkedTaskSequence();
-				npc = new NPC(1224, npcTile, -1, false);
+				npc = new NPC(1224, npcTile, false);
 				maxCapeSeq.connect(1, () -> {
 					npc.setNextAnimation(new Animation(1434));
 					npc.setNextGraphics(new Graphics(1482));

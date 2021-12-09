@@ -111,7 +111,6 @@ public abstract class Entity extends WorldTile {
 		receivedHits = new ConcurrentLinkedQueue<Hit>();
 		receivedDamage = new ConcurrentHashMap<Entity, Integer>();
 		temporaryAttributes = new ConcurrentHashMap<Object, Object>();
-		this.attributes = new ConcurrentHashMap<>();
 		nextHits = new ArrayList<Hit>();
 		nextBars = new ArrayList<HitBar>();
 		nextWalkDirection = nextRunDirection - 1;
@@ -1041,6 +1040,13 @@ public abstract class Entity extends WorldTile {
 
 	public void setRun(boolean run) {
 		this.run = run;
+		ifPlayer(p -> {
+			if (run != p.getRun()) {
+				p.setRun(run);
+				p.setUpdateMovementType(true);
+				p.getMovement().sendRunButtonConfig();
+			}
+		});
 	}
 
 	public boolean getRun() {
@@ -1363,43 +1369,6 @@ public abstract class Entity extends WorldTile {
 			}
 			entity.checkMultiArea();
 		}
-	}
-	
-	/**
-	 * Gets the attribute from the {@link #attributes} map, and if it doesn't exist, we return the default value
-	 *
-	 * @param key
-	 * 		The key of the attribute
-	 * @param defaultValue
-	 * 		The default value
-	 * @param <T>
-	 * 		The return type
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(Object key, T defaultValue) {
-		T value = (T) attributes.get(key);
-		if (value == null) {
-			return defaultValue;
-		}
-		return value;
-	}
-	
-	/**
-	 * The map of temporary attributes
-	 */
-	private transient ConcurrentHashMap<Object, Object> attributes;
-	
-	/**
-	 * Puts the key into the attributes map
-	 *
-	 * @param key
-	 * 		The key
-	 * @param value
-	 * 		The value
-	 */
-	public <T> T putAttribute(Object key, T value) {
-		attributes.put(key, value);
-		return value;
 	}
 
 	/**

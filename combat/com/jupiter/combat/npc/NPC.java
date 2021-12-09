@@ -20,7 +20,6 @@ import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.Hit.HitLook;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
 import com.jupiter.utils.Utils;
@@ -36,7 +35,6 @@ public class NPC extends Entity {
 
 	private int id;
 	private WorldTile respawnTile;
-	private int mapAreaNameHash;
 	private boolean canBeAttackFromOutOfArea;
 	private boolean randomwalk;
 	private int[] bonuses; // 0 stab, 1 slash, 2 crush,3 mage, 4 range, 5 stab
@@ -66,18 +64,17 @@ public class NPC extends Entity {
 	private transient boolean changedCombatLevel;
 	private transient boolean locked;
 
-	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea) {
-		this(id, tile, mapAreaNameHash, canBeAttackFromOutOfArea, false);
+	public NPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea) {
+		this(id, tile, canBeAttackFromOutOfArea, false);
 	}
 
 	/*
 	 * creates and adds npc
 	 */
-	public NPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea, boolean spawned) {
+	public NPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea, boolean spawned) {
 		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
-		this.mapAreaNameHash = mapAreaNameHash;
 		this.canBeAttackFromOutOfArea = canBeAttackFromOutOfArea;
 		this.setSpawned(spawned);
 		combatLevel = -1;
@@ -101,7 +98,6 @@ public class NPC extends Entity {
 		super(tile, EntityType.NPC);
 		this.id = id;
 		this.respawnTile = new WorldTile(tile);
-		this.mapAreaNameHash = -1;
 		this.canBeAttackFromOutOfArea = false;
 		this.setSpawned(spawned);
 		combatLevel = -1;
@@ -129,10 +125,6 @@ public class NPC extends Entity {
 	public void setNPC(int id) {
 		this.id = id;
 		bonuses = NPCBonuses.getBonuses(id);
-	}
-
-	public int getMapAreaNameHash() {
-		return mapAreaNameHash;
 	}
 
 	public void setCanBeAttackFromOutOfArea(boolean b) {
@@ -177,14 +169,15 @@ public class NPC extends Entity {
 									int moveX = (int) Math.round(Math.random() * 10.0 - 5.0);
 									int moveY = (int) Math.round(Math.random() * 10.0 - 5.0);
 									resetWalkSteps();
-									if (getMapAreaNameHash() != -1) {
-										if (!MapAreas.isAtArea(getMapAreaNameHash(), this)) {
-											forceWalkRespawnTile();
-											return;
-										}
-										addWalkSteps(getX() + moveX, getY() + moveY, 5, (walkType & FLY_WALK) == 0);
-									} else
-										addWalkSteps(respawnTile.getX() + moveX, respawnTile.getY() + moveY, 5, (walkType & FLY_WALK) == 0);
+									//TODO: Redo this
+//									if (getMapAreaNameHash() != -1) {
+//										if (!MapAreas.isAtArea(getMapAreaNameHash(), this)) {
+//											forceWalkRespawnTile();
+//											return;
+//										}
+//										addWalkSteps(getX() + moveX, getY() + moveY, 5, (walkType & FLY_WALK) == 0);
+//									} else
+//										addWalkSteps(respawnTile.getX() + moveX, respawnTile.getY() + moveY, 5, (walkType & FLY_WALK) == 0);
 								}
 
 							}
@@ -806,11 +799,11 @@ public class NPC extends Entity {
 	
 	private WorldTile startTile;
 	
-	public static final NPC spawnNPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea, boolean spawned) {
-		return new NPC(id, tile, mapAreaNameHash, canBeAttackFromOutOfArea, spawned);
+	public static final NPC spawnNPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea, boolean spawned) {
+		return new NPC(id, tile,canBeAttackFromOutOfArea, spawned);
 	}
 
-	public static final NPC spawnNPC(int id, WorldTile tile, int mapAreaNameHash, boolean canBeAttackFromOutOfArea) {
-		return spawnNPC(id, tile, mapAreaNameHash, canBeAttackFromOutOfArea, false);
+	public static final NPC spawnNPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea) {
+		return spawnNPC(id, tile, canBeAttackFromOutOfArea, false);
 	}
 }

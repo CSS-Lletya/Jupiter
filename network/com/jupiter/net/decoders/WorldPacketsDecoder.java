@@ -21,10 +21,10 @@ import com.jupiter.net.Session;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.plugin.ObjectDispatcher;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ItemOnObjectEvent;
 import com.jupiter.plugin.events.ItemOnPlayerEvent;
+import com.jupiter.plugin.handlers.ObjectClickHandler;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.npc.NPCDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
@@ -881,15 +881,15 @@ public final class WorldPacketsDecoder extends Decoder {
 				System.out.println("Spell:" + componentId);
 		}
 	 	if (packetId == OBJECT_CLICK1_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 1);
+	 		ObjectClickHandler.handleOption(player, stream, 1);
 		else if (packetId == OBJECT_CLICK2_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 2);
+			ObjectClickHandler.handleOption(player, stream, 2);
 		else if (packetId == OBJECT_CLICK3_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 3);
+			ObjectClickHandler.handleOption(player, stream, 3);
 		else if (packetId == OBJECT_CLICK4_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 4);
+			ObjectClickHandler.handleOption(player, stream, 4);
 		else if (packetId == OBJECT_CLICK5_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 5);
+			ObjectClickHandler.handleOption(player, stream, 5);
 		else if (packetId == ITEM_TAKE_PACKET) {
 			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
@@ -1229,7 +1229,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				|| packetId == INTERFACE_ON_OBJECT)
 			player.addLogicPacketToQueue(new LogicPacket((byte) packetId, length, stream));
 		else if (packetId == OBJECT_EXAMINE_PACKET) {
-			ObjectDispatcher.handleOption(player, stream, -1);
+			ObjectClickHandler.handleOption(player, stream, -1);
 		} else if (packetId == NPC_EXAMINE_PACKET) {
 			NPCDispatcher.handleExamine(player, stream);
 		} else if (packetId == JOIN_FRIEND_CHAT_PACKET) {

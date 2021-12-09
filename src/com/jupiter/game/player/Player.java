@@ -135,13 +135,12 @@ public class Player extends Entity {
 		startConversation(new Conversation(dialogue.finish()));
 	}
 
-	public boolean startConversation(Conversation conversation) {
+	public void startConversation(Conversation conversation) {
 		if (conversation.getCurrent() == null)
-			return false;
+			return;
 		this.conversation = conversation;
 		this.conversation.setPlayer(this);
 		conversation.start();
-		return true;
 	}
 
 	public void endConversation() {
@@ -199,16 +198,7 @@ public class Player extends Entity {
 		actionManager.process();
 		controlerManager.process();
 	}
-
-	@Override
-	public void setRun(boolean run) {
-		if (run != getRun()) {
-			super.setRun(run);
-			updateMovementType = true;
-			getMovement().sendRunButtonConfig();
-		}
-	}
-
+	
 	public void run() {
 		if (World.exiting_start != 0) {
 			int delayPassed = (int) ((Utils.currentTimeMillis() - World.exiting_start) / 1000);
@@ -256,7 +246,7 @@ public class Player extends Entity {
 		getPackets().sendGameBarStages();
 		getMusicsManager().init();
 		Emotes.refreshListConfigs(this);
-		if(getPlayerDetails().rights == Rights.ADMINISTRATOR)
+		if(getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			lodeStone.unlockAllLodestones();
 		if (getPlayerDetails().getCurrentFriendChatOwner() != null) {
 			FriendChatsManager.joinChat(getPlayerDetails().getCurrentFriendChatOwner(), this);

@@ -6,7 +6,6 @@ import com.jupiter.combat.player.Combat;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
 import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 
 public final class NPCCombat {
@@ -112,14 +111,7 @@ public final class NPCCombat {
 		int maxDistance;
 		if (!npc.isNoDistanceCheck() && !npc.isCantFollowUnderCombat()) {
 			maxDistance = 32;
-				if (npc.getMapAreaNameHash() != -1) {
-					// if out his area
-					if (!MapAreas.isAtArea(npc.getMapAreaNameHash(), npc) || (!npc.canBeAttackFromOutOfArea()
-							&& !MapAreas.isAtArea(npc.getMapAreaNameHash(), target))) {
-						npc.forceWalkRespawnTile();
-						return false;
-					}
-				} else if (distanceX > size + maxDistance || distanceX < -1 - maxDistance
+				if (distanceX > size + maxDistance || distanceX < -1 - maxDistance
 						|| distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 					// if more than 64 distance from respawn place
 					npc.forceWalkRespawnTile();

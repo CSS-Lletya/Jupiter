@@ -24,7 +24,6 @@ import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 
 public class PlayerCombat extends Action {
@@ -2878,7 +2877,7 @@ public class PlayerCombat extends Action {
 			if (n.isCantInteract()) {
 				return false;
 			}
-				if (!n.canBeAttackFromOutOfArea() && !MapAreas.isAtArea(n.getMapAreaNameHash(), player)) {
+				if (!n.canBeAttackFromOutOfArea()) {
 					return false;
 				}
 				if (n.getId() == 14578) {

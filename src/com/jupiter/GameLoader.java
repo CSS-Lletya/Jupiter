@@ -22,7 +22,6 @@ import com.jupiter.utils.Huffman;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapArchiveKeys;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
 
@@ -48,7 +47,6 @@ public class GameLoader {
 		getBackgroundLoader().submit(() -> {
 			Huffman.init();
 			MapArchiveKeys.init();
-			MapAreas.init();
 			NPCCombatDefinitionsL.init();
 		});
 		getBackgroundLoader().submit(() -> {

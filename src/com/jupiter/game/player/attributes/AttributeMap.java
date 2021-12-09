@@ -4,6 +4,8 @@ import java.util.EnumMap;
 
 import com.jupiter.game.player.Player;
 
+import io.vavr.control.Try;
+
 /**
  * A wrapper class for an {@link EnumMap} that provide type safety for its values.
  *
@@ -39,7 +41,6 @@ public class AttributeMap<Props extends Enum<Props> & Attribute> {
         if (key.defaultValue().getClass() != value.getType()) {
             throw new AttributeException(key, value);
         }
-
         attributes.put(key, value);
     }
 
@@ -53,11 +54,7 @@ public class AttributeMap<Props extends Enum<Props> & Attribute> {
      *    The type safe value.
      */
     public <T extends Object> void put(Props key, T value) {
-        try {
-            put(key, new AttributeValue<T>(value));
-        } catch (AttributeException ex) {
-            ex.printStackTrace();
-        }
+    	Try.run(() -> put(key, new AttributeValue<T>(value))).onFailure(fail -> fail.printStackTrace());
     }
 
     /**
@@ -68,11 +65,7 @@ public class AttributeMap<Props extends Enum<Props> & Attribute> {
      *
      */
     public void put(Props key) {
-        try {
-            put(key, new AttributeValue<>(key.defaultValue()));
-        } catch (AttributeException ex) {
-            ex.printStackTrace();
-        }
+    	Try.run(() -> put(key, new AttributeValue<>(key.defaultValue()))).onFailure(fail -> fail.printStackTrace());
     }
 
     /**
@@ -83,12 +76,10 @@ public class AttributeMap<Props extends Enum<Props> & Attribute> {
      *
      */
     public void increment(Props key) {
-        try {
-            Integer value = value(key);
+    	Try.run(() -> {
+    		Integer value = value(key);
             put(key, value + 1);
-        } catch (AttributeException ex) {
-            ex.printStackTrace();
-        }
+    	}).onFailure(fail -> fail.printStackTrace());
     }
 
     /**
@@ -99,11 +90,7 @@ public class AttributeMap<Props extends Enum<Props> & Attribute> {
      */
     public void toggle(Props key) {
         Boolean value = (Boolean) attributes.get(key).getValue();
-        try {
-            toggle(key, new AttributeValue<Boolean>(value));
-        } catch (AttributeException ex) {
-            ex.printStackTrace();
-        }
+        Try.run(() -> toggle(key, new AttributeValue<Boolean>(value))).onFailure(fail -> fail.printStackTrace());
     }
 
     /**
