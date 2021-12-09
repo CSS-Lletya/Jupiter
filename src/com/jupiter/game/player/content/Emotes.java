@@ -332,7 +332,7 @@ public class Emotes {
 	public static Emotes instance = new Emotes();
 	
 	public void useBookEmote(Player player, int id) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		if (id == 37) {
 			// TODO skillCape
 			final int capeId = player.getEquipment().getCapeId();

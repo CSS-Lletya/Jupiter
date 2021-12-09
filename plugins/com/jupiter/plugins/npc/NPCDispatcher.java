@@ -22,7 +22,7 @@ public final class NPCDispatcher {
 		if (npc == null || npc.isCantInteract() || npc.isDead() || npc.hasFinished()
 				|| !player.getMapRegionsIds().contains(npc.getRegionId()))
 			return;
-		player.stopAll(true);
+		player.getAttributes().stopAll(player, true);
 		if (forceRun)
 			player.setRun(forceRun);
 

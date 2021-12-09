@@ -148,8 +148,7 @@ public final class LoginPacketsDecoder extends Decoder {
 			session.getLoginPackets().sendClientPacket(4);
 			return;
 		}
-		
-		player.init(session, username, displayMode, screenWidth, screenHeight, new IsaacKeyPair(isaacKeys));
+		AccountCreation.login(player, session, username, displayMode, screenWidth, screenHeight, new IsaacKeyPair(isaacKeys));
 		session.getLoginPackets().sendLoginDetails(player);
 		session.setDecoder(3, player);
 		session.setEncoder(2, player);

@@ -10,17 +10,24 @@ import com.jupiter.plugins.commands.CommandSignature;
 public final class TeleportCommand implements Command {
 	
 	@Override
-	public void execute(Player player, String[] cmd, String command) throws Exception {
-		if (cmd.length < 3) {
-			player.getPackets().sendPanelBoxMessage("Use: ::tele coordX coordY");
+	public void execute(Player p, String[] args, String command) throws Exception {
+		if (args.length < 3) {
+			p.getPackets().sendPanelBoxMessage("Use: ::tele coordX coordY");
 			return;
 		}
-		try {
-			player.resetWalkSteps();
-			player.setNextWorldTile(new WorldTile(Integer.valueOf(cmd[1]), Integer.valueOf(cmd[2]),
-					cmd.length >= 4 ? Integer.valueOf(cmd[3]) : player.getPlane()));
-		} catch (NumberFormatException e) {
-			player.getPackets().sendPanelBoxMessage("Use: ::tele coordX coordY plane");
+		if (args[0].contains(",")) {
+			args = args[0].split(",");
+			int plane = Integer.valueOf(args[0]);
+			int x = Integer.valueOf(args[1]) << 6 | Integer.valueOf(args[3]);
+			int y = Integer.valueOf(args[2]) << 6 | Integer.valueOf(args[4]);
+			p.resetWalkSteps();
+			p.setNextWorldTile(new WorldTile(x, y, plane));
+		} else if (args.length == 1) {
+			p.resetWalkSteps();
+			p.setNextWorldTile(new WorldTile(Integer.valueOf(args[0])));
+		} else {
+			p.resetWalkSteps();
+			p.setNextWorldTile(new WorldTile(Integer.valueOf(args[0]), Integer.valueOf(args[1]), args.length >= 3 ? Integer.valueOf(args[2]) : p.getPlane()));
 		}
 	}
 }

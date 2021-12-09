@@ -10,7 +10,7 @@ import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
  *
  */
 
-@RSInterfaceSignature(interfaceId = {429, 982})
+@RSInterfaceSignature(interfaceId = {429, 982, 1252})
 public class CloseAnyInterfacePlugin implements RSInterface {
 
 	@Override
@@ -23,6 +23,10 @@ public class CloseAnyInterfacePlugin implements RSInterface {
 		case 982:
 			if (componentId == 5)
 				player.getInterfaceManager().sendSettings();
+			break;
+		case 1252:
+			if (componentId == 5)
+				player.getInterfaceManager().closeFSOverlay();
 			break;
 		}
 	}

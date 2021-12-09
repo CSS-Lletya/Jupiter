@@ -322,7 +322,7 @@ public class Magic {
 	}
 
 	public static final void processLunarSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 37:
 			if (player.getSkills().getLevel(Skills.MAGIC) < 94) {
@@ -352,7 +352,7 @@ public class Magic {
 	}
 
 	public static final void processAncientSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 28:
 		case 32:
@@ -410,7 +410,7 @@ public class Magic {
 	}
 
 	public static final void processNormalSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 25: // air strike
 		case 28: // water strike
@@ -446,7 +446,7 @@ public class Magic {
 				player.getPackets().sendGameMessage("Your Magic level is not high enough for this spell.");
 				return;
 			}
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			player.getInterfaceManager().sendInterface(432);
 			break;
 		case 24:
@@ -488,7 +488,7 @@ public class Magic {
 	}
 
 	private static void useHomeTele(Player player) {
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		player.getInterfaceManager().sendInterface(1092);
 	}
 
@@ -599,7 +599,7 @@ public class Magic {
 				return false;
 		}
 		checkRunes(player, true, runes);
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		if (upEmoteId != -1)
 			player.setNextAnimation(new Animation(upEmoteId));
 		if (upGraphicId != -1)

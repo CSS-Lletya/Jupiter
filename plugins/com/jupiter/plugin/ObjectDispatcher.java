@@ -72,7 +72,7 @@ public final class ObjectDispatcher {
 		final WorldObject object = !player.isAtDynamicRegion() ? mapObject
 				: new WorldObject(id, mapObject.getType(), (byte) (mapObject.getRotation() + rotation % 4), x, y,
 						player.getPlane());
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		if (forceRun)
 			player.setRun(forceRun);
 		
@@ -84,7 +84,7 @@ public final class ObjectDispatcher {
 		player.setRouteEvent(new RouteEvent(object, new Runnable() {
 			@Override
 			public void run() {
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 				player.faceObject(object);
 				PluginManager.handle(new ObjectClickEvent(player, object, option));
 			}

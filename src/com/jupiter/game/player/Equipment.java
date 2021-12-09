@@ -298,7 +298,7 @@ public final class Equipment {
 	 * @param slotId
 	 */
 	public void sendRemoveEquipment(final byte slotId) {
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getEquipment().getItem(slotId);
 		if (item == null)
 			return;

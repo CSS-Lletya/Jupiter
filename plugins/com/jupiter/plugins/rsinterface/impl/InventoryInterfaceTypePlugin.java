@@ -37,7 +37,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 
 		if (player.hasFinished() || player.isDead())
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getInventory().getItem(slotId);
 		String itemName = item.getDefinitions() == null ? "" : item.getDefinitions().getName().toLowerCase();
 		if (item == null || item.getId() != itemId)
@@ -86,7 +86,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 			return true;
 		if (!player.getControlerManager().canEquip(targetSlot, itemId))
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
 		if (targetSlot == 3) {
 			if (isTwoHandedWeapon && player.getEquipment().getItem(5) != null) {
@@ -140,7 +140,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 	public static boolean sendWear2(Player player, int slotId, int itemId) {
 		if (player.hasFinished() || player.isDead())
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;

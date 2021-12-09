@@ -158,7 +158,7 @@ public class FriendsIgnores {
 							"Please close the interface you have opened before using Friends Chat setup.");
 					return;
 				}
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 				openFriendChatSetup();
 			}
 		} else if (interfaceId == 1108) {

@@ -17,7 +17,7 @@ public class OptionsTabInterfacePlugin implements RSInterface {
 						"Please close the interface you have open before setting your graphic options.");
 				return;
 			}
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			player.getInterfaceManager().sendInterface(742);
 		} else if (componentId == 12)
 			player.switchAllowChatEffects();

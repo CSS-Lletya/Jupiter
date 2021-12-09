@@ -42,7 +42,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				long time = Utils.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
-				player.stopAll(false);
+				player.getAttributes().stopAll(player, false);
 				if (Foods.eat(player, item, slotId))
 					return;
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(0))))
@@ -62,7 +62,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 							slot[i] = slots.get(i);
 						player.getSwitchItemCache().clear();
 						InventoryInterfaceTypePlugin.sendWear(player, slot);
-						player.stopAll(false, true, false);
+						player.getAttributes().stopAll(player, false, true, false);
 						this.cancel();
 					}
 				});
@@ -94,7 +94,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				if (!player.getControlerManager().canDropItem(item))
 					return;
-				player.stopAll(false);
+				player.getAttributes().stopAll(player, false);
 				
 				if (item.getDefinitions().isOverSized()) {
 					player.getPackets().sendGameMessage("The item appears to be oversized.");
@@ -139,7 +139,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			if (itemUsed == null || usedWith == null || itemUsed.getId() != itemUsedId
 					|| usedWith.getId() != itemUsedWithId)
 				return;
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			PluginManager.handle(new ItemOnItemEvent(player, itemUsed, usedWith));
 			if (Settings.DEBUG)
 				Logger.log("ItemHandler", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());

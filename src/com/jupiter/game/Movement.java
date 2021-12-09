@@ -13,6 +13,8 @@ import lombok.Data;
 @Data
 public class Movement {
 	
+	public static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
+	
 	private transient ConcurrentLinkedQueue<Object[]> walkSteps;
 	
 	/**
@@ -90,7 +92,7 @@ public class Movement {
 	 */
 	public void move(Optional<Animation> emoteId, final WorldTile dest, Optional<String> message) {
 		lockUntil(p -> {
-			p.toPlayer().stopAll();
+			p.toPlayer().getAttributes().stopAll(p.toPlayer());
 			emoteId.ifPresent(p::setNextAnimation);
 			p.toPlayer().task(1, event -> {
 				event.setNextWorldTile(dest);

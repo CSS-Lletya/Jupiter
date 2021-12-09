@@ -48,7 +48,7 @@ public class StrykewwyrmCombat extends MobCombatInterface {
 							target.setNextGraphics(new Graphics(369));
 							if (target instanceof Player) {
 								Player targetPlayer = (Player) target;
-								targetPlayer.stopAll();
+								targetPlayer.getAttributes().stopAll(targetPlayer);
 							}
 						} else if (hit.getDamage() != 0)
 							target.setNextGraphics(new Graphics(2315));

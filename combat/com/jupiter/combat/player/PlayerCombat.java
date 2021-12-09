@@ -1314,7 +1314,7 @@ public class PlayerCombat extends Action {
 							target.setNextGraphics(new Graphics(755));
 							if (target instanceof Player) {
 								Player p2 = (Player) target;
-								p2.stopAll();
+								p2.getAttributes().stopAll(p2);
 							} else {
 								NPC n = (NPC) target;
 								n.setTarget(null);
@@ -1657,7 +1657,7 @@ public class PlayerCombat extends Action {
 			case 13774:
 			case 13776:
 				player.setNextAnimation(new Animation(12017));
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 				target.setNextGraphics(new Graphics(80, 5, 60));
 
 				if (!target.addWalkSteps(target.getX() - player.getX() + target.getX(),
@@ -2420,7 +2420,7 @@ public class PlayerCombat extends Action {
 						target.addFreezeDelay(freeze_time, freeze_time == 0);
 						if (freeze_time > 0)
 							if (target instanceof Player) {
-								((Player) target).stopAll(false);
+								((Player) target).getAttributes().stopAll((Player) target, false);
 							}
 						target.addFrozenBlockedDelay(freeze_time + (4 * 1000));// four seconds of no freeze
 					}

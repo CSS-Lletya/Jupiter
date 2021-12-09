@@ -47,6 +47,12 @@ public class InterfaceManager {
 	public void closeOverlay(boolean fullScreen) {
 		player.getPackets().closeInterface(resizableScreen ? fullScreen ? 1 : 11 : 3);
 	}
+	
+	// simple method to close generic overlays which are pretty much always fullscreen.
+	//TODO: convert
+	public void closeFSOverlay() {
+		player.getPackets().closeInterface(resizableScreen ? 11 : 3);
+	}
 
 	public void sendInterface(int interfaceId) {
 		player.getPackets().sendInterface(false, resizableScreen ? RESIZABLE_WINDOW_ID : FIXED_WINDOW_ID,

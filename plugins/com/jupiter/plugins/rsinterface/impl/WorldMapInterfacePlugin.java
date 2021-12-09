@@ -26,7 +26,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 							.sendGameMessage("Please finish what you're doing before opening the price checker.");
 					return;
 				}
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 				player.getPriceCheckManager().openPriceCheck();
 			}
 			if (packetId == 96) {
@@ -80,7 +80,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 								.sendGameMessage("Please finish what you're doing before opening the price checker.");
 						return;
 					}
-					player.stopAll();
+					player.getAttributes().stopAll(player);
 					player.getPriceCheckManager().openPriceCheck();
 				}
 			}
@@ -105,10 +105,10 @@ public class WorldMapInterfacePlugin implements RSInterface {
 				if (packetId == WorldPacketsDecoder.ACTION_BUTTON1_PACKET) {
 					player.getMovement().toogleRun(!player.isResting());
 					if (player.isResting())
-						player.stopAll();
+						player.getAttributes().stopAll(player);
 				} else if (packetId == WorldPacketsDecoder.ACTION_BUTTON2_PACKET) {
 					if (player.isResting()) {
-						player.stopAll();
+						player.getAttributes().stopAll(player);
 						return;
 					}
 					long currentTime = Utils.currentTimeMillis();
@@ -120,7 +120,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an action.");
 						return;
 					}
-					player.stopAll();
+					player.getAttributes().stopAll(player);
 					player.getActionManager().setAction(new Rest());
 				}
 			}

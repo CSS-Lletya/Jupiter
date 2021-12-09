@@ -1,7 +1,5 @@
 package com.jupiter.game.player;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +20,8 @@ import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
+import com.jupiter.game.player.attributes.AttributeMap;
+import com.jupiter.game.player.attributes.PlayerAttribute;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.Emotes;
 import com.jupiter.game.player.content.FriendChatsManager;
@@ -61,133 +61,66 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class Player extends Entity {
 
-	public transient static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
-
-	private transient String username;
-	private transient Session session;
-	private transient boolean clientLoadedMapRegion = false;
-	private transient byte displayMode;
-	private transient short screenWidth;
-	private transient short screenHeight;
-	private transient InterfaceManager interfaceManager;
-	private transient HintIconsManager hintIconsManager;
-	private transient ActionManager actionManager;
-	private transient PriceCheckManager priceCheckManager;
-	private transient CoordsEvent coordsEvent;
-	private transient FriendChatsManager currentFriendChat;
-	private transient Trade trade;
-	private transient IsaacKeyPair isaacKeyPair;
+	protected transient String username;
+	protected transient Session session;
+	protected transient boolean clientLoadedMapRegion = false;
+	protected transient byte displayMode;
+	protected transient short screenWidth;
+	protected transient short screenHeight;
+	protected transient InterfaceManager interfaceManager;
+	protected transient HintIconsManager hintIconsManager;
+	protected transient ActionManager actionManager;
+	protected transient PriceCheckManager priceCheckManager;
+	protected transient CoordsEvent coordsEvent;
+	protected transient FriendChatsManager currentFriendChat;
+	protected transient Trade trade;
+	protected transient IsaacKeyPair isaacKeyPair;
+	protected transient RouteEvent routeEvent;
+	protected transient Conversation conversation;
+	protected transient VarManager varsManager;
+	protected transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
+	protected transient LocalPlayerUpdate localPlayerUpdate;
+	protected transient LocalNPCUpdate localNPCUpdate;
 	
-	/**
-	 * Creates a new instance of a Players details
-	 */
-	private PlayerDetails playerDetails = new PlayerDetails();
-	private Appearance appearence;
-	private Inventory inventory;
-	private Equipment equipment;
-	private Skills skills;
-	private CombatDefinitions combatDefinitions;
-	private Prayer prayer;
-	private Bank bank;
-	private ControlerManager controlerManager;
-	private MusicsManager musicsManager;
-	private FriendsIgnores friendsIgnores;
-	private AuraManager auraManager;
-	private LodeStone lodeStone;
-	private Toolbelt toolbelt;
+	protected PlayerDetails playerDetails = new PlayerDetails();
+	public AttributeMap<PlayerAttribute> attributes = new AttributeMap<>(PlayerAttribute.class);
 	
-	private transient RouteEvent routeEvent;
-	private transient Conversation conversation;
-	private transient VarManager varsManager;
-	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
-	private transient LocalPlayerUpdate localPlayerUpdate;
-	private transient LocalNPCUpdate localNPCUpdate;
+	protected Appearance appearence;
+	protected Inventory inventory;
+	protected Equipment equipment;
+	protected Skills skills;
+	protected CombatDefinitions combatDefinitions;
+	protected Prayer prayer;
+	protected Bank bank;
+	protected ControlerManager controlerManager;
+	protected MusicsManager musicsManager;
+	protected FriendsIgnores friendsIgnores;
+	protected AuraManager auraManager;
+	protected LodeStone lodeStone;
+	protected Toolbelt toolbelt;
 
-	private transient byte temporaryMovementType;
-	private transient boolean updateMovementType;
 	private transient boolean started;
 	private transient boolean isActive;
-	private transient long packetsDecoderPing;
 	private transient boolean resting;
 	private transient boolean canPvp;
 	private transient boolean cantTrade;
 	private transient Runnable closeInterfacesEvent;
 	private transient long lastPublicMessage;
-	private transient List<Byte> switchItemCache;
 	private transient boolean disableEquip;
 	private transient boolean castedVeng;
 	private transient double hpBoostMultiplier;
 	private transient boolean largeSceneView;
 	private transient long nextEmoteEnd;
 	private transient boolean forceNextMapLoadRefresh;
-
+	protected transient List<Byte> switchItemCache;
+	protected transient long packetsDecoderPing;
+	protected transient byte temporaryMovementType;
+	protected transient boolean updateMovementType;
+	
 	public Player(String password) {
 		super(Settings.START_PLAYER_LOCATION, EntityType.PLAYER);
 		playerDetails = new PlayerDetails();
 		getPlayerDetails().setPassword(password);
-	}
-
-	public void init(Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
-		this.session = session;
-		this.username = username;
-		this.displayMode = displayMode;
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
-		this.isaacKeyPair = isaacKeyPair;
-		appearence = new Appearance();
-		inventory = new Inventory();
-		equipment = new Equipment();
-		skills = new Skills();
-		combatDefinitions = new CombatDefinitions();
-		prayer = new Prayer();
-		bank = new Bank();
-		controlerManager = new ControlerManager();
-		musicsManager = new MusicsManager();
-		friendsIgnores = new FriendsIgnores();
-		if (auraManager == null)
-			auraManager = new AuraManager();
-		if(toolbelt == null)
-			this.toolbelt = new Toolbelt();
-		if (lodeStone == null)
-			lodeStone = new LodeStone();
-		if (getPlayerDetails().getActivatedLodestones() == null)
-			getPlayerDetails().setActivatedLodestones(new boolean[16]);
-		if (varsManager == null)
-			varsManager = new VarManager(this);
-		interfaceManager = new InterfaceManager(this);
-		hintIconsManager = new HintIconsManager(this);
-		priceCheckManager = new PriceCheckManager(this);
-		localPlayerUpdate = new LocalPlayerUpdate(this);
-		localNPCUpdate = new LocalNPCUpdate(this);
-		actionManager = new ActionManager(this);
-		trade = new Trade(this);
-		lodeStone.setPlayer(this);
-		// loads player on saved instances
-		appearence.setPlayer(this);
-		inventory.setPlayer(this);
-		equipment.setPlayer(this);
-		skills.setPlayer(this);
-		toolbelt.setPlayer(this);
-		combatDefinitions.setPlayer(this);
-		prayer.setPlayer(this);
-		bank.setPlayer(this);
-		controlerManager.setPlayer(this);
-		musicsManager.setPlayer(this);
-		friendsIgnores.setPlayer(this);
-		auraManager.setPlayer(this);
-		temporaryMovementType = -1;
-		logicPackets = new ConcurrentLinkedQueue<LogicPacket>();
-		switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
-		initEntity();
-		packetsDecoderPing = Utils.currentTimeMillis();
-		World.addPlayer(this);
-		updateEntityRegion(this);
-
-		if (getPlayerDetails().getPasswordList() == null)
-			getPlayerDetails().setPasswordList(new ArrayList<String>());
-		if (getPlayerDetails().getIpList() == null)
-			getPlayerDetails().setIpList(new ArrayList<String>());
-		getSession().updateIPnPass(this);
 	}
 
 	public void start() {
@@ -196,33 +129,6 @@ public class Player extends Entity {
 		run();
 		if (isDead())
 			sendDeath(null);
-	}
-
-	public void stopAll() {
-		stopAll(true);
-	}
-
-	public void stopAll(boolean stopWalk) {
-		stopAll(stopWalk, true);
-	}
-
-	public void stopAll(boolean stopWalk, boolean stopInterface) {
-		stopAll(stopWalk, stopInterface, true);
-	}
-
-	// as walk done clientsided - not anymore buddy
-	public void stopAll(boolean stopWalk, boolean stopInterfaces, boolean stopActions) {
-		if (stopInterfaces)
-			getInterfaceManager().closeInterfaces();
-		if (stopWalk){
-			coordsEvent = null;
-			routeEvent = null;
-			resetWalkSteps();
-			getPackets().sendResetMinimapFlag();
-		}
-		if (stopActions)
-			actionManager.forceStop();
-		combatDefinitions.resetSpells(false);
 	}
 	
 	public void startConversation(Dialogue dialogue) {
@@ -388,7 +294,7 @@ public class Player extends Entity {
 			return;
 		finishing = true;
 		// if combating doesnt stop when xlog this way ends combat
-		stopAll(false, true, !(actionManager.getAction() instanceof PlayerCombat));
+		getAttributes().stopAll(this, false, true, !(actionManager.getAction() instanceof PlayerCombat));
 		long currentTime = Utils.currentTimeMillis();
 		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
 				|| getNextEmoteEnd() >= currentTime || getMovement().getLockDelay() >= currentTime) {
@@ -409,7 +315,7 @@ public class Player extends Entity {
 	public void realFinish() {
 		if (hasFinished())
 			return;
-		stopAll();
+		getAttributes().stopAll(this);
 		controlerManager.logout(); // checks what to do on before logout for
 		// login
 		isActive = false;
@@ -533,12 +439,6 @@ public class Player extends Entity {
 		if (teleblock == null)
 			return 0;
 		return teleblock;
-	}
-
-	public byte getMovementType() {
-		if (getTemporaryMovementType() != -1)
-			return getTemporaryMovementType();
-		return getRun() ? RUN_MOVE_TYPE : WALK_MOVE_TYPE;
 	}
 
 	public List<String> getOwnedObjectManagerKeys() {

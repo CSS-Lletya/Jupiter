@@ -336,7 +336,7 @@ public abstract class Entity extends WorldTile {
 			nextWorldTile = null;
 			teleported = true;
 			if (this instanceof Player && ((Player) this).getTemporaryMovementType() == -1)
-				((Player) this).setTemporaryMovementType(Player.TELE_MOVE_TYPE);
+				((Player) this).setTemporaryMovementType(Movement.TELE_MOVE_TYPE);
 			updateEntityRegion(this);
 			if (needMapUpdate())
 				loadMapRegions();
@@ -350,7 +350,7 @@ public abstract class Entity extends WorldTile {
 			Object[] nextStep = getNextWalkStep();
 			if (nextStep == null) {
 				if (stepCount == 1 && this instanceof Player)
-					((Player) this).setTemporaryMovementType(Player.WALK_MOVE_TYPE);
+					((Player) this).setTemporaryMovementType(Movement.WALK_MOVE_TYPE);
 				break;
 			}
 			int dir = (int) nextStep[0];

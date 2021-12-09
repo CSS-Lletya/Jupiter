@@ -65,7 +65,7 @@ public class AuraManager {
 		// temp fix, discard useless once eco since they wont be ingame
 		if (item.getDefinitions().containsOption("Discard"))
 			return;
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		int toId = getTransformIntoAura(item.getId());
 		if (toId != -1) {
 			player.getEquipment().getItem(Equipment.SLOT_AURA).setId(toId);

@@ -3,14 +3,17 @@ package com.jupiter.json;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.util.EnumMap;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Logger;
 
@@ -20,13 +23,21 @@ import com.jupiter.utils.Logger;
  * 
  */
 
+@SuppressWarnings("rawtypes")
 public class GSONParser {
 
 	private static Gson GSON;
 
 	static {
 		GSON = new GsonBuilder().setPrettyPrinting().disableInnerClassSerialization().enableComplexMapKeySerialization()
-				.setDateFormat(DateFormat.LONG).setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
+				.setDateFormat(DateFormat.LONG).setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).registerTypeAdapter(EnumMap.class, new InstanceCreator<EnumMap>() {
+                    @SuppressWarnings({ "unchecked" })
+					@Override
+                    public EnumMap createInstance(Type type) {
+                        Type[] types = (((ParameterizedType) type).getActualTypeArguments());
+                        return new EnumMap((Class<?>) types[0]);
+                    }
+                }).create();
 	}
 
 	public static Player load(String dir, Type type) {
