@@ -9,9 +9,7 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.route.Direction;
 import com.jupiter.skills.cooking.Foods.Food;
 
-public abstract class Controler {
-
-	// private static final long serialVersionUID = 8384350746724116339L;
+public abstract class Activity {
 
 	protected Player player;
 

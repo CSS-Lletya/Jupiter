@@ -11,7 +11,7 @@ import com.jupiter.cores.WorldThread;
 import com.jupiter.game.map.RegionBuilder;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.content.FriendChatsManager;
-import com.jupiter.game.player.controlers.ControlerHandler;
+import com.jupiter.game.player.controlers.ActivityHandler;
 import com.jupiter.net.ServerChannelHandler;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
@@ -54,7 +54,7 @@ public class GameLoader {
 			ItemExamines.init();
 		});
 		getBackgroundLoader().submit(() -> {
-			ControlerHandler.init();
+			ActivityHandler.init();
 			FriendChatsManager.init();
 			RegionBuilder.init();
 			PluginManager.loadPlugins();

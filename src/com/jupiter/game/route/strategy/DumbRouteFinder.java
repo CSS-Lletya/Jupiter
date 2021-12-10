@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import com.jupiter.game.Entity;
-import com.jupiter.game.map.World;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.route.ClipType;
 
@@ -38,66 +38,66 @@ public final class DumbRouteFinder {
 		while (true) {
 			WorldTile from = new WorldTile(curr);
 			if (curr.getX() < targ.getX() && curr.getY() < targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(1, 1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(1, 1), size, type)) {
 					real = add(positions, real.transform(1, 1));
 					curr = curr.transform(1, 1);
-				} else if (World.checkWalkStep(real, real.transform(1, 0), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(1, 0), size, type)) {
 					real = add(positions, real.transform(1, 0));
 					curr = curr.transform(1, 0);
-				} else if (World.checkWalkStep(real, real.transform(0, 1), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(0, 1), size, type)) {
 					real = add(positions, real.transform(0, 1));
 					curr = curr.transform(0, 1);
 				}
 			} else if (curr.getX() > targ.getX() && curr.getY() > targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(-1, -1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(-1, -1), size, type)) {
 					real = add(positions, real.transform(-1, -1));
 					curr = curr.transform(-1, -1);
-				} else if (World.checkWalkStep(real, real.transform(-1, 0), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(-1, 0), size, type)) {
 					real = add(positions, real.transform(-1, 0));
 					curr = curr.transform(-1, 0);
-				} else if (World.checkWalkStep(real, real.transform(0, -1), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(0, -1), size, type)) {
 					real = add(positions, real.transform(0, -1));
 					curr = curr.transform(0, -1);
 				}
 			} else if (curr.getX() < targ.getX() && curr.getY() > targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(1, -1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(1, -1), size, type)) {
 					real = add(positions, real.transform(1, -1));
 					curr = curr.transform(1, -1);
-				} else if (World.checkWalkStep(real, real.transform(1, 0), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(1, 0), size, type)) {
 					real = add(positions, real.transform(1, 0));
 					curr = curr.transform(1, 0);
-				} else if (World.checkWalkStep(real, real.transform(0, -1), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(0, -1), size, type)) {
 					real = add(positions, real.transform(0, -1));
 					curr = curr.transform(0, -1);
 				}
 			} else if (curr.getX() > targ.getX() && curr.getY() < targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(-1, 1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(-1, 1), size, type)) {
 					real = add(positions, real.transform(-1, 1));
 					curr = curr.transform(-1, 1);
-				} else if (World.checkWalkStep(real, real.transform(-1, 0), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(-1, 0), size, type)) {
 					real = add(positions, real.transform(-1, 0));
 					curr = curr.transform(-1, 0);
-				} else if (World.checkWalkStep(real, real.transform(0, 1), size, type)) {
+				} else if (TileAttributes.checkWalkStep(real, real.transform(0, 1), size, type)) {
 					real = add(positions, real.transform(0, 1));
 					curr = curr.transform(0, 1);
 				}
 			} else if (curr.getX() < targ.getX()) {
-				if (World.checkWalkStep(real, real.transform(1, 0), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(1, 0), size, type)) {
 					real = add(positions, real.transform(1, 0));
 					curr = curr.transform(1, 0);
 				} 
 			} else if (curr.getX() > targ.getX()) {
-				if (World.checkWalkStep(real, real.transform(-1, 0), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(-1, 0), size, type)) {
 					real = add(positions, real.transform(-1, 0));
 					curr = curr.transform(-1, 0);
 				} 
 			} else if (curr.getY() < targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(0, 1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(0, 1), size, type)) {
 					real = add(positions, real.transform(0, 1));
 					curr = curr.transform(0, 1);
 				} 
 			} else if (curr.getY() > targ.getY()) {
-				if (World.checkWalkStep(real, real.transform(0, -1), size, type)) {
+				if (TileAttributes.checkWalkStep(real, real.transform(0, -1), size, type)) {
 					real = add(positions, real.transform(0, -1));
 					curr = curr.transform(0, -1);
 				} 

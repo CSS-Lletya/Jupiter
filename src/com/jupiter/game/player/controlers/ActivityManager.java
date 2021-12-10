@@ -9,10 +9,10 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.route.Direction;
 import com.jupiter.skills.cooking.Foods.Food;
 
-public final class ControlerManager {
+public final class ActivityManager {
 
 	private transient Player player;
-	private transient Controler controler;
+	private transient Activity controler;
 	private transient boolean inited;
 	private Object[] lastControlerArguments;
 
@@ -22,14 +22,14 @@ public final class ControlerManager {
 		this.player = player;
 	}
 
-	public Controler getControler() {
+	public Activity getControler() {
 		return controler;
 	}
 
 	public void startControler(Object key, Object... parameters) {
 		if (controler != null)
 			forceStop();
-		controler = (Controler) (key instanceof Controler ? key : ControlerHandler.getControler(key));
+		controler = (Activity) (key instanceof Activity ? key : ActivityHandler.getAcitivity(key));
 		if (controler == null)
 			return;
 		controler.setPlayer(player);
@@ -42,7 +42,7 @@ public final class ControlerManager {
 	public void login() {
 		if (lastControler == null)
 			return;
-		controler = ControlerHandler.getControler(lastControler);
+		controler = ActivityHandler.getAcitivity(lastControler);
 		if (controler == null) {
 			forceStop();
 			return;

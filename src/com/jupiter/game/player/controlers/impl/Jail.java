@@ -1,15 +1,16 @@
-package com.jupiter.game.player.controlers;
+package com.jupiter.game.player.controlers.impl;
 
 import java.util.Optional;
 
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.controlers.Activity;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
-public class JailControler extends Controler {
+public class Jail extends Activity {
 
 	@Override
 	public void start() {

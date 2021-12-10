@@ -10,7 +10,6 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.HitBar;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
 
 public final class LocalNPCUpdate {
 

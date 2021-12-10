@@ -3,10 +3,11 @@ package com.jupiter.skills.magic;
 import java.util.Optional;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.controlers.impl.Wilderness;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
@@ -618,7 +619,7 @@ public class Magic {
 						// attemps to randomize tile by 4x4 area
 						for (int trycount = 0; trycount < 10; trycount++) {
 							teleTile = new WorldTile(tile, 2);
-							if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
+							if (TileAttributes.floorAndWallsFree(teleTile, player.getSize()))
 								break;
 							teleTile = tile;
 						}
@@ -674,7 +675,7 @@ public class Magic {
 			// attemps to randomize tile by 4x4 area
 			for (int trycount = 0; trycount < 10; trycount++) {
 				teleTile = new WorldTile(tile, 2);
-				if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
+				if (TileAttributes.floorAndWallsFree(teleTile, player.getSize()))
 					break;
 				teleTile = tile;
 			}

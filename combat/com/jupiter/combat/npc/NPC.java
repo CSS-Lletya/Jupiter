@@ -12,7 +12,7 @@ import com.jupiter.game.EntityType;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.controlers.impl.Wilderness;
 import com.jupiter.game.route.ClipType;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.strategy.DumbRouteFinder;
@@ -157,6 +157,8 @@ public class NPC extends Entity {
 	public void processNPC() {
 		if (isDead() || locked)
 			return;
+		if (World.getPlayersInRegionRange(getRegionId()).isEmpty())
+			return;
 		if (!combat.process()) { // if not under combat
 			if (!isForceWalking()) {// combat still processed for attack delay
 				// go down
@@ -165,16 +167,10 @@ public class NPC extends Entity {
 					if (!checkAgressivity()) {
 						if (getFreezeDelay() < Utils.currentTimeMillis()) {
 							if (!hasWalkSteps() && (walkType & NORMAL_WALK) != 0) {
-								boolean can = false;
-								for (int i = 0; i < 2; i++) {
-									if (Math.random() * 1000.0 < 100.0) {
-										can = true;
-										break;
-									}
-								}
+								boolean can = Math.random() > 0.9;
 								if (can) {
-									int moveX = (int) Math.round(Math.random() * 10.0 - 5.0);
-									int moveY = (int) Math.round(Math.random() * 10.0 - 5.0);
+									int moveX = Utils.random(getDefinitions().hasAttackOption() ? 4 : 2, getDefinitions().hasAttackOption() ? 8 : 4);
+									int moveY = Utils.random(getDefinitions().hasAttackOption() ? 4 : 2, getDefinitions().hasAttackOption() ? 8 : 4);
 									if (Utils.random(2) == 0)
 										moveX = -moveX;
 									if (Utils.random(2) == 0)
@@ -200,7 +196,7 @@ public class NPC extends Entity {
 						int[] bufferX = RouteFinder.getLastPathBufferX();
 						int[] bufferY = RouteFinder.getLastPathBufferY();
 						for (int i = steps - 1; i >= 0; i--) {
-							if (!addWalkSteps(bufferX[i], bufferY[i], 25, true))
+							if (!addWalkSteps(bufferX[i], bufferY[i], 25, true, true))
 								break;
 						}
 					}

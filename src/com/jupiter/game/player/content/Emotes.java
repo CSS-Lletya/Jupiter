@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.npc.NPC;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -283,7 +284,7 @@ public class Emotes {
 		BORROWED_TIME {
 			@Override
 			protected boolean handleSpecialEmote(Player player) {
-				if (!World.isTileFree(player.getPlane(), player.getX(), player.getY(), 3)) {
+				if (!TileAttributes.isTileFree(player.getPlane(), player.getX(), player.getY(), 3)) {
 					player.getPackets().sendGameMessage("You need clear space in order to perform this emote.", true);
 					return false;
 				} else if (player.getControlerManager().getControler() != null) {
@@ -326,8 +327,6 @@ public class Emotes {
 			return false;
 		}
 	}
-
-//	NPC npc;
 
 	public static Emotes instance = new Emotes();
 	
@@ -554,13 +553,13 @@ public class Emotes {
 				}
 				int size = NPCDefinitions.getNPCDefinitions(1224).size;
 				WorldTile spawnTile = new WorldTile(new WorldTile(player.getX() + 1, player.getY(), player.getPlane()));
-				if (!World.canMoveNPC(spawnTile.getPlane(), spawnTile.getX(), spawnTile.getY(), size)) {
+				if (!TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 					spawnTile = null;
 					int[][] dirs = Utils.getCoordOffsetsNear(size);
 					for (int dir = 0; dir < dirs[0].length; dir++) {
 						final WorldTile tile = new WorldTile(new WorldTile(player.getX() + dirs[0][dir],
 								player.getY() + dirs[1][dir], player.getPlane()));
-						if (World.canMoveNPC(tile.getPlane(), tile.getX(), tile.getY(), size)) {
+						if (TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 							spawnTile = tile;
 							break;
 						}
@@ -612,7 +611,7 @@ public class Emotes {
 				break;
 			case 20769:
 			case 20771:
-				if (!World.canMoveNPC(player.getPlane(), player.getX(), player.getY(), 3)) {
+				if (!TileAttributes.floorAndWallsFree(player, 3)) {
 					player.getPackets().sendGameMessage("Need more space to perform this skillcape emote.");
 					return;
 				} else if (player.getControlerManager().getControler() != null) {

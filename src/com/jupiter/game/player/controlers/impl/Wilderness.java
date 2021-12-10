@@ -1,4 +1,4 @@
-package com.jupiter.game.player.controlers;
+package com.jupiter.game.player.controlers.impl;
 
 import java.util.Optional;
 
@@ -10,13 +10,14 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.controlers.Activity;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.ForceMovement;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.Utils;
 
-public class Wilderness extends Controler {
+public class Wilderness extends Activity {
 
 	private boolean showingSkull;
 

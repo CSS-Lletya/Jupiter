@@ -19,8 +19,10 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.combat.player.type.CombatEffectType;
 import com.jupiter.combat.player.type.PoisonType;
+import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.map.DynamicRegion;
 import com.jupiter.game.map.Region;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.Vec2;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
@@ -375,7 +377,7 @@ public abstract class Entity extends WorldTile {
 			WalkStep nextStep = getNextWalkStep();
 			if (nextStep == null)
 				break;
-			if ((nextStep.checkClip() && !World.checkWalkStep(getPlane(), getX(), getY(), nextStep.getDir(), getSize(), getClipType()))) {
+			if ((nextStep.checkClip() && !TileAttributes.checkWalkStep(getPlane(), getX(), getY(), nextStep.getDir(), getSize(), getClipType()))) {
 				resetWalkSteps();
 				break;
 			}
@@ -469,7 +471,7 @@ public abstract class Entity extends WorldTile {
 			if (checkClose) {
 //				if (!World.checkWalkStep(getPlane(), lastTileX, lastTileY, dir, size))
 //					return false;
-			} else if (!World.checkProjectileStep(getPlane(), lastTileX, lastTileY, dir, size))
+			} else if (!TileAttributes.checkProjectileStep(getPlane(), lastTileX, lastTileY, dir, size))
 				return false;
 			lastTileX = myX;
 			lastTileY = myY;
@@ -546,7 +548,7 @@ public abstract class Entity extends WorldTile {
 		Direction dir = Direction.forDelta(nextX - lastX, nextY - lastY);
 		if (dir == null)
 			return false;
-		if (!force && check && !World.checkWalkStep(getPlane(), lastX, lastY, dir, getSize(), getClipType()))// double
+		if (!force && check && !TileAttributes.checkWalkStep(getPlane(), lastX, lastY, dir, getSize(), getClipType()))// double
 			return false;
 		if (this instanceof Player) {
 			if (!((Player) this).getControlerManager().checkWalkStep(lastX, lastY, nextX, nextY))
@@ -588,8 +590,8 @@ public abstract class Entity extends WorldTile {
 			}
 		}
 		if (melee && !(tile instanceof Entity ? ((Entity) tile).ignoreWallsWhenMeleeing() : false))
-			return World.checkMeleeStep(this, tile) && World.hasLineOfSight(getMiddleWorldTile(), tile instanceof Entity ? ((Entity) tile).getMiddleWorldTile() : tile);
-		return World.hasLineOfSight(getMiddleWorldTile(), tile instanceof Entity ? ((Entity) tile).getMiddleWorldTile() : tile);
+			return TileAttributes.checkMeleeStep(this, tile) && TileAttributes.hasLineOfSight(getMiddleWorldTile(), tile instanceof Entity ? ((Entity) tile).getMiddleWorldTile() : tile);
+		return TileAttributes.hasLineOfSight(getMiddleWorldTile(), tile instanceof Entity ? ((Entity) tile).getMiddleWorldTile() : tile);
 	}
 	
 	public boolean ignoreWallsWhenMeleeing() {
@@ -679,8 +681,8 @@ public abstract class Entity extends WorldTile {
 			p.setUpdateMovementType(false);
 			if (!p.isClientLoadedMapRegion()) {
 				p.setClientLoadedMapRegion(true);
-				World.get().refreshSpawnedObjects(p);
-				World.get().refreshSpawnedItems(p);
+				WorldObject.refreshSpawnedObjects(p);
+				FloorItem.refreshSpawnedItems(p);
 			}
 		});
 		ifNpc(npc -> {

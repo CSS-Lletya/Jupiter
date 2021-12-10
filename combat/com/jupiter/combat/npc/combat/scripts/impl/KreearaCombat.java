@@ -7,6 +7,7 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.Entity;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -37,7 +38,7 @@ public class KreearaCombat extends MobCombatInterface {
 				teleTile = t;
 				for (int trycount = 0; trycount < 10; trycount++) {
 					teleTile = new WorldTile(t, 2);
-					if (World.canMoveNPC(t.getPlane(), teleTile.getX(), teleTile.getY(), t.getSize()))
+					if (TileAttributes.floorAndWallsFree(teleTile, target.getSize()))
 						break;
 				}
 				t.ifPlayer(p -> p.getMovement().move(Optional.empty(), teleTile));

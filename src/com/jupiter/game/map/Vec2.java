@@ -1,5 +1,9 @@
 package com.jupiter.game.map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public class Vec2 {
 	
 	private float x, y;
@@ -12,22 +16,6 @@ public class Vec2 {
 	public Vec2(WorldTile tile) {
 		this.x = tile.getX();
 		this.y = tile.getY();
-	}
-
-	public float getX() {
-		return x;
-	}
-
-	public void setX(float x) {
-		this.x = x;
-	}
-
-	public float getY() {
-		return y;
-	}
-
-	public void setY(float y) {
-		this.y = y;
 	}
 
 	public Vec2 sub(Vec2 v2) {

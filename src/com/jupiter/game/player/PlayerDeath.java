@@ -6,7 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.jupiter.Settings;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.controlers.impl.Wilderness;
 import com.jupiter.game.task.impl.ActorDeathTask;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.host.HostManager;

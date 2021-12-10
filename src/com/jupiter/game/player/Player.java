@@ -29,8 +29,8 @@ import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
-import com.jupiter.game.player.controlers.ControlerManager;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.controlers.ActivityManager;
+import com.jupiter.game.player.controlers.impl.Wilderness;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.game.task.Task;
@@ -92,7 +92,7 @@ public class Player extends Entity {
 	protected CombatDefinitions combatDefinitions;
 	protected Prayer prayer;
 	protected Bank bank;
-	protected ControlerManager controlerManager;
+	protected ActivityManager controlerManager;
 	protected MusicsManager musicsManager;
 	protected FriendsIgnores friendsIgnores;
 	protected AuraManager auraManager;
@@ -204,6 +204,7 @@ public class Player extends Entity {
 			int delayPassed = (int) ((Utils.currentTimeMillis() - World.exiting_start) / 1000);
 			getPackets().sendSystemUpdate(World.exiting_delay - delayPassed);
 		}
+		
 		getAppearence().generateAppearenceData();
 		getPlayerDetails().setLastIP(getSession().getIP());
 		getInterfaceManager().sendInterfaces();

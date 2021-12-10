@@ -11,13 +11,14 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.util.HashMap;
 
 import com.jupiter.game.item.Item;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+
 public class ItemExamines {
 
-	private final static HashMap<Integer, String> itemExamines = new HashMap<Integer, String>();
+	private final static Object2ObjectArrayMap<Integer, String> itemExamines = new Object2ObjectArrayMap<Integer, String>();
 	private final static String PACKED_PATH = "data/items/packedExamines.e";
 	private final static String UNPACKED_PATH = "data/items/unpackedExamines.txt";
 

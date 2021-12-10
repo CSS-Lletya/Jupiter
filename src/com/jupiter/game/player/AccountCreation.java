@@ -16,8 +16,8 @@ import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
-import com.jupiter.game.player.controlers.ControlerManager;
-import com.jupiter.json.GSONParser;
+import com.jupiter.game.player.controlers.ActivityManager;
+import com.jupiter.json.GsonLoader;
 import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
 import com.jupiter.net.encoders.other.HintIconsManager;
@@ -34,11 +34,11 @@ import lombok.Data;
 public class AccountCreation {
 
 	public static Player loadPlayer(String username) {
-		return (Player) GSONParser.load("data/characters/" + username + ".json", Player.class);
+		return (Player) GsonLoader.load("data/characters/" + username + ".json", Player.class);
 	}
 
 	public static void savePlayer(Player player) {
-		GSONParser.save(player, "data/characters/" + player.getDisplayName() + ".json", Player.class);
+		GsonLoader.save(player, "data/characters/" + player.getDisplayName() + ".json", Player.class);
 	}
 
 	public static boolean exists(String username) {
@@ -69,7 +69,7 @@ public class AccountCreation {
 		if (player.bank == null)
 			player.bank = new Bank();
 		if (player.controlerManager == null)
-			player.controlerManager = new ControlerManager();
+			player.controlerManager = new ActivityManager();
 		if (player.musicsManager == null)
 			player.musicsManager = new MusicsManager();
 		if (player.friendsIgnores == null)

@@ -1,5 +1,7 @@
 package com.jupiter.game.item;
 
+import java.util.List;
+
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.map.Region;
 import com.jupiter.game.map.World;
@@ -166,6 +168,31 @@ public class FloorItem extends Item {
 		} else {
 			World.players().filter(p -> p.getPlane() != floorItem.getTile().getPlane() || !p.getMapRegionsIds().contains(regionId)).forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
 			return true;
+		}
+	}
+	
+	public static void refreshSpawnedItems(Player player) {
+		for (int regionId : player.getMapRegionsIds()) {
+			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
+			if (floorItems == null)
+				continue;
+			for (FloorItem item : floorItems) {
+				if ((item.isInvisible() || item.isGrave()) && player != item.getOwner()
+						|| item.getTile().getPlane() != player.getPlane())
+					continue;
+				player.getPackets().sendRemoveGroundItem(item);
+			}
+		}
+		for (int regionId : player.getMapRegionsIds()) {
+			List<FloorItem> floorItems = World.getRegion(regionId).getFloorItems();
+			if (floorItems == null)
+				continue;
+			for (FloorItem item : floorItems) {
+				if ((item.isInvisible() || item.isGrave()) && player != item.getOwner()
+						|| item.getTile().getPlane() != player.getPlane())
+					continue;
+				player.getPackets().sendGroundItem(item);
+			}
 		}
 	}
 }

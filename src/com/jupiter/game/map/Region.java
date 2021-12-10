@@ -12,6 +12,7 @@ import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
+import com.jupiter.json.impl.NPCSpawns;
 import com.jupiter.utils.Logger;
 import com.jupiter.utils.MapArchiveKeys;
 import com.jupiter.utils.Utils;
@@ -587,9 +588,9 @@ public class Region {
 		}
 	}
 
-//	void loadNPCSpawns() {
-//		NPCSpawns.loadNPCSpawns(regionId);
-//	}
+	void loadNPCSpawns() {
+		NPCSpawns.loadNPCSpawns(regionId);
+	}
 
 	void loadObjectSpawns() {
 //		ObjectSpawnLoader.loadObjectSpawns(regionId);
@@ -1010,28 +1011,5 @@ public class Region {
 
 	public void setLoadedNPCSpawns(boolean loadedNPCSpawns) {
 		this.loadedNPCSpawns = loadedNPCSpawns;
-	}
-
-	
-	public void loadNPCSpawns() {
-//		loadNPCSpawns(regionId);
-	}
-	
-	public int getClipFlagsProj(int plane, int localX, int localY) {
-		if (clipedOnlyMap == null || getLoadMapStage() != 2)
-			return -1;
-		return clipedOnlyMap.getMasks()[plane][localX][localY];
-	}
-	
-	public int getClipFlags(int plane, int localX, int localY) {
-		if (map == null || getLoadMapStage() != 2)
-			return -1; // cliped tile
-		return map.getMasks()[plane][localX][localY];
-	}
-	
-	public RegionMap forceGetClipMap() {
-		if (map == null)
-			map = new RegionMap(regionId, false);
-		return map;
 	}
 }

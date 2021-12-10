@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.controlers.impl.Wilderness;
 
 public enum Catchable {
 	// TODO: Some way of catching Manta ray?

@@ -5,6 +5,7 @@ import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.map.ObjectType;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
@@ -72,7 +73,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 		
 		int rotation = 0;
 		if (player.isAtDynamicRegion()) {
-			rotation = World.getRotation(player.getPlane(), x, y);
+			rotation = TileAttributes.getRotation(player.getPlane(), x, y);
 			if (rotation == 1) {
 				ObjectDefinitions defs = ObjectDefinitions.getObjectDefinitions(id);
 				y += defs.getSizeY() - 1;
@@ -89,7 +90,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 
 		if (mapObject == null || mapObject.getId() != id)
 			return;
-		if (player.isAtDynamicRegion() && World.getRotation(player.getPlane(), x, y) != 0) { // temp fix
+		if (player.isAtDynamicRegion() && TileAttributes.getRotation(player.getPlane(), x, y) != 0) { // temp fix
 			ObjectDefinitions defs = ObjectDefinitions.getObjectDefinitions(id);
 			if (defs.getSizeX() > 1 || defs.getSizeY() > 1) {
 				for (int xs = 0; xs < defs.getSizeX() + 1 && (mapObject == null || mapObject.getId() != id); xs++) {

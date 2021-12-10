@@ -2875,32 +2875,29 @@ public class PlayerCombat extends Action {
 				return false;
 		} else {
 			NPC n = (NPC) target;
-			if (n.isCantInteract()) {
+		
+			if (!n.getDefinitions().hasAttackOption()) {
 				return false;
 			}
-				if (!n.canBeAttackFromOutOfArea()) {
+			if (n.getId() == 14578) {
+				if (player.getEquipment().getWeaponId() != 2402 && player.getCombatDefinitions().getAutoCastSpell() <= 0
+						&& !hasPolyporeStaff(player)) {
+					player.getPackets().sendGameMessage("I'd better wield Silverlight first.");
+					return false;
+				} else {
+					int slayerLevel = Combat.getSlayerLevelForNPC(n.getId());
+					if (slayerLevel > player.getSkills().getLevel(Skills.SLAYER)) {
+						player.getPackets().sendGameMessage(
+								"You need at least a slayer level of " + slayerLevel + " to fight this.");
+						return false;
+					}
+				}
+			} else if (n.getId() == 6222 || n.getId() == 6223 || n.getId() == 6225 || n.getId() == 6227) {
+				if (isRanging(player) == 0) {
+					player.getPackets().sendGameMessage("I can't reach that!");
 					return false;
 				}
-				if (n.getId() == 14578) {
-					if (player.getEquipment().getWeaponId() != 2402
-							&& player.getCombatDefinitions().getAutoCastSpell() <= 0 && !hasPolyporeStaff(player)) {
-						player.getPackets().sendGameMessage("I'd better wield Silverlight first.");
-						return false;
-					} else {
-						int slayerLevel = Combat.getSlayerLevelForNPC(n.getId());
-						if (slayerLevel > player.getSkills().getLevel(Skills.SLAYER)) {
-							player.getPackets().sendGameMessage(
-									"You need at least a slayer level of " + slayerLevel + " to fight this.");
-							return false;
-						}
-					}
-				} else if (n.getId() == 6222 || n.getId() == 6223 || n.getId() == 6225 || n.getId() == 6227) {
-					if (isRanging(player) == 0) {
-						player.getPackets().sendGameMessage("I can't reach that!");
-						return false;
-					}
-				}
-			
+			}
 		}
 		if (!(target instanceof NPC && ((NPC) target).isForceMultiAttacked())) {
 
@@ -2936,8 +2933,6 @@ public class PlayerCombat extends Action {
 				player.addWalkSteps(player.getX(), target.getY(), 1);
 			return true;
 		}
-		maxDistance = isRanging != 0 || player.getCombatDefinitions().getSpellId() > 0 || hasPolyporeStaff(player) ? 7
-				: 0;
 		if (Utils.collides(player, target) && !target.hasWalkSteps()) {
 			player.resetWalkSteps();
 			return player.calcFollow(target, true); //might be double fixed and cause issues?.. check on this
@@ -2950,7 +2945,7 @@ public class PlayerCombat extends Action {
 			}
 		} else
 			player.resetWalkSteps();
-		if (isRanging == 0 && player.getCombatDefinitions().getSpellId() <= 0 && target.getSize() == 1) {
+		if (isRanging == 0 && target.getSize() == 1) {
 			Direction dir = Direction.forDelta(target.getX() - player.getX(), target.getY() - player.getY());
 			if (dir != null) {
 				switch(dir) {
