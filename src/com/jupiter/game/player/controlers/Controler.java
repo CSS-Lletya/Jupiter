@@ -6,6 +6,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.route.Direction;
 import com.jupiter.skills.cooking.Foods.Food;
 
 public abstract class Controler {
@@ -202,7 +203,7 @@ public abstract class Controler {
 	/**
 	 * return can move that step
 	 */
-	public boolean canMove(int dir) {
+	public boolean canMove(Direction dir) {
 		return true;
 	}
 

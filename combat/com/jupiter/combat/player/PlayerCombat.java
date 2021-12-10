@@ -16,6 +16,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Action;
+import com.jupiter.game.route.Direction;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.ForceTalk;
@@ -2937,16 +2938,33 @@ public class PlayerCombat extends Action {
 		}
 		maxDistance = isRanging != 0 || player.getCombatDefinitions().getSpellId() > 0 || hasPolyporeStaff(player) ? 7
 				: 0;
-		if ((!player.clipedProjectile(target, maxDistance == 0))
-				|| distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
-				|| distanceY < -1 - maxDistance) {
-			if (!player.hasWalkSteps()) {
-				player.resetWalkSteps();
-				player.addWalkStepsInteract(target.getX(), target.getY(), player.getRun() ? 2 : 1, size, true);
-			}
-			return true;
-		} else {
+		if (Utils.collides(player, target) && !target.hasWalkSteps()) {
 			player.resetWalkSteps();
+			return player.calcFollow(target, true); //might be double fixed and cause issues?.. check on this
+		}
+		int attackRange = getAttackRange(player);
+		if (!Utils.isInRange(player, target, attackRange) || !player.lineOfSightTo(target, attackRange <= 0)) {
+			if (!player.hasWalkSteps() || target.hasWalkSteps()) {
+				player.resetWalkSteps();
+				player.calcFollow(target, player.getRun() ? 2 : 1, true, true);
+			}
+		} else
+			player.resetWalkSteps();
+		if (isRanging == 0 && player.getCombatDefinitions().getSpellId() <= 0 && target.getSize() == 1) {
+			Direction dir = Direction.forDelta(target.getX() - player.getX(), target.getY() - player.getY());
+			if (dir != null) {
+				switch(dir) {
+				case NORTH:
+				case SOUTH:
+				case EAST:
+				case WEST:
+					break;
+				default:
+					player.resetWalkSteps();
+					player.calcFollow(target, player.getRun() ? 2 : 1, true, true);
+					return true;
+				}
+			}
 		}
 //		if (player.getPolDelay() >= Utils.currentTimeMillis() && !(player.getEquipment().getWeaponId() == 15486
 //				|| player.getEquipment().getWeaponId() == 22207 || player.getEquipment().getWeaponId() == 22209
@@ -2978,6 +2996,54 @@ public class PlayerCombat extends Action {
 			return true;
 		}
 		return true;
+	}
+
+	public static int getAttackRange(Player player) {
+		if (player.getCombatDefinitions().getSpellId()<=0)
+			return 10;
+		if (isRanging(player) != 0) {
+			int atkRange = 8;
+			String weaponName = player.getEquipment().getWeaponName().toLowerCase();
+			if (weaponName.contains("salamander"))
+				return 1;
+			else if (weaponName.contains(" dart") || weaponName.contains("blisterwood stake"))
+				atkRange = 3;
+			else if (weaponName.contains(" knife"))
+				atkRange = 4;
+			else if (weaponName.contains(" thrownaxe"))
+				atkRange = 4;
+			else if (weaponName.contains(" comp ogre bow"))
+				atkRange = 5;
+			else if (weaponName.contains("dorgeshuun c'bow"))
+				atkRange = 6;
+			else if (weaponName.contains(" crossbow"))
+				atkRange = 7;
+			else if (weaponName.contains(" shortbow"))
+				atkRange = 7;
+			else if (weaponName.contains(" karil"))
+				atkRange = 8;
+			else if (weaponName.contains("seercull"))
+				atkRange = 8;
+			else if (weaponName.contains(" longbow"))
+				atkRange = 9;
+			else if (weaponName.contains("chinchompa"))
+				atkRange = 9;
+			else if (weaponName.contains("ogre bow"))
+				atkRange = 10;
+			else if (weaponName.contains("composite bow"))
+				atkRange = 10;
+			else if (weaponName.contains("crystal bow"))
+				atkRange = 10;
+			else if (weaponName.contains("dark bow"))
+				atkRange = 10;
+			
+			if (player.getCombatDefinitions().getAttackStyle() == 2)
+				atkRange += 2;
+			return Utils.clampI(atkRange, 0, 10);
+		}
+		if (player.getEquipment().getWeaponId() != -1 && ItemDefinitions.getItemDefinitions(player.getEquipment().getWeaponId()).name.contains("halberd"))
+			return 1;
+		return 0;
 	}
 
 	public boolean specialExecute(Player player) {

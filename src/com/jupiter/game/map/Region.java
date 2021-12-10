@@ -1016,4 +1016,22 @@ public class Region {
 	public void loadNPCSpawns() {
 //		loadNPCSpawns(regionId);
 	}
+	
+	public int getClipFlagsProj(int plane, int localX, int localY) {
+		if (clipedOnlyMap == null || getLoadMapStage() != 2)
+			return -1;
+		return clipedOnlyMap.getMasks()[plane][localX][localY];
+	}
+	
+	public int getClipFlags(int plane, int localX, int localY) {
+		if (map == null || getLoadMapStage() != 2)
+			return -1; // cliped tile
+		return map.getMasks()[plane][localX][localY];
+	}
+	
+	public RegionMap forceGetClipMap() {
+		if (map == null)
+			map = new RegionMap(regionId, false);
+		return map;
+	}
 }

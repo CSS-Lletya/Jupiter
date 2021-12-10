@@ -637,7 +637,7 @@ public class Magic {
 						player.getPackets().sendSound(5524, 0, 2);
 						player.setNextFaceWorldTile(
 								new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
-						player.setDirection(6);
+						player.direction = 6;
 					}
 					removeDamage = true;
 				} else {
@@ -684,7 +684,7 @@ public class Magic {
 				teleControlersCheck(player, teleTile);
 			player.setNextFaceWorldTile(
 					new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
-			player.setDirection(6);
+			player.direction = 6;
 			player.setNextAnimation(new Animation(-1));
 			player.resetReceivedDamage();
 			player.getMovement().unlock();

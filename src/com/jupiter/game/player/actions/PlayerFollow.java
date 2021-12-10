@@ -3,6 +3,7 @@ package com.jupiter.game.player.actions;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
 
+//TODO: Fix this, doesn't seem to work prior to movement update.
 public class PlayerFollow extends Action {
 
 	private Player target;
@@ -37,7 +38,7 @@ public class PlayerFollow extends Action {
 				|| distanceX < -1 - maxDistance || distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 			if (player.hasWalkSteps())
 				player.resetWalkSteps();
-			player.addWalkStepsInteract(target.getX(), target.getY(), player.getRun() ? 2 : 1, size, true);
+			player.addWalkStep(target.getX(), target.getY(), player.getRun() ? 2 : 1, size, true);
 			// }
 			return true;
 		} else {

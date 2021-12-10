@@ -13,7 +13,9 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.route.ClipType;
 import com.jupiter.game.route.RouteFinder;
+import com.jupiter.game.route.strategy.DumbRouteFinder;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
@@ -104,6 +106,11 @@ public class NPC extends Entity {
 		setHitpoints(getMaxHitpoints());
 		setRandomWalk(getDefinitions().walkMask);
 		setStartTile(tile);
+		setClipType((getDefinitions().walkMask & 0x4) != 0 ? ClipType.WATER : ClipType.NORMAL);
+		if (getName().contains("impling")) {
+			setRandomWalk(true);
+			setClipType(ClipType.FLYING);
+		}
 		bonuses = NPCBonuses.getBonuses(id);
 		combat = new NPCCombat(this);
 		capDamage = -1;
@@ -168,16 +175,15 @@ public class NPC extends Entity {
 								if (can) {
 									int moveX = (int) Math.round(Math.random() * 10.0 - 5.0);
 									int moveY = (int) Math.round(Math.random() * 10.0 - 5.0);
+									if (Utils.random(2) == 0)
+										moveX = -moveX;
+									if (Utils.random(2) == 0)
+										moveY = -moveY;
 									resetWalkSteps();
-									//TODO: Redo this
-//									if (getMapAreaNameHash() != -1) {
-//										if (!MapAreas.isAtArea(getMapAreaNameHash(), this)) {
-//											forceWalkRespawnTile();
-//											return;
-//										}
-//										addWalkSteps(getX() + moveX, getY() + moveY, 5, (walkType & FLY_WALK) == 0);
-//									} else
-//										addWalkSteps(respawnTile.getX() + moveX, respawnTile.getY() + moveY, 5, (walkType & FLY_WALK) == 0);
+									DumbRouteFinder.addDumbPathfinderSteps(this, respawnTile.transform(moveX, moveY, 0), getDefinitions().hasAttackOption() ? 7 : 3, getClipType());
+									if (Utils.getDistance(this, respawnTile) > 3 && !getDefinitions().hasAttackOption()) {
+										DumbRouteFinder.addDumbPathfinderSteps(this, respawnTile, getDefinitions().hasAttackOption() ? 7 : 3, getClipType());
+									}
 								}
 
 							}
@@ -466,7 +472,7 @@ public class NPC extends Entity {
 	@Override
 	public void reset() {
 		super.reset();
-		setDirection(getRespawnDirection());
+		direction = getRespawnDirection();
 		combat.reset();
 		bonuses = NPCBonuses.getBonuses(id); // back to real bonuses
 		forceWalk = null;

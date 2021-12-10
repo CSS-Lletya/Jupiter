@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import com.jupiter.game.map.WorldTile;
+import com.jupiter.game.route.WalkStep;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
@@ -15,7 +16,7 @@ public class Movement {
 	
 	public static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
 	
-	private transient ConcurrentLinkedQueue<Object[]> walkSteps;
+	private transient ConcurrentLinkedQueue<WalkStep> walkSteps;
 	
 	/**
 	 * Represents the Entity
@@ -28,7 +29,7 @@ public class Movement {
 	 */
 	public Movement(Entity entity) {
 		this.entity = entity;
-		walkSteps = new ConcurrentLinkedQueue<Object[]>();
+		walkSteps = new ConcurrentLinkedQueue<WalkStep>();
 	}
 	
 	/**

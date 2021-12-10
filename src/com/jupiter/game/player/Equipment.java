@@ -363,4 +363,11 @@ public final class Equipment {
 		}
 		return bonuses[index];
 	}
+
+	public String getWeaponName() {
+		Item item = items.get(getWeaponId());
+		if (item == null)
+			return "";
+		return item.getDefinitions().getName();
+	}
 }
