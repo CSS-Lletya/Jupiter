@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.google.common.reflect.ClassPath;
 import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
+import com.jupiter.game.Entity;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.skills.Skills;
@@ -1038,5 +1039,52 @@ public final class Utils {
 		}
 
 		return newMap;
+	}
+
+	public static final int getAngleTo(WorldTile fromTile, WorldTile toTile) {
+		return getAngleTo(toTile.getX() - fromTile.getX(), toTile.getY() - fromTile.getY());
+	}
+
+	public static final int getAngleTo(int xOffset, int yOffset) {
+		return ((int) (Math.atan2(-xOffset, -yOffset) * 2607.5945876176133)) & 0x3fff;
+	}
+
+	public static boolean isInRange(int x1, int y1, int size1, int x2, int y2, int size2, int maxDistance) {
+		int distanceX = x1 - x2;
+		int distanceY = y1 - y2;
+		if (distanceX > size2 + maxDistance || distanceX < -size1 - maxDistance || distanceY > size2 + maxDistance || distanceY < -size1 - maxDistance)
+			return false;
+		return true;
+	}
+
+		
+	public static boolean collides(Entity entity, Entity target) {
+		return entity.getPlane() == target.getPlane() && collides(entity.getX(), entity.getY(), entity.getSize(), target.getX(), target.getY(), target.getSize());
+	}
+	
+	public static boolean collides(WorldTile entity, WorldTile target) {
+		return entity.getPlane() == target.getPlane() && collides(entity.getX(), entity.getY(), entity instanceof Entity ? ((Entity) entity).getSize() : 1, target.getX(), target.getY(), target instanceof Entity ? ((Entity) target).getSize() : 1);
+	}
+
+	public static boolean collides(WorldTile entity, WorldTile target, int s1, int s2) {
+		return entity.getPlane() == target.getPlane() && collides(entity.getX(), entity.getY(), s1, target.getX(), target.getY(), s2);
+	}
+	
+	public static boolean isInRange(WorldTile entity, WorldTile target, int rangeRatio) {
+		return entity.getPlane() == target.getPlane() && isInRange(entity.getX(), entity.getY(), entity instanceof Entity ? ((Entity) entity).getSize() : 1, target.getX(), target.getY(), target instanceof Entity ? ((Entity) target).getSize() : 1, rangeRatio);
+	}
+	
+	public static boolean isInRange(Entity entity, Entity target, int rangeRatio) {
+		return entity.getPlane() == target.getPlane() && isInRange(entity.getX(), entity.getY(), entity.getSize(), target.getX(), target.getY(), target.getSize(), rangeRatio);
+	}
+
+	public static boolean isInRange(WorldTile entity, WorldTile target, int rangeRatio, int s1, int s2) {
+		return entity.getPlane() == target.getPlane() && isInRange(entity.getX(), entity.getY(), s1, target.getX(), target.getY(), s2, rangeRatio);
+	}
+	
+	public static boolean collides(int x1, int y1, int size1, int x2, int y2, int size2) {
+		int distanceX = x1 - x2;
+		int distanceY = y1 - y2;
+		return distanceX < size2 && distanceX > -size1 && distanceY < size2 && distanceY > -size1;
 	}
 }

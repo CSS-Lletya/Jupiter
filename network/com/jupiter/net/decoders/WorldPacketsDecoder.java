@@ -12,6 +12,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.PlayerFollow;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.game.player.content.SkillCapeCustomizer;
 import com.jupiter.game.route.RouteFinder;
@@ -21,10 +22,10 @@ import com.jupiter.net.Session;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.plugin.ObjectDispatcher;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ItemOnObjectEvent;
 import com.jupiter.plugin.events.ItemOnPlayerEvent;
+import com.jupiter.plugin.handlers.ObjectClickHandler;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.npc.NPCDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
@@ -331,7 +332,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (steps > 25)
 	            steps = 25;
 
-	        player.stopAll();
+	        player.getAttributes().stopAll(player);
 
 	        player.setNextFaceEntity(null);
 	        
@@ -441,7 +442,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				return;
 			if (item == null || item.getId() != itemId)
 				return;
-			player.stopAll(false); // false
+			player.getAttributes().stopAll(player, false); // false
 			if (forceRun)
 				player.setRun(forceRun);
 			switch (interfaceId) {
@@ -460,7 +461,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				return;
 			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			player.getActionManager().setAction(new PlayerFollow(p2));
 		} else if (packetId == PLAYER_OPTION_4_PACKET) {
 			@SuppressWarnings("unused")
@@ -471,7 +472,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				return;
 			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis())
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			if (player.isCantTrade()) {
 				player.getPackets().sendGameMessage("You are busy.");
 				return;
@@ -508,11 +509,11 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (targetPlayer == null || targetPlayer.isDead() || targetPlayer.hasFinished() || !player.getMapRegionsIds().contains(targetPlayer.getRegionId()))
 				return;
 			
-			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !ActivityHandler.execute(player, activity -> activity.canPlayerOption1(player, targetPlayer)))
 				return;
 			if (!player.isCanPvp())
 				return;
-			if (!player.getControlerManager().canAttack(targetPlayer))
+			if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, targetPlayer)))
 				return;
 			
 			if (!player.isCanPvp() || !targetPlayer.isCanPvp()) {
@@ -536,7 +537,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				}
 			}
 			
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			player.getActionManager().setAction(new PlayerCombat(targetPlayer));
 		} else if (packetId == ATTACK_NPC) {
 			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead()) {
@@ -553,7 +554,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (npc == null || npc.isDead() || npc.hasFinished() || !player.getMapRegionsIds().contains(npc.getRegionId()) || !npc.getDefinitions().hasAttackOption()) {
 				return;
 			}
-			if (!player.getControlerManager().canAttack(npc)) {
+			if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc))) {
 				return;
 			}
 			if (!npc.isForceMultiAttacked()) {
@@ -568,7 +569,7 @@ public final class WorldPacketsDecoder extends Decoder {
 					}
 				}
 			}
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			player.getActionManager().setAction(new PlayerCombat(npc));
 		}
 		
@@ -611,7 +612,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			Player p2 = World.getPlayers().get(playerIndex);
 			if (p2 == null || p2.isDead() || p2.hasFinished() || !player.getMapRegionsIds().contains(p2.getRegionId()))
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			if (forceRun)
 				player.setRun(forceRun);
 			switch (interfaceId) {
@@ -645,7 +646,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 23:
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(p2.getCoordFaceX(p2.getSize()), p2.getCoordFaceY(p2.getSize()), p2.getPlane()));
-						if (!player.getControlerManager().canAttack(p2))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, p2)))
 							return;
 						if (!player.isCanPvp() || !p2.isCanPvp()) {
 							player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
@@ -706,7 +707,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 81: // entangle
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(p2.getCoordFaceX(p2.getSize()), p2.getCoordFaceY(p2.getSize()), p2.getPlane()));
-						if (!player.getControlerManager().canAttack(p2))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, p2)))
 							return;
 						if (!player.isCanPvp() || !p2.isCanPvp()) {
 							player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
@@ -771,7 +772,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			NPC npc = World.getNPCs().get(npcIndex);
 			if (npc == null || npc.isDead() || npc.hasFinished() || !player.getMapRegionsIds().contains(npc.getRegionId()))
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			if (forceRun)
 				player.setRun(forceRun);
 			if (interfaceId != Inventory.INVENTORY_INTERFACE) {
@@ -783,7 +784,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			switch (interfaceId) {
 			case Inventory.INVENTORY_INTERFACE:
 				Item item = player.getInventory().getItem(interfaceSlot);
-				if (item == null || !player.getControlerManager().processItemOnNPC(npc, item))
+				if (item == null || !ActivityHandler.execute(player, activity -> activity.processItemOnNPC(player, npc, item)))
 					return;
 				InventoryInterfacePlugin.handleItemOnNPC(player, npc, item);
 				break;
@@ -807,7 +808,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 23:
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getPlane()));
-						if (!player.getControlerManager().canAttack(npc))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc)))
 							return;
 						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
@@ -857,7 +858,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 81: // entangle
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getPlane()));
-						if (!player.getControlerManager().canAttack(npc))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc)))
 							return;
 						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
@@ -881,15 +882,15 @@ public final class WorldPacketsDecoder extends Decoder {
 				System.out.println("Spell:" + componentId);
 		}
 	 	if (packetId == OBJECT_CLICK1_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 1);
+	 		ObjectClickHandler.handleOption(player, stream, 1);
 		else if (packetId == OBJECT_CLICK2_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 2);
+			ObjectClickHandler.handleOption(player, stream, 2);
 		else if (packetId == OBJECT_CLICK3_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 3);
+			ObjectClickHandler.handleOption(player, stream, 3);
 		else if (packetId == OBJECT_CLICK4_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 4);
+			ObjectClickHandler.handleOption(player, stream, 4);
 		else if (packetId == OBJECT_CLICK5_PACKET)
-			ObjectDispatcher.handleOption(player, stream, 5);
+			ObjectClickHandler.handleOption(player, stream, 5);
 		else if (packetId == ITEM_TAKE_PACKET) {
 			if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 				return;
@@ -912,7 +913,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			final FloorItem item = World.getRegion(regionId).getGroundItem(id, tile, player);
 			if (item == null)
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			if (forceRun)
 				player.setRun(forceRun);
 			player.setRouteEvent(new RouteEvent(item, new Runnable() {
@@ -1002,7 +1003,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				player.run();
 				return;
 			}
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 		} else if (packetId == MOVE_CAMERA_PACKET) {
 			// not using it atm
 			stream.readUnsignedShort();
@@ -1229,7 +1230,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				|| packetId == INTERFACE_ON_OBJECT)
 			player.addLogicPacketToQueue(new LogicPacket((byte) packetId, length, stream));
 		else if (packetId == OBJECT_EXAMINE_PACKET) {
-			ObjectDispatcher.handleOption(player, stream, -1);
+			ObjectClickHandler.handleOption(player, stream, -1);
 		} else if (packetId == NPC_EXAMINE_PACKET) {
 			NPCDispatcher.handleExamine(player, stream);
 		} else if (packetId == JOIN_FRIEND_CHAT_PACKET) {
@@ -1402,7 +1403,7 @@ public final class WorldPacketsDecoder extends Decoder {
 					tile, player);
 			if (item == null)
 				return;
-			player.stopAll(false);
+			player.getAttributes().stopAll(player, false);
 			final FloorItem floorItem = World.getRegion(regionId)
 					.getGroundItem(id, tile, player);
 			if (floorItem == null)

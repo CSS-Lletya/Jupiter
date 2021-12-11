@@ -5,18 +5,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import com.jupiter.game.map.WorldTile;
-import com.jupiter.game.player.Player;
+import com.jupiter.game.route.WalkStep;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.utils.Utils;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class Movement {
 	
-	private transient ConcurrentLinkedQueue<Object[]> walkSteps;
+	public static final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
+	
+	private transient ConcurrentLinkedQueue<WalkStep> walkSteps;
 	
 	/**
 	 * Represents the Entity
@@ -29,7 +29,7 @@ public class Movement {
 	 */
 	public Movement(Entity entity) {
 		this.entity = entity;
-		walkSteps = new ConcurrentLinkedQueue<Object[]>();
+		walkSteps = new ConcurrentLinkedQueue<WalkStep>();
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class Movement {
 	 */
 	public void move(Optional<Animation> emoteId, final WorldTile dest, Optional<String> message) {
 		lockUntil(p -> {
-			p.toPlayer().stopAll();
+			p.toPlayer().getAttributes().stopAll(p.toPlayer());
 			emoteId.ifPresent(p::setNextAnimation);
 			p.toPlayer().task(1, event -> {
 				event.setNextWorldTile(dest);
@@ -112,13 +112,13 @@ public class Movement {
 		entity.toPlayer().getPackets().sendRunEnergy();
 	}
 
-	public void setRestingMode(boolean resting) {
-		setRestingMode(resting);
+	public void setResting(boolean resting) {
+		entity.toPlayer().setResting(resting);
 		sendRunButtonConfig();
 	}
 	
 	public void toogleRun(boolean update) {
-		entity.setRun(!isRun());
+		entity.setRun(!entity.getRun());
 		entity.toPlayer().setUpdateMovementType(update);
 		if (update)
 			sendRunButtonConfig();
@@ -130,22 +130,6 @@ public class Movement {
 	}
 	
 	public void sendRunButtonConfig() {
-		entity.toPlayer().getPackets().sendConfig(173, isResting() ? 3 : isRun() ? 1 : 0);
+		entity.toPlayer().getPackets().sendConfig(173, entity.toPlayer().isResting() ? 3 : entity.getRun() ? 1 : 0);
 	}
-	
-	@Getter
-	@Setter
-	private transient boolean resting;
-	
-	public transient final byte TELE_MOVE_TYPE = 127, WALK_MOVE_TYPE = 1, RUN_MOVE_TYPE = 2;
-	
-	public byte getMovementType(Player player) {
-		if (player.getTemporaryMovementType() != -1)
-			return player.getTemporaryMovementType();
-		return isRun() ? RUN_MOVE_TYPE : WALK_MOVE_TYPE;
-	}
-	
-	@Getter
-	@Setter
-	private transient boolean run;
 }

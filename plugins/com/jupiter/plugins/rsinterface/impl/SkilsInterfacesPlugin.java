@@ -18,8 +18,7 @@ public class SkilsInterfacesPlugin implements RSInterface {
 				player.getPackets().sendInterface(false, 1218, 1, 1217); // seems to fix
 			break;
 		case 320:
-			player.stopAll();
-			@SuppressWarnings("unused")
+			player.getAttributes().stopAll(player);
 			int lvlupSkill = -1;
 			int skillMenu = -1;
 			switch (componentId) {
@@ -270,7 +269,7 @@ public class SkilsInterfacesPlugin implements RSInterface {
 				player.getPackets().sendConfig(965, ((componentId - 10) * 1024) + skillMenuX);
 			else if (componentId == 29)
 				// close inter
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 			break;
 		}
 	}

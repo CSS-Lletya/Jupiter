@@ -26,7 +26,7 @@ public class LodeStone {
 	 * @param componentId
 	 */
 	public void handleButtons(int componentId) {
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		WorldTile stoneTile = null;
 		switch (componentId) {
 		case 7:// Bandit Camp

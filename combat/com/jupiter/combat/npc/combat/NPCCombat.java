@@ -6,7 +6,6 @@ import com.jupiter.combat.player.Combat;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
 import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 
 public final class NPCCombat {
@@ -112,14 +111,7 @@ public final class NPCCombat {
 		int maxDistance;
 		if (!npc.isNoDistanceCheck() && !npc.isCantFollowUnderCombat()) {
 			maxDistance = 32;
-				if (npc.getMapAreaNameHash() != -1) {
-					// if out his area
-					if (!MapAreas.isAtArea(npc.getMapAreaNameHash(), npc) || (!npc.canBeAttackFromOutOfArea()
-							&& !MapAreas.isAtArea(npc.getMapAreaNameHash(), target))) {
-						npc.forceWalkRespawnTile();
-						return false;
-					}
-				} else if (distanceX > size + maxDistance || distanceX < -1 - maxDistance
+				if (distanceX > size + maxDistance || distanceX < -1 - maxDistance
 						|| distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 					// if more than 64 distance from respawn place
 					npc.forceWalkRespawnTile();
@@ -181,22 +173,15 @@ public final class NPCCombat {
 			}
 
 			int attackStyle = npc.getCombatDefinitions().getAttackStyle();
-				maxDistance = npc.isForceFollowClose() ? 0
-						: (attackStyle == NPCCombatDefinitions.MELEE || attackStyle == NPCCombatDefinitions.SPECIAL2)
-								? 0
-								: 7;
-				npc.resetWalkSteps();
-				// is far from target, moves to it till can attack
-				if ((!npc.clipedProjectile(target, maxDistance == 0)) || distanceX > size + maxDistance
-						|| distanceX < -1 - maxDistance || distanceY > size + maxDistance
-						|| distanceY < -1 - maxDistance) {
-					if (!npc.addWalkStepsInteract(target.getX(), target.getY(), 2, size, true) && combatDelay < 3)
-						combatDelay = 3;
-					return true;
-				}
-				// if under target, moves
-
-			
+			maxDistance = npc.isForceFollowClose() ? 0
+					: (attackStyle == NPCCombatDefinitions.MELEE || attackStyle == NPCCombatDefinitions.SPECIAL2) ? 0
+							: 7;
+			npc.resetWalkSteps();
+			if ((!npc.lineOfSightTo(target, maxDistance == 0)) || !Utils.isInRange(npc.getX(), npc.getY(), size,
+					target.getX(), target.getY(), targetSize, maxDistance)) {
+				npc.calcFollow(target, npc.getRun() ? 2 : 1, true, false);
+				return true;
+			}
 		}
 		return true;
 	}

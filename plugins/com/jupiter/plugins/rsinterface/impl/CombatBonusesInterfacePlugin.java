@@ -2,18 +2,18 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import java.util.HashMap;
 
-import com.jupiter.combat.player.CombatDefinitions;
+import com.jupiter.combat.player.Bonus;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
 import com.jupiter.utils.ChatColors;
-import com.jupiter.utils.ItemBonuses;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
 
@@ -21,7 +21,6 @@ import com.jupiter.utils.Utils;
 public class CombatBonusesInterfacePlugin implements RSInterface {
 	@Override
 	public void execute(Player player, int interfaceId, int componentId, int packetId, byte slotId, int slotId2) throws Exception {
-		System.out.println(componentId + " packet: "+packetId);
 		if(interfaceId == 670)
 			if (componentId == 0) {
 				if (slotId >= player.getInventory().getItemsContainerSize())
@@ -34,8 +33,8 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 						refreshEquipBonuses(player);
 				} else if (packetId == WorldPacketsDecoder.ACTION_BUTTON4_PACKET)
 					player.getInventory().sendExamine(slotId);
-				else if (packetId == 27) 
-					sendItemStats(player, item);
+//				else if (packetId == 27) 
+//					sendItemStats(player, item);
 				else if (packetId == 68) {
 					player.getPackets().sendGameMessage(ItemExamines.getExamine(item));
 					if (item.getDefinitions().getValue() <= 1) {
@@ -71,7 +70,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 				}
 			}
 			if (componentId == 87) {
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 			}
 			if (componentId == 9) {
 				if (slotId >= 14)
@@ -89,9 +88,9 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
 							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				}
-				if (packetId == 22) {
-					sendItemStats(player, item);
-				} else if (packetId == 96) {
+//				if (packetId == 22) {
+//					sendItemStats(player, item);
+				 else if (packetId == 96) {
 					EquipmentInterfacePlugin.sendRemove(player, slotId);
 					player.getPackets().sendGlobalConfig(779, player.getEquipment().getWeaponRenderEmote());
 					refreshEquipBonuses(player);
@@ -105,23 +104,32 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 	}
 
 	public static void refreshEquipBonuses(Player player) {
-		final int interfaceId = 667;
-		for (Object[] element : info) {
-			int bonus = player.getCombatDefinitions().getBonuses()[(int) element[1]];
-			String sign = bonus > 0 ? "+" : "";
-			player.getPackets().sendIComponentText(interfaceId, (int) element[0], element[2] + ": " + sign + bonus);
-		}
+		player.getPackets().sendIComponentText(667, 28, "Stab: " + player.getCombatDefinitions().getBonus(Bonus.STAB_ATT));
+		player.getPackets().sendIComponentText(667, 29, "Slash: " + player.getCombatDefinitions().getBonus(Bonus.SLASH_ATT));
+		player.getPackets().sendIComponentText(667, 30, "Crush: " + player.getCombatDefinitions().getBonus(Bonus.CRUSH_ATT));
+		player.getPackets().sendIComponentText(667, 31, "Magic: " + player.getCombatDefinitions().getBonus(Bonus.MAGIC_ATT));
+		player.getPackets().sendIComponentText(667, 32, "Range: " + player.getCombatDefinitions().getBonus(Bonus.RANGE_ATT));
+		player.getPackets().sendIComponentText(667, 33, "Stab: " + player.getCombatDefinitions().getBonus(Bonus.STAB_DEF));
+		player.getPackets().sendIComponentText(667, 34, "Slash: " + player.getCombatDefinitions().getBonus(Bonus.SLASH_DEF));
+		player.getPackets().sendIComponentText(667, 35, "Crush: " + player.getCombatDefinitions().getBonus(Bonus.CRUSH_DEF));
+		player.getPackets().sendIComponentText(667, 36, "Magic: " + player.getCombatDefinitions().getBonus(Bonus.MAGIC_DEF));
+		player.getPackets().sendIComponentText(667, 37, "Range: " + player.getCombatDefinitions().getBonus(Bonus.RANGE_DEF));
+		player.getPackets().sendIComponentText(667, 38, "Summoning: " + player.getCombatDefinitions().getBonus(Bonus.SUMM_DEF));
+		player.getPackets().sendIComponentText(667, 39, "Absorb Melee: " + player.getCombatDefinitions().getBonus(Bonus.ABSORB_MELEE) + "%");
+		player.getPackets().sendIComponentText(667, 40, "Absorb Magic: " + player.getCombatDefinitions().getBonus(Bonus.ABSORB_MAGIC) + "%");
+		player.getPackets().sendIComponentText(667, 41, "Absorb Ranged: " + player.getCombatDefinitions().getBonus(Bonus.ABSORB_RANGE) + "%");
+		player.getPackets().sendIComponentText(667, 42, "Strength: " + player.getCombatDefinitions().getBonus(Bonus.MELEE_STR));
+		player.getPackets().sendIComponentText(667, 43, "Ranged Str: " + player.getCombatDefinitions().getBonus(Bonus.RANGE_STR));
+		player.getPackets().sendIComponentText(667, 44, "Prayer: " + player.getCombatDefinitions().getBonus(Bonus.PRAYER));
+		player.getPackets().sendIComponentText(667, 45, "Magic Damage: " + player.getCombatDefinitions().getBonus(Bonus.MAGIC_STR) + "%");
 	}
-
-	private static final Object[][] info = new Object[][] { { 31, 0, "Stab" }, { 32, 1, "Slash" }, { 33, 2, "Crush" }, { 34, 3, "Magic" }, { 35, 4, "Range" }, { 36, 5, "Stab" }, { 37, 6, "Slash" }, { 38, 7, "Crush" }, { 39, 8, "Magic" }, { 40, 9, "Range" }, { 41, 10, "Summoning" }, { 42, CombatDefinitions.ABSORVE_MELEE_BONUS, "Absorb Melee" }, { 43, CombatDefinitions.ABSORVE_MAGE_BONUS, "Absorb Magic" }, { 44, CombatDefinitions.ABSORVE_RANGE_BONUS, "Absorb Range" }, { 45, 14, "Strength" }, { 46, 15, "Ranged Str" }, { 47, 16, "Prayer" }, { 48, 17, "Magic Damage" } };
-	
 
 	@SuppressWarnings("unused")
 	public static boolean sendWear(Player player, byte slotId, int itemId) {
 
 		if (player.hasFinished() || player.isDead())
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getInventory().getItem(slotId);
 		String itemName = item.getDefinitions() == null ? "" : item.getDefinitions().getName().toLowerCase();
 		if (item == null || item.getId() != itemId)
@@ -165,9 +173,9 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (!player.getControlerManager().canEquip(targetSlot, itemId))
+		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
 		if (targetSlot == 3) {
 			if (isTwoHandedWeapon && player.getEquipment().getItem(5) != null) {
@@ -218,10 +226,11 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		return true;
 	}
 
+	static int finalSlot;
 	public static boolean sendWear2(Player player, int slotId, int itemId) {
 		if (player.hasFinished() || player.isDead())
 			return false;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;
@@ -235,6 +244,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 			return false;
 		}
 		byte targetSlot = Equipment.getItemSlot(itemId);
+		finalSlot = targetSlot;
 		if (itemId == 4084)
 			targetSlot = 3;
 		if (targetSlot == -1) {
@@ -270,7 +280,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!player.getControlerManager().canEquip(targetSlot, itemId))
+		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId)))
 			return false;
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {
@@ -334,31 +344,31 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 	}
 
-	public static void sendItemStats(final Player player, Item item) {
-		StringBuilder b = new StringBuilder();
-		if (item.getId() == 772)
-			return;
-		boolean hasBonuses = ItemBonuses.getItemBonuses(item.getId()) != null;
-		for (int i = 0; i < 17; i++) {
-			int bonus = hasBonuses ? ItemBonuses.getItemBonuses(item.getId())[i] : 0;
-			String label = CombatDefinitions.BONUS_LABELS[i];
-			String sign = bonus > 0 ? "+" : "";
-			if (bonus == 16) {
-				continue;
-			}
-			b.append(label + ": " + (sign + bonus) + ((label == "Magic Damage" || label == "Absorb Melee"
-					|| label == "Absorb Magic" || label == "Absorb Ranged") ? "%" : "") + "<br>");
-		}
-		player.getPackets().sendGlobalString(321, "Stats for " + item.getName());
-		player.getPackets().sendGlobalString(324, b.toString());
-		player.getPackets().sendHideIComponent(667, 49, false);
-		player.setCloseInterfacesEvent(new Runnable() {
-			@Override
-			public void run() {
-				player.getPackets().sendGlobalString(321, "");
-				player.getPackets().sendGlobalString(324, "");
-				player.getPackets().sendHideIComponent(667, 49, true);
-			}
-		});
-	}
+//	public static void sendItemStats(final Player player, Item item) {
+//		StringBuilder b = new StringBuilder();
+//		if (item.getId() == 772)
+//			return;
+//		boolean hasBonuses = ItemBonuses.getItemBonuses(item.getId()) != null;
+//		for (int i = 0; i < 17; i++) {
+//			int bonus = hasBonuses ? ItemBonuses.getItemBonuses(item.getId())[i] : 0;
+//			String label = CombatDefinitions.BONUS_LABELS[i];
+//			String sign = bonus > 0 ? "+" : "";
+//			if (bonus == 16) {
+//				continue;
+//			}
+//			b.append(label + ": " + (sign + bonus) + ((label == "Magic Damage" || label == "Absorb Melee"
+//					|| label == "Absorb Magic" || label == "Absorb Ranged") ? "%" : "") + "<br>");
+//		}
+//		player.getPackets().sendGlobalString(321, "Stats for " + item.getName());
+//		player.getPackets().sendGlobalString(324, b.toString());
+//		player.getPackets().sendHideIComponent(667, 49, false);
+//		player.setCloseInterfacesEvent(new Runnable() {
+//			@Override
+//			public void run() {
+//				player.getPackets().sendGlobalString(321, "");
+//				player.getPackets().sendGlobalString(324, "");
+//				player.getPackets().sendHideIComponent(667, 49, true);
+//			}
+//		});
+//	}
 }

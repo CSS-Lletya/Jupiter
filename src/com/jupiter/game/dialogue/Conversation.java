@@ -2,12 +2,12 @@ package com.jupiter.game.dialogue;
 
 import java.util.HashMap;
 
-import com.jupiter.game.dialogue.statment.ItemStatement;
-import com.jupiter.game.dialogue.statment.NPCStatement;
-import com.jupiter.game.dialogue.statment.OptionStatement;
-import com.jupiter.game.dialogue.statment.PlayerStatement;
-import com.jupiter.game.dialogue.statment.SimpleStatement;
-import com.jupiter.game.dialogue.statment.Statement;
+import com.jupiter.game.dialogue.type.ItemStatement;
+import com.jupiter.game.dialogue.type.NPCStatement;
+import com.jupiter.game.dialogue.type.OptionStatement;
+import com.jupiter.game.dialogue.type.PlayerStatement;
+import com.jupiter.game.dialogue.type.SimpleStatement;
+import com.jupiter.game.dialogue.type.Statement;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
 

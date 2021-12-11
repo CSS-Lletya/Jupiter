@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.skills.magic.Magic;
@@ -31,7 +32,7 @@ public class HomeTeleport extends Action {
 
 	@Override
 	public boolean start(final Player player) {
-		if (!player.getControlerManager().processMagicTeleport(tile))
+		if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
 			return false;
 		return process(player);
 	}
@@ -43,11 +44,11 @@ public class HomeTeleport extends Action {
 			player.setNextGraphics(new Graphics(HOME_GRAPHIC));
 		} else if (currentTime == 18) {
 			player.setNextWorldTile(tile.transform(0, 1, 0));
-			player.getControlerManager().magicTeleported(Magic.MAGIC_TELEPORT);
-			if (player.getControlerManager().getControler() == null)
+			ActivityHandler.executeVoid(player, activity -> activity.magicTeleported(player, Magic.MAGIC_TELEPORT));
+			if (player.getCurrentActivity().isPresent())
 				Magic.teleControlersCheck(player, tile);
 			player.setNextFaceWorldTile(new WorldTile(tile.getX(), tile.getY(), tile.getPlane()));
-			player.setDirection(6);
+			player.direction = 6;
 		} else if (currentTime == 19) {
 			player.setNextGraphics(new Graphics(HOME_GRAPHIC + 1));
 			player.setNextAnimation(new Animation(HOME_ANIMATION + 1));

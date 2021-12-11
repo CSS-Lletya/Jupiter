@@ -242,7 +242,7 @@ public class Bank {
 
 	public void openEquipmentBonuses(boolean banking) {
 		player.getPackets().sendRunScript(2319); // refresh
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		player.getInterfaceManager().sendInventoryInterface(670);
 		player.getInterfaceManager().sendInterface(667);
 		player.getPackets().sendHideIComponent(667, 1, false);

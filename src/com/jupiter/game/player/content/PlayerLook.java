@@ -52,7 +52,7 @@ public final class PlayerLook {
 //		} else if (buttonId == 33) {
 //			Boolean male = (Boolean) player.getTemporaryAttributtes().remove("MageMakeOverGender");
 //			Integer skin = (Integer) player.getTemporaryAttributtes().remove("MageMakeOverSkin");
-//			player.closeInterfaces();
+//			player.getInterfaceManager().closeInterfaces();
 //			if (male == null || skin == null)
 //				return;
 //			if (male == player.getAppearance().isMale() && skin == player.getAppearance().getSkinColor())

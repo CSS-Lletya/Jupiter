@@ -47,7 +47,7 @@ public final class CoordsEvent {
 	}
 
 	public boolean cantReach(Player player) {
-		if (!player.hasWalkSteps() && player.getNextWalkDirection() == -1) {
+		if (!player.hasWalkSteps() && player.getNextWalkDirection() == null) {
 			player.getPackets().sendGameMessage("You can't reach that.");
 			return true;
 		}

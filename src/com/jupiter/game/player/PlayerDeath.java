@@ -6,7 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.jupiter.Settings;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.activity.ActivityHandler;
+import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.impl.ActorDeathTask;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.host.HostManager;
@@ -20,7 +21,7 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 
 	@Override
 	public void preDeath() {
-		if (!getActor().getControlerManager().sendDeath())
+		if (!ActivityHandler.execute(getActor(), activity -> activity.sendDeath(getActor())))
 			return;
 		getActor().getMovement().lock();
 		getActor().setNextAnimation(new Animation(836));
@@ -34,9 +35,7 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 		}
 		getActor().setAntifireDetails(Optional.empty());	
 		getActor().getSkullTimer().set(0);
-		getActor().stopAll();
-//		if (getActor().getFamiliar() != null)
-//			getActor().getFamiliar().sendDeath(getActor());
+		getActor().getAttributes().stopAll(getActor());
 	}
 
 	@Override
@@ -61,8 +60,8 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 				killer.getPackets().sendGameMessage("You don't receive any points because you and " + getActor().getDisplayName() + " are connected from the same network.");
 				return;
 			}
-			if (getActor().getControlerManager().getControler() instanceof Wilderness) {
-				if (getActor().getControlerManager().getControler() != null) {
+			if (getActor().getCurrentActivity().get() instanceof WildernessActivity) {
+				if (getActor().getCurrentActivity().isPresent()) {
 					sendItemsOnDeath(getActor(), killer);
 				}
 			}

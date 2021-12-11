@@ -10,7 +10,6 @@ import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.HitBar;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
 
 public final class LocalNPCUpdate {
 
@@ -58,15 +57,15 @@ public final class LocalNPCUpdate {
 				continue;
 			}
 			boolean needUpdate = n.needMasksUpdate();
-			boolean walkUpdate = n.getNextWalkDirection() != -1;
+			boolean walkUpdate = n.getNextWalkDirection() != null;
 			stream.writeBits(1, (needUpdate || walkUpdate) ? 1 : 0);
 			if (walkUpdate) {
-				stream.writeBits(2, n.getNextRunDirection() == -1 ? 1 : 2);
-				if (n.getNextRunDirection() != -1)
+				stream.writeBits(2, n.getNextRunDirection() == null? 1 : 2);
+				if (n.getNextRunDirection() != null)
 					stream.writeBits(1, 1);
-				stream.writeBits(3, Utils.getNpcMoveDirection(n.getNextWalkDirection()));
-				if (n.getNextRunDirection() != -1)
-					stream.writeBits(3, Utils.getNpcMoveDirection(n.getNextRunDirection()));
+				stream.writeBits(3, n.getNextWalkDirection().getId());
+				if (n.getNextRunDirection() != null)
+					stream.writeBits(3, n.getNextWalkDirection().getId());
 				stream.writeBits(1, needUpdate ? 1 : 0);
 			} else if (needUpdate)
 				stream.writeBits(2, 0);
@@ -105,7 +104,7 @@ public final class LocalNPCUpdate {
 				}
 				stream.writeBits(1, needUpdate ? 1 : 0);
 				stream.writeBits(largeSceneView ? 8 : 5, y);
-				stream.writeBits(3, (n.getDirection() >> 11) - 4);
+				stream.writeBits(3, (n.direction >> 11) - 4);
 				stream.writeBits(15, n.getId());
 				stream.writeBits(largeSceneView ? 8 : 5, x);
 				stream.writeBits(1, n.hasTeleported() ? 1 : 0);
@@ -144,13 +143,13 @@ public final class LocalNPCUpdate {
 		if (n.getNextGraphics3() != null) {
 			maskData |= 0x2000000;
 		}
-		if (n.hasChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
+		if (n.isChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
 			maskData |= 0x10000;
 		}
-		if (n.getNextFaceWorldTile() != null && n.getNextRunDirection() == -1 && n.getNextWalkDirection() == -1) {
+		if (n.getNextFaceWorldTile() != null && n.getNextRunDirection() == null && n.getNextWalkDirection() == null) {
 			maskData |= 0x4;
 		}
-		if (n.hasChangedName() || (added && n.getCustomName() != null)) {
+		if (n.isChangedName() || (added && n.getCustomName() != null)) {
 			maskData |= 0x800000;
 		}
 		if (n.getNextForceTalk() != null) {
@@ -200,13 +199,13 @@ public final class LocalNPCUpdate {
 		if (n.getNextGraphics3() != null) {
 			applyGraphicsMask3(n, data);
 		}
-		if (n.hasChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
+		if (n.isChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
 			applyChangeLevelMask(n, data);
 		}
 		if (n.getNextFaceWorldTile() != null) {
 			applyFaceWorldTileMask(n, data);
 		}
-		if (n.hasChangedName() || (added && n.getCustomName() != null)) {
+		if (n.isChangedName() || (added && n.getCustomName() != null)) {
 			applyNameChangeMask(n, data);
 		}
 		if (n.getNextForceTalk() != null) {

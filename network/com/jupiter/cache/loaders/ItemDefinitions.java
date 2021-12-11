@@ -102,6 +102,7 @@ public final class ItemDefinitions {
 	public int unknownInt23;
 	public int equipSlot;
 	public int equipType;
+	public int[] bonuses = new int[18];
 
 	// extra added
 	public boolean noted;
@@ -168,7 +169,87 @@ public final class ItemDefinitions {
 			toLend();
 		if (unknownValue1 != -1)
 			toBind();
+		parseBonuses();
 		loaded = true;
+	}
+	
+	private void parseBonuses() {
+		bonuses = new int[18];
+		bonuses[STAB_ATTACK] = getParamVal(0);
+		bonuses[SLASH_ATTACK] = getParamVal(1);
+		bonuses[CRUSH_ATTACK] = getParamVal(2);
+		bonuses[MAGIC_ATTACK] = getParamVal(3);
+		bonuses[RANGE_ATTACK] = getParamVal(4);
+		bonuses[STAB_DEF] = getParamVal(5);
+		bonuses[SLASH_DEF] = getParamVal(6);
+		bonuses[CRUSH_DEF] = getParamVal(7);
+		bonuses[MAGIC_DEF] = getParamVal(8);
+		bonuses[RANGE_DEF] = getParamVal(9);
+		bonuses[SUMMONING_DEF] = getParamVal(417);
+		bonuses[PRAYER_BONUS] = getParamVal(11);
+
+		bonuses[ABSORVE_MELEE_BONUS] = getParamVal(967);
+		bonuses[ABSORVE_RANGE_BONUS] = getParamVal(968);
+		bonuses[ABSORVE_MAGE_BONUS] = getParamVal(969);
+
+		bonuses[STRENGTH_BONUS] = getParamVal(641) / 10;
+		bonuses[RANGED_STR_BONUS] = getParamVal(643) / 10;
+		bonuses[MAGIC_DAMAGE] = getParamVal(685);
+		
+		if (id == 25349) {
+			for (int i = 0;i < bonuses.length;i++) {
+				bonuses[i] = 10000;
+			}
+		}
+	}
+
+	public int getParamVal(int id) {
+		return getCS2Var(0, id);
+	}
+	
+	public int getCS2Var(int defaultVal, int id) {
+		if (clientScriptData == null || clientScriptData.get(id) == null)
+			return defaultVal;
+		return (int) clientScriptData.get(id);
+	}
+	
+	public void setBonuses(int[] bonuses2) {
+		if (bonuses2[STAB_ATTACK] != 0 || bonuses[STAB_ATTACK] != bonuses2[STAB_ATTACK])
+			clientScriptData.put(0, bonuses2[STAB_ATTACK]);
+		if (bonuses2[SLASH_ATTACK] != 0 || bonuses[SLASH_ATTACK] != bonuses2[SLASH_ATTACK])
+			clientScriptData.put(1, bonuses2[SLASH_ATTACK]);
+		if (bonuses2[CRUSH_ATTACK] != 0 || bonuses[CRUSH_ATTACK] != bonuses2[CRUSH_ATTACK])
+			clientScriptData.put(2, bonuses2[CRUSH_ATTACK]);
+		if (bonuses2[MAGIC_ATTACK] != 0 || bonuses[MAGIC_ATTACK] != bonuses2[MAGIC_ATTACK])
+			clientScriptData.put(3, bonuses2[MAGIC_ATTACK]);
+		if (bonuses2[RANGE_ATTACK] != 0 || bonuses[RANGE_ATTACK] != bonuses2[RANGE_ATTACK])
+			clientScriptData.put(4, bonuses2[RANGE_ATTACK]);
+		if (bonuses2[STAB_DEF] != 0 || bonuses[STAB_DEF] != bonuses2[STAB_DEF])
+			clientScriptData.put(5, bonuses2[STAB_DEF]);
+		if (bonuses2[SLASH_DEF] != 0 || bonuses[SLASH_DEF] != bonuses2[SLASH_DEF])
+			clientScriptData.put(6, bonuses2[SLASH_DEF]);
+		if (bonuses2[CRUSH_DEF] != 0 || bonuses[CRUSH_DEF] != bonuses2[CRUSH_DEF])
+			clientScriptData.put(7, bonuses2[CRUSH_DEF]);
+		if (bonuses2[MAGIC_DEF] != 0 || bonuses[MAGIC_DEF] != bonuses2[MAGIC_DEF])
+			clientScriptData.put(8, bonuses2[MAGIC_DEF]);
+		if (bonuses2[RANGE_DEF] != 0 || bonuses[RANGE_DEF] != bonuses2[RANGE_DEF])
+			clientScriptData.put(9, bonuses2[RANGE_DEF]);
+		if (bonuses2[SUMMONING_DEF] != 0 || bonuses[SUMMONING_DEF] != bonuses2[SUMMONING_DEF])
+			clientScriptData.put(417, bonuses2[SUMMONING_DEF]);
+		if (bonuses2[PRAYER_BONUS] != 0 || bonuses[PRAYER_BONUS] != bonuses2[PRAYER_BONUS])
+			clientScriptData.put(11, bonuses2[PRAYER_BONUS]);
+		if (bonuses2[ABSORVE_MELEE_BONUS] != 0 || bonuses[ABSORVE_MELEE_BONUS] != bonuses2[ABSORVE_MELEE_BONUS])
+			clientScriptData.put(967, bonuses2[ABSORVE_MELEE_BONUS]);
+		if (bonuses2[ABSORVE_RANGE_BONUS] != 0 || bonuses[ABSORVE_RANGE_BONUS] != bonuses2[ABSORVE_RANGE_BONUS])
+			clientScriptData.put(968, bonuses2[ABSORVE_RANGE_BONUS]);
+		if (bonuses2[ABSORVE_MAGE_BONUS] != 0 || bonuses[ABSORVE_MAGE_BONUS] != bonuses2[ABSORVE_MAGE_BONUS])
+			clientScriptData.put(969, bonuses2[ABSORVE_MAGE_BONUS]);
+		if (bonuses2[STRENGTH_BONUS] != 0 || bonuses[STRENGTH_BONUS] != bonuses2[STRENGTH_BONUS])
+			clientScriptData.put(641, bonuses2[STRENGTH_BONUS] * 10);
+		if (bonuses2[RANGED_STR_BONUS] != 0 || bonuses[RANGED_STR_BONUS] != bonuses2[RANGED_STR_BONUS])
+			clientScriptData.put(643, bonuses2[RANGED_STR_BONUS] * 10);
+		if (bonuses2[MAGIC_DAMAGE] != 0 || bonuses[MAGIC_DAMAGE] != bonuses2[MAGIC_DAMAGE])
+			clientScriptData.put(685, bonuses2[MAGIC_DAMAGE]);
 	}
 
 	public void toNote() {
@@ -1031,6 +1112,14 @@ public final class ItemDefinitions {
 		}
 		return null;
 	}
+	
+	public int getSellPrice() {
+		return (int) (value / (10.0 / 3.0));
+	}
+
+	public int getHighAlchPrice() {
+		return (int) (value / (10.0 / 6.0));
+	}
 
 	public String getEquipType(Item item) {
 		if (item.getDefinitions().name.contains("sword") || item.getDefinitions().name.contains("dagger")
@@ -1099,10 +1188,6 @@ public final class ItemDefinitions {
 		return "an item";
 	}
 
-	public int getHighAlchPrice() {
-		return (int) (getValue() * 0.6);
-	}
-
 	public String getInventoryOption(int optionId) {
 		switch(id) {
 		case 6099:
@@ -1129,4 +1214,14 @@ public final class ItemDefinitions {
 			return "null";
 		return inventoryOptions[optionId];
 	}
+	
+	public static final int STAB_ATTACK = 0, SLASH_ATTACK = 1, CRUSH_ATTACK = 2, RANGE_ATTACK = 4, MAGIC_ATTACK = 3;
+	public static final int STAB_DEF = 5, SLASH_DEF = 6, CRUSH_DEF = 7, RANGE_DEF = 9, MAGIC_DEF = 8, SUMMONING_DEF = 10;
+	public static final int STRENGTH_BONUS = 14, RANGED_STR_BONUS = 15, MAGIC_DAMAGE = 17, PRAYER_BONUS = 16;
+	public static final int ABSORVE_MELEE_BONUS = 11, ABSORVE_RANGE_BONUS = 13, ABSORVE_MAGE_BONUS = 12;
+	
+	public int[] getBonuses() {
+		return bonuses;
+	}
+
 }

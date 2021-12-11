@@ -1,5 +1,6 @@
 package com.jupiter.game.map;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +16,7 @@ import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
 import com.jupiter.game.EntityList;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.Rights;
-import com.jupiter.game.player.controlers.Wilderness;
-import com.jupiter.game.route.Flags;
+import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.TaskManager;
 import com.jupiter.game.task.impl.DrainPrayerTask;
@@ -110,281 +109,28 @@ public final class World {
 		npcs.remove(npc);
 	}
 	
-	/*
-	 * checks clip
-	 */
-	public static boolean canMoveNPC(int plane, int x, int y, int size) {
-		for (int tileX = x; tileX < x + size; tileX++)
-			for (int tileY = y; tileY < y + size; tileY++)
-				if (getMask(plane, tileX, tileY) != 0)
-					return false;
-		return true;
-	}
-
-	/*
-	 * checks clip
-	 */
-	public static boolean isNotCliped(int plane, int x, int y, int size) {
-		for (int tileX = x; tileX < x + size; tileX++)
-			for (int tileY = y; tileY < y + size; tileY++)
-				if ((getMask(plane, tileX, tileY) & 2097152) != 0)
-					return false;
-		return true;
-	}
-
-	public static int getMask(int plane, int x, int y) {
-		WorldTile tile = new WorldTile(x, y, plane);
-		int regionId = tile.getRegionId();
-		Region region = getRegion(regionId);
-		if (region == null)
-			return -1;
-		int baseLocalX = x - ((regionId >> 8) * 64);
-		int baseLocalY = y - ((regionId & 0xff) * 64);
-		return region.getMask(tile.getPlane(), baseLocalX, baseLocalY);
-	}
-
-	public static void setMask(int plane, int x, int y, int mask) {
-		WorldTile tile = new WorldTile(x, y, plane);
-		int regionId = tile.getRegionId();
-		Region region = getRegion(regionId);
-		if (region == null)
-			return;
-		int baseLocalX = x - ((regionId >> 8) * 64);
-		int baseLocalY = y - ((regionId & 0xff) * 64);
-		region.setMask(tile.getPlane(), baseLocalX, baseLocalY, mask);
-	}
-
-	public static int getRotation(int plane, int x, int y) {
-		WorldTile tile = new WorldTile(x, y, plane);
-		int regionId = tile.getRegionId();
-		Region region = getRegion(regionId);
-		if (region == null)
-			return 0;
-		int baseLocalX = x - ((regionId >> 8) * 64);
-		int baseLocalY = y - ((regionId & 0xff) * 64);
-		return region.getRotation(tile.getPlane(), baseLocalX, baseLocalY);
-	}
-
-	private static int getClipedOnlyMask(int plane, int x, int y) {
-		WorldTile tile = new WorldTile(x, y, plane);
-		int regionId = tile.getRegionId();
-		Region region = getRegion(regionId);
-		if (region == null)
-			return -1;
-		int baseLocalX = x - ((regionId >> 8) * 64);
-		int baseLocalY = y - ((regionId & 0xff) * 64);
-		return region.getMaskClipedOnly(tile.getPlane(), baseLocalX, baseLocalY);
-	}
-
-	public static final boolean checkProjectileStep(int plane, int x, int y, int dir, int size) {
-		int xOffset = Utils.DIRECTION_DELTA_X[dir];
-		int yOffset = Utils.DIRECTION_DELTA_Y[dir];
-		if (size == 1) {
-			int mask = getClipedOnlyMask(plane, x + Utils.DIRECTION_DELTA_X[dir], y + Utils.DIRECTION_DELTA_Y[dir]);
-			if (xOffset == -1 && yOffset == 0)
-				return (mask & 0x42240000) == 0;
-			if (xOffset == 1 && yOffset == 0)
-				return (mask & 0x60240000) == 0;
-			if (xOffset == 0 && yOffset == -1)
-				return (mask & 0x40a40000) == 0;
-			if (xOffset == 0 && yOffset == 1)
-				return (mask & 0x48240000) == 0;
-			if (xOffset == -1 && yOffset == -1) {
-				return (mask & 0x43a40000) == 0 && (getClipedOnlyMask(plane, x - 1, y) & 0x42240000) == 0 && (getClipedOnlyMask(plane, x, y - 1) & 0x40a40000) == 0;
-			}
-			if (xOffset == 1 && yOffset == -1) {
-				return (mask & 0x60e40000) == 0 && (getClipedOnlyMask(plane, x + 1, y) & 0x60240000) == 0 && (getClipedOnlyMask(plane, x, y - 1) & 0x40a40000) == 0;
-			}
-			if (xOffset == -1 && yOffset == 1) {
-				return (mask & 0x4e240000) == 0 && (getClipedOnlyMask(plane, x - 1, y) & 0x42240000) == 0 && (getClipedOnlyMask(plane, x, y + 1) & 0x48240000) == 0;
-			}
-			if (xOffset == 1 && yOffset == 1) {
-				return (mask & 0x78240000) == 0 && (getClipedOnlyMask(plane, x + 1, y) & 0x60240000) == 0 && (getClipedOnlyMask(plane, x, y + 1) & 0x48240000) == 0;
-			}
-		} else if (size == 2) {
-			if (xOffset == -1 && yOffset == 0)
-				return (getClipedOnlyMask(plane, x - 1, y) & 0x43a40000) == 0 && (getClipedOnlyMask(plane, x - 1, y + 1) & 0x4e240000) == 0;
-			if (xOffset == 1 && yOffset == 0)
-				return (getClipedOnlyMask(plane, x + 2, y) & 0x60e40000) == 0 && (getClipedOnlyMask(plane, x + 2, y + 1) & 0x78240000) == 0;
-			if (xOffset == 0 && yOffset == -1)
-				return (getClipedOnlyMask(plane, x, y - 1) & 0x43a40000) == 0 && (getClipedOnlyMask(plane, x + 1, y - 1) & 0x60e40000) == 0;
-			if (xOffset == 0 && yOffset == 1)
-				return (getClipedOnlyMask(plane, x, y + 2) & 0x4e240000) == 0 && (getClipedOnlyMask(plane, x + 1, y + 2) & 0x78240000) == 0;
-			if (xOffset == -1 && yOffset == -1)
-				return (getClipedOnlyMask(plane, x - 1, y) & 0x4fa40000) == 0 && (getClipedOnlyMask(plane, x - 1, y - 1) & 0x43a40000) == 0 && (getClipedOnlyMask(plane, x, y - 1) & 0x63e40000) == 0;
-			if (xOffset == 1 && yOffset == -1)
-				return (getClipedOnlyMask(plane, x + 1, y - 1) & 0x63e40000) == 0 && (getClipedOnlyMask(plane, x + 2, y - 1) & 0x60e40000) == 0 && (getClipedOnlyMask(plane, x + 2, y) & 0x78e40000) == 0;
-			if (xOffset == -1 && yOffset == 1)
-				return (getClipedOnlyMask(plane, x - 1, y + 1) & 0x4fa40000) == 0 && (getClipedOnlyMask(plane, x - 1, y + 1) & 0x4e240000) == 0 && (getClipedOnlyMask(plane, x, y + 2) & 0x7e240000) == 0;
-			if (xOffset == 1 && yOffset == 1)
-				return (getClipedOnlyMask(plane, x + 1, y + 2) & 0x7e240000) == 0 && (getClipedOnlyMask(plane, x + 2, y + 2) & 0x78240000) == 0 && (getClipedOnlyMask(plane, x + 1, y + 1) & 0x78e40000) == 0;
-		} else {
-			if (xOffset == -1 && yOffset == 0) {
-				if ((getClipedOnlyMask(plane, x - 1, y) & 0x43a40000) != 0 || (getClipedOnlyMask(plane, x - 1, -1 + (y + size)) & 0x4e240000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x - 1, y + sizeOffset) & 0x4fa40000) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == 0) {
-				if ((getClipedOnlyMask(plane, x + size, y) & 0x60e40000) != 0 || (getClipedOnlyMask(plane, x + size, y - (-size + 1)) & 0x78240000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x + size, y + sizeOffset) & 0x78e40000) != 0)
-						return false;
-			} else if (xOffset == 0 && yOffset == -1) {
-				if ((getClipedOnlyMask(plane, x, y - 1) & 0x43a40000) != 0 || (getClipedOnlyMask(plane, x + size - 1, y - 1) & 0x60e40000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x + sizeOffset, y - 1) & 0x63e40000) != 0)
-						return false;
-			} else if (xOffset == 0 && yOffset == 1) {
-				if ((getClipedOnlyMask(plane, x, y + size) & 0x4e240000) != 0 || (getClipedOnlyMask(plane, x + (size - 1), y + size) & 0x78240000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x + sizeOffset, y + size) & 0x7e240000) != 0)
-						return false;
-			} else if (xOffset == -1 && yOffset == -1) {
-				if ((getClipedOnlyMask(plane, x - 1, y - 1) & 0x43a40000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x - 1, y + (-1 + sizeOffset)) & 0x4fa40000) != 0 || (getClipedOnlyMask(plane, sizeOffset - 1 + x, y - 1) & 0x63e40000) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == -1) {
-				if ((getClipedOnlyMask(plane, x + size, y - 1) & 0x60e40000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x + size, sizeOffset + (-1 + y)) & 0x78e40000) != 0 || (getClipedOnlyMask(plane, x + sizeOffset, y - 1) & 0x63e40000) != 0)
-						return false;
-			} else if (xOffset == -1 && yOffset == 1) {
-				if ((getClipedOnlyMask(plane, x - 1, y + size) & 0x4e240000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x - 1, y + sizeOffset) & 0x4fa40000) != 0 || (getClipedOnlyMask(plane, -1 + (x + sizeOffset), y + size) & 0x7e240000) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == 1) {
-				if ((getClipedOnlyMask(plane, x + size, y + size) & 0x78240000) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getClipedOnlyMask(plane, x + sizeOffset, y + size) & 0x7e240000) != 0 || (getClipedOnlyMask(plane, x + size, y + sizeOffset) & 0x78e40000) != 0)
-						return false;
-			}
-		}
-		return true;
-	}
-
-	public static final boolean checkWalkStep(int plane, int x, int y, int dir, int size) {
-		return checkWalkStep(plane, x, y, Utils.DIRECTION_DELTA_X[dir], Utils.DIRECTION_DELTA_Y[dir], size);
-	}
-
-	public static final boolean checkWalkStep(int plane, int x, int y, int xOffset, int yOffset, int size) {
-		if (size == 1) {
-			int mask = getMask(plane, x + xOffset, y + yOffset);
-			if (xOffset == -1 && yOffset == 0)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST)) == 0;
-			if (xOffset == 1 && yOffset == 0)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_WEST)) == 0;
-			if (xOffset == 0 && yOffset == -1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH)) == 0;
-			if (xOffset == 0 && yOffset == 1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH)) == 0;
-			if (xOffset == -1 && yOffset == -1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) == 0 && (getMask(plane, x - 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST)) == 0 && (getMask(plane, x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH)) == 0;
-			if (xOffset == 1 && yOffset == -1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) == 0 && (getMask(plane, x + 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_WEST)) == 0 && (getMask(plane, x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH)) == 0;
-			if (xOffset == -1 && yOffset == 1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) == 0 && (getMask(plane, x - 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST)) == 0 && (getMask(plane, x, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH)) == 0;
-			if (xOffset == 1 && yOffset == 1)
-				return (mask & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) == 0 && (getMask(plane, x + 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_WEST)) == 0 && (getMask(plane, x, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH)) == 0;
-		} else if (size == 2) {
-			if (xOffset == -1 && yOffset == 0)
-				return (getMask(plane, x - 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) == 0 && (getMask(plane, x - 1, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) == 0;
-			if (xOffset == 1 && yOffset == 0)
-				return (getMask(plane, x + 2, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) == 0 && (getMask(plane, x + 2, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) == 0;
-			if (xOffset == 0 && yOffset == -1)
-				return (getMask(plane, x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) == 0 && (getMask(plane, x + 1, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) == 0;
-			if (xOffset == 0 && yOffset == 1)
-				return (getMask(plane, x, y + 2) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) == 0 && (getMask(plane, x + 1, y + 2) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) == 0;
-			if (xOffset == -1 && yOffset == -1)
-				return (getMask(plane, x - 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_SOUTHEAST)) == 0 && (getMask(plane, x - 1, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) == 0 && (getMask(plane, x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_NORTHEAST)) == 0;
-			if (xOffset == 1 && yOffset == -1)
-				return (getMask(plane, x + 1, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_NORTHEAST)) == 0 && (getMask(plane, x + 2, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) == 0 && (getMask(plane, x + 2, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_SOUTHWEST)) == 0;
-			if (xOffset == -1 && yOffset == 1)
-				return (getMask(plane, x - 1, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_SOUTHEAST)) == 0 && (getMask(plane, x - 1, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) == 0 && (getMask(plane, x, y + 2) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST)) == 0;
-			if (xOffset == 1 && yOffset == 1)
-				return (getMask(plane, x + 1, y + 2) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST)) == 0 && (getMask(plane, x + 2, y + 2) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) == 0 && (getMask(plane, x + 1, y + 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_SOUTHWEST)) == 0;
-		} else {
-			if (xOffset == -1 && yOffset == 0) {
-				if ((getMask(plane, x - 1, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) != 0 || (getMask(plane, x - 1, -1 + (y + size)) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getMask(plane, x - 1, y + sizeOffset) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_SOUTHEAST)) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == 0) {
-				if ((getMask(plane, x + size, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) != 0 || (getMask(plane, x + size, y - (-size + 1)) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getMask(plane, x + size, y + sizeOffset) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-						return false;
-			} else if (xOffset == 0 && yOffset == -1) {
-				if ((getMask(plane, x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) != 0 || (getMask(plane, x + size - 1, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getMask(plane, x + sizeOffset, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_NORTHEAST)) != 0)
-						return false;
-			} else if (xOffset == 0 && yOffset == 1) {
-				if ((getMask(plane, x, y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) != 0 || (getMask(plane, x + (size - 1), y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size - 1; sizeOffset++)
-					if ((getMask(plane, x + sizeOffset, y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-						return false;
-			} else if (xOffset == -1 && yOffset == -1) {
-				if ((getMask(plane, x - 1, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.CORNEROBJ_NORTHEAST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getMask(plane, x - 1, y + (-1 + sizeOffset)) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_SOUTHEAST)) != 0 || (getMask(plane, sizeOffset - 1 + x, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_NORTHEAST)) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == -1) {
-				if ((getMask(plane, x + size, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getMask(plane, x + size, sizeOffset + (-1 + y)) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_SOUTHWEST)) != 0 || (getMask(plane, x + sizeOffset, y - 1) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_NORTHEAST)) != 0)
-						return false;
-			} else if (xOffset == -1 && yOffset == 1) {
-				if ((getMask(plane, x - 1, y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_SOUTHEAST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getMask(plane, x - 1, y + sizeOffset) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_SOUTHEAST)) != 0 || (getMask(plane, -1 + (x + sizeOffset), y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-						return false;
-			} else if (xOffset == 1 && yOffset == 1) {
-				if ((getMask(plane, x + size, y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-					return false;
-				for (int sizeOffset = 1; sizeOffset < size; sizeOffset++)
-					if ((getMask(plane, x + sizeOffset, y + size) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_EAST | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST)) != 0 || (getMask(plane, x + size, y + sizeOffset) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ | Flags.WALLOBJ_NORTH | Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST | Flags.CORNEROBJ_NORTHWEST | Flags.CORNEROBJ_SOUTHWEST)) != 0)
-						return false;
-			}
-		}
-		return true;
-	}
-
 	public static final Optional<Player> containsPlayer(String username) {
-		return players().filter(p -> p.getUsername().equals(username)).findAny();
+		return players().filter(p -> p.getUsername().equalsIgnoreCase(username)).findFirst();
 	}
 
 	public static final Player getPlayerByDisplayName(String username) {
 		String formatedUsername = Utils.formatPlayerNameForDisplay(username);
-		return players().filter(p -> p.getUsername().equalsIgnoreCase(formatedUsername) || p.getDisplayName().equalsIgnoreCase(formatedUsername)).findFirst().orElse(null);
+		for (Player player : getPlayers()) {
+			if (player == null)
+				continue;
+			if (player.getUsername().equalsIgnoreCase(formatedUsername)
+					|| player.getDisplayName().equalsIgnoreCase(formatedUsername))
+				return player;
+		}
+		return null;
 	}
-
+	
 	public static final EntityList<Player> getPlayers() {
 		return players;
 	}
 
 	public static final EntityList<NPC> getNPCs() {
 		return npcs;
-	}
-
-	private World() {
-
 	}
 
 	public final void safeShutdown(final boolean restart, int delay) {
@@ -397,7 +143,7 @@ public final class World {
 			@Override
 			public void run() {
 				try {
-					players().forEach(p -> p.getSession().realFinish(p));
+					players().forEach(p -> p.realFinish());
 					Launcher.shutdown();
 				} catch (Throwable e) {
 					Logger.handle(e);
@@ -509,11 +255,11 @@ public final class World {
 	}
 
 	public static final boolean isPvpArea(WorldTile tile) {
-		return Wilderness.isAtWild(tile);
+		return WildernessActivity.isAtWild(tile);
 	}
 
-	public static void sendWorldMessage(String message, boolean forStaff) {
-		players().filter(p -> (forStaff && p.getPlayerDetails().getRights() == Rights.PLAYER)).forEach(p -> p.getPackets().sendGameMessage(message));
+	public static void sendWorldMessage(String message) {
+		players().forEach(player -> player.getPackets().sendGameMessage(message));
 	}
 
 	public static final void sendProjectile(WorldObject object, WorldTile startTile, WorldTile endTile, int gfxId, int startHeight, int endHeight, int speed, int delay, int curve, int startOffset) {
@@ -599,21 +345,14 @@ public final class World {
 		}
 	}
 
-	public static boolean isTileFree(int plane, int x, int y, int size) {
-		for (int tileX = x; tileX < x + size; tileX++)
-			for (int tileY = y; tileY < y + size; tileY++)
-				if (!isFloorFree(plane, tileX, tileY) || !isWallsFree(plane, tileX, tileY))
-					return false;
-		return true;
-	}
-	
-	public static boolean isFloorFree(int plane, int x, int y) {
-		return (getMask(plane, x, y) & (Flags.FLOOR_BLOCKSWALK | Flags.FLOORDECO_BLOCKSWALK | Flags.OBJ)) == 0;
-	}
-	
-	public static boolean isWallsFree(int plane, int x, int y) {
-		return (getMask(plane, x, y) & (Flags.CORNEROBJ_NORTHEAST | Flags.CORNEROBJ_NORTHWEST
-				| Flags.CORNEROBJ_SOUTHEAST | Flags.CORNEROBJ_SOUTHWEST | Flags.WALLOBJ_EAST | Flags.WALLOBJ_NORTH
-				| Flags.WALLOBJ_SOUTH | Flags.WALLOBJ_WEST)) == 0;
+	public static List<Player> getPlayersInRegionRange(int regionId) {
+		List<Player> players = new ArrayList<>();
+		for (Player player : getPlayers()) {
+			if (player == null)
+				continue;
+			if (player.getMapRegionsIds().contains(regionId))
+				players.add(player);
+		}
+		return players;
 	}
 }

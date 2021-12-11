@@ -9,7 +9,7 @@ import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.ItemBonuses;
+import com.jupiter.utils.Utils;
 
 public final class CombatDefinitions {
 
@@ -449,20 +449,42 @@ public final class CombatDefinitions {
 
 	public void refreshBonuses() {
 		bonuses = new int[18];
-		for (Item item : player.getEquipment().getItems().getItems()) {
+		for (Item item : player.getEquipment().getItems().getItemsCopy()) {
 			if (item == null)
 				continue;
-			int[] bonuses = ItemBonuses.getItemBonuses(item.getId());
+			int[] bonuses = item.getDefinitions().getBonuses();
 			if (bonuses == null)
 				continue;
-			for (int id = 0; id < bonuses.length; id++) {
-				if (id == RANGED_STR_BONUS && this.bonuses[RANGED_STR_BONUS] != 0)
+			for (Bonus bonus : Bonus.values()) {
+				if (bonus == Bonus.RANGE_STR && getBonus(Bonus.RANGE_STR) != 0)
 					continue;
-				this.bonuses[id] += bonuses[id];
+				this.bonuses[bonus.ordinal()] += bonuses[bonus.ordinal()] - 2;
+			}
+			switch(item.getId()) {
+			case 11283:
+			case 11284:
+				this.bonuses[Bonus.STAB_DEF.ordinal()] += item.getMetaDataI("dfsCharges", 0);
+				this.bonuses[Bonus.SLASH_DEF.ordinal()] += item.getMetaDataI("dfsCharges", 0);
+				this.bonuses[Bonus.CRUSH_DEF.ordinal()] += item.getMetaDataI("dfsCharges", 0);
+				this.bonuses[Bonus.RANGE_DEF.ordinal()] += item.getMetaDataI("dfsCharges", 0);
+				break;
+			case 19152:
+			case 19157:
+			case 19162:
+				this.bonuses[Bonus.RANGE_STR.ordinal()] += Utils.clampI((int) (player.getSkills().getLevelForXp(Skills.RANGE) * 0.7), 0, 49);
+				break;
 			}
 		}
 	}
 
+	public int getBonus(Bonus bonus) {
+		return bonuses[bonus.ordinal()];
+	}
+	
+	public void setBonus(Bonus bonus, int val) {
+		bonuses[bonus.ordinal()] = val;
+	}
+	
 	public void resetSpecialAttack() {
 		decreaseSpecialAttack(0);
 		specialAttackPercentage = 100;
@@ -540,23 +562,6 @@ public final class CombatDefinitions {
 		usingSpecialAttack = !usingSpecialAttack;
 		refreshUsingSpecialAttack();
 	}
-	
-	public void sendSoulSplit(final Hit hit, final Entity user) {
-		final Player target = player;
-		if (hit.getDamage() > 0)
-			World.sendProjectile(user, player, 2263, 11, 11, 20, 5, 0, 0);
-		user.heal(hit.getDamage() / 5);
-		player.getPrayer().drainPrayer(hit.getDamage() / 5);
-		World.get().submit(new Task(0) {
-			@Override
-			protected void execute() {
-				player.setNextGraphics(new Graphics(2264));
-				if (hit.getDamage() > 0)
-					World.sendProjectile(target, user, 2263, 11, 11, 20, 5, 0, 0);
-				this.cancel();
-			}
-		});
-	}
 
 	public void decreaseSpecialAttack(int ammount) {
 		usingSpecialAttack = false;
@@ -633,5 +638,22 @@ public final class CombatDefinitions {
 	
 	public boolean hasSkull() {
 		return player.getSkullTimer().get() > 0;
+	}
+	
+	public void sendSoulSplit(final Hit hit, final Entity user) {
+		final Player target = player;
+		if (hit.getDamage() > 0)
+			World.sendProjectile(user, player, 2263, 11, 11, 20, 5, 0, 0);
+		user.heal(hit.getDamage() / 5);
+		player.getPrayer().drainPrayer(hit.getDamage() / 5);
+		World.get().submit(new Task(0) {
+			@Override
+			protected void execute() {
+				player.setNextGraphics(new Graphics(2264));
+				if (hit.getDamage() > 0)
+					World.sendProjectile(target, user, 2263, 11, 11, 20, 5, 0, 0);
+				this.cancel();
+			}
+		});
 	}
 }

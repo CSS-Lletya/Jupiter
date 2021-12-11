@@ -15,6 +15,6 @@ public class LogoutButton implements RSInterface {
 		}
 		if (componentId == 6 || componentId == 13)
 			if (!player.hasFinished())
-				player.logout(componentId == 6);
+				player.getSession().logout(player, componentId == 6);
 	}
 }

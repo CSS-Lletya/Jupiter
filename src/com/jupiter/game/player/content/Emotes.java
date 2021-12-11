@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.combat.npc.NPC;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
@@ -283,14 +284,14 @@ public class Emotes {
 		BORROWED_TIME {
 			@Override
 			protected boolean handleSpecialEmote(Player player) {
-				if (!World.isTileFree(player.getPlane(), player.getX(), player.getY(), 3)) {
+				if (!TileAttributes.isTileFree(player.getPlane(), player.getX(), player.getY(), 3)) {
 					player.getPackets().sendGameMessage("You need clear space in order to perform this emote.", true);
 					return false;
-				} else if (player.getControlerManager().getControler() != null) {
+				} else if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.", true);
 					return false;
 				}
-				final NPC reaper = new NPC(14388, new WorldTile(player.getX(), player.getY() - 2, player.getPlane()), 0,
+				final NPC reaper = new NPC(14388, new WorldTile(player.getX(), player.getY() - 2, player.getPlane()),
 						false);
 				reaper.setLocation(reaper);
 				reaper.setNextFaceEntity(player);
@@ -327,12 +328,10 @@ public class Emotes {
 		}
 	}
 
-//	NPC npc;
-
 	public static Emotes instance = new Emotes();
 	
 	public void useBookEmote(Player player, int id) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		if (id == 37) {
 			// TODO skillCape
 			final int capeId = player.getEquipment().getCapeId();
@@ -530,7 +529,7 @@ public class Emotes {
 				 */
 				break;
 			case 20763: // Veteran cape
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
@@ -538,7 +537,7 @@ public class Emotes {
 				player.setNextGraphics(new Graphics(1446));
 				break;
 			case 20765: // Classic cape
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
@@ -548,19 +547,19 @@ public class Emotes {
 				break;
 			case 20767: // Max cape
 				 NPC npc;
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}
 				int size = NPCDefinitions.getNPCDefinitions(1224).size;
 				WorldTile spawnTile = new WorldTile(new WorldTile(player.getX() + 1, player.getY(), player.getPlane()));
-				if (!World.canMoveNPC(spawnTile.getPlane(), spawnTile.getX(), spawnTile.getY(), size)) {
+				if (!TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 					spawnTile = null;
 					int[][] dirs = Utils.getCoordOffsetsNear(size);
 					for (int dir = 0; dir < dirs[0].length; dir++) {
 						final WorldTile tile = new WorldTile(new WorldTile(player.getX() + dirs[0][dir],
 								player.getY() + dirs[1][dir], player.getPlane()));
-						if (World.canMoveNPC(tile.getPlane(), tile.getX(), tile.getY(), size)) {
+						if (TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 							spawnTile = tile;
 							break;
 						}
@@ -573,7 +572,7 @@ public class Emotes {
 				player.setNextEmoteEnd(Utils.currentTimeMillis() + (25 * 600));
 				final WorldTile npcTile = spawnTile;
 				LinkedTaskSequence maxCapeSeq = new LinkedTaskSequence();
-				npc = new NPC(1224, npcTile, -1, false);
+				npc = new NPC(1224, npcTile, false);
 				maxCapeSeq.connect(1, () -> {
 					npc.setNextAnimation(new Animation(1434));
 					npc.setNextGraphics(new Graphics(1482));
@@ -612,10 +611,10 @@ public class Emotes {
 				break;
 			case 20769:
 			case 20771:
-				if (!World.canMoveNPC(player.getPlane(), player.getX(), player.getY(), 3)) {
+				if (!TileAttributes.floorAndWallsFree(player, 3)) {
 					player.getPackets().sendGameMessage("Need more space to perform this skillcape emote.");
 					return;
-				} else if (player.getControlerManager().getControler() != null) {
+				} else if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}

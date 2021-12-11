@@ -18,9 +18,10 @@ public class BorkCombat extends MobCombatInterface {
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
 		if (npc.getHitpoints() <= (defs.getHitpoints() * 0.4) && !spawnOrk) {
-			Player player = (Player) target;
+//			Player player = (Player) target;
 			npc.setNextForceTalk(new ForceTalk("Come to my aid, brothers!"));
-			player.getControlerManager().startControler("BorkControler", 1, npc);
+//			player.getControlerManager().startControler("BorkControler", 1, npc);
+			//TODO: add activity
 			spawnOrk = true;
 		}
 		npc.setNextAnimation(new Animation(Utils.getRandom(1) == 0 ? defs.getAttackEmote() : 8757));

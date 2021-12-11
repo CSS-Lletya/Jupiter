@@ -6,6 +6,7 @@ import java.util.Map;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.Hit.HitLook;
@@ -498,7 +499,7 @@ public class Foods {
 		Food food = Food.forId(item.getId());
 		if (food == null)
 			return false;
-		if (!player.getControlerManager().canEat(food))
+		if (!ActivityHandler.execute(player, activity -> activity.canEat(player, food)))
 			return true;
 		String name = ItemDefinitions.getItemDefinitions(food.getId()).getName().toLowerCase();
 		player.getPackets().sendGameMessage("You eat the " + name + ".");

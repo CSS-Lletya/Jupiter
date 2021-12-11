@@ -3,10 +3,12 @@ package com.jupiter.skills.magic;
 import java.util.Optional;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
+import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.controlers.Wilderness;
+import com.jupiter.game.player.activity.ActivityHandler;
+import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
@@ -322,7 +324,7 @@ public class Magic {
 	}
 
 	public static final void processLunarSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 37:
 			if (player.getSkills().getLevel(Skills.MAGIC) < 94) {
@@ -352,7 +354,7 @@ public class Magic {
 	}
 
 	public static final void processAncientSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 28:
 		case 32:
@@ -410,7 +412,7 @@ public class Magic {
 	}
 
 	public static final void processNormalSpell(Player player, int spellId, int packetId) {
-		player.stopAll(false);
+		player.getAttributes().stopAll(player, false);
 		switch (spellId) {
 		case 25: // air strike
 		case 28: // water strike
@@ -446,7 +448,7 @@ public class Magic {
 				player.getPackets().sendGameMessage("Your Magic level is not high enough for this spell.");
 				return;
 			}
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			player.getInterfaceManager().sendInterface(432);
 			break;
 		case 24:
@@ -488,7 +490,7 @@ public class Magic {
 	}
 
 	private static void useHomeTele(Player player) {
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		player.getInterfaceManager().sendInterface(1092);
 	}
 
@@ -554,7 +556,7 @@ public class Magic {
 	}
 
 	public static void pushLeverTeleport(final Player player, final WorldTile tile) {
-		if (!player.getControlerManager().processObjectTeleport(tile))
+		if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
 			return;
 		player.setNextAnimation(new Animation(2140));
 		player.getMovement().lock();
@@ -589,17 +591,17 @@ public class Magic {
 		if (!checkRunes(player, false, runes))
 			return false;
 		if (teleType == MAGIC_TELEPORT) {
-			if (!player.getControlerManager().processMagicTeleport(tile))
+			if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
 				return false;
 		} else if (teleType == ITEM_TELEPORT) {
-			if (!player.getControlerManager().processItemTeleport(tile))
+			if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
 				return false;
 		} else if (teleType == OBJECT_TELEPORT) {
-			if (!player.getControlerManager().processObjectTeleport(tile))
+			if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
 				return false;
 		}
 		checkRunes(player, true, runes);
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		if (upEmoteId != -1)
 			player.setNextAnimation(new Animation(upEmoteId));
 		if (upGraphicId != -1)
@@ -618,14 +620,14 @@ public class Magic {
 						// attemps to randomize tile by 4x4 area
 						for (int trycount = 0; trycount < 10; trycount++) {
 							teleTile = new WorldTile(tile, 2);
-							if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
+							if (TileAttributes.floorAndWallsFree(teleTile, player.getSize()))
 								break;
 							teleTile = tile;
 						}
 					}
 					player.getMovement().move(Optional.empty(), teleTile);
-					player.getControlerManager().magicTeleported(teleType);
-					if (player.getControlerManager().getControler() == null)
+					ActivityHandler.executeVoid(player, activity -> activity.magicTeleported(player, teleType));
+					if (player.getCurrentActivity().isPresent())
 						teleControlersCheck(player, teleTile);
 					if (xp != 0)
 						player.getSkills().addXp(Skills.MAGIC, xp);
@@ -637,7 +639,7 @@ public class Magic {
 						player.getPackets().sendSound(5524, 0, 2);
 						player.setNextFaceWorldTile(
 								new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
-						player.setDirection(6);
+						player.direction = 6;
 					}
 					removeDamage = true;
 				} else {
@@ -661,7 +663,7 @@ public class Magic {
 	}
 
 	public static boolean useTeleTab(final Player player, final WorldTile tile) {
-		if (!player.getControlerManager().processItemTeleport(tile))
+		if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
 			return false;
 		player.getMovement().lock();
 		player.setNextAnimation(new Animation(9597));
@@ -674,17 +676,17 @@ public class Magic {
 			// attemps to randomize tile by 4x4 area
 			for (int trycount = 0; trycount < 10; trycount++) {
 				teleTile = new WorldTile(tile, 2);
-				if (World.canMoveNPC(tile.getPlane(), teleTile.getX(), teleTile.getY(), player.getSize()))
+				if (TileAttributes.floorAndWallsFree(teleTile, player.getSize()))
 					break;
 				teleTile = tile;
 			}
 			player.getMovement().move(Optional.empty(), teleTile);
-			player.getControlerManager().magicTeleported(ITEM_TELEPORT);
-			if (player.getControlerManager().getControler() == null)
+			ActivityHandler.executeVoid(player, activity -> activity.magicTeleported(player, ITEM_TELEPORT));
+			if (!player.getCurrentActivity().isPresent())
 				teleControlersCheck(player, teleTile);
 			player.setNextFaceWorldTile(
 					new WorldTile(teleTile.getX(), teleTile.getY() - 1, teleTile.getPlane()));
-			player.setDirection(6);
+			player.direction = 6;
 			player.setNextAnimation(new Animation(-1));
 			player.resetReceivedDamage();
 			player.getMovement().unlock();
@@ -694,8 +696,8 @@ public class Magic {
 	}
 
 	public static void teleControlersCheck(Player player, WorldTile teleTile) {
-		if (Wilderness.isAtWild(teleTile))
-			player.getControlerManager().startControler("Wilderness");
+		if (WildernessActivity.isAtWild(teleTile))
+			player.setCurrentActivity(Optional.of(new WildernessActivity()));
 	}
 
 	private Magic() {

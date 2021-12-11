@@ -16,6 +16,8 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Action;
+import com.jupiter.game.player.activity.ActivityHandler;
+import com.jupiter.game.route.Direction;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.ForceTalk;
@@ -24,7 +26,6 @@ import com.jupiter.net.encoders.other.Hit;
 import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.MapAreas;
 import com.jupiter.utils.Utils;
 
 public class PlayerCombat extends Action {
@@ -81,7 +82,7 @@ public class PlayerCombat extends Action {
 		if (distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
 				|| distanceY < -1 - maxDistance)
 			return 0;
-		if (!player.getControlerManager().keepCombating(target))
+		if (!ActivityHandler.execute(player, activity -> activity.keepCombating(player, target)))
 			return -1;
 		addAttackedByDelay(player);
 		if (spellId > 0) {
@@ -168,7 +169,7 @@ public class PlayerCombat extends Action {
 						Player p2 = World.getPlayers().get(playerIndex);
 						if (p2 == null || p2 == player || p2 == target || p2.isDead() || !p2.isStarted()
 								|| p2.hasFinished() || !p2.isCanPvp() || !p2.isAtMultiArea()
-								|| !p2.withinDistance(target, maxDistance) || !player.getControlerManager().canHit(p2))
+								|| !p2.withinDistance(target, maxDistance) || !ActivityHandler.execute(player, activity -> activity.canHit(player, p2)))
 							continue;
 						possibleTargets.add(p2);
 						if (possibleTargets.size() == maxAmtTargets)
@@ -182,7 +183,7 @@ public class PlayerCombat extends Action {
 						NPC n = World.getNPCs().get(npcIndex);
 						if (n == null || n == target || n.isDead() || n.hasFinished()
 								|| !n.isAtMultiArea() || !n.withinDistance(target, maxDistance)
-								|| !n.getDefinitions().hasAttackOption() || !player.getControlerManager().canHit(n))
+								|| !n.getDefinitions().hasAttackOption() || !ActivityHandler.execute(player, activity -> activity.canHit(player, n)))
 							continue;
 						possibleTargets.add(n);
 						if (possibleTargets.size() == maxAmtTargets)
@@ -1314,7 +1315,7 @@ public class PlayerCombat extends Action {
 							target.setNextGraphics(new Graphics(755));
 							if (target instanceof Player) {
 								Player p2 = (Player) target;
-								p2.stopAll();
+								p2.getAttributes().stopAll(p2);
 							} else {
 								NPC n = (NPC) target;
 								n.setTarget(null);
@@ -1657,7 +1658,7 @@ public class PlayerCombat extends Action {
 			case 13774:
 			case 13776:
 				player.setNextAnimation(new Animation(12017));
-				player.stopAll();
+				player.getAttributes().stopAll(player);
 				target.setNextGraphics(new Graphics(80, 5, 60));
 
 				if (!target.addWalkSteps(target.getX() - player.getX() + target.getX(),
@@ -2420,7 +2421,7 @@ public class PlayerCombat extends Action {
 						target.addFreezeDelay(freeze_time, freeze_time == 0);
 						if (freeze_time > 0)
 							if (target instanceof Player) {
-								((Player) target).stopAll(false);
+								((Player) target).getAttributes().stopAll((Player) target, false);
 							}
 						target.addFrozenBlockedDelay(freeze_time + (4 * 1000));// four seconds of no freeze
 					}
@@ -2875,32 +2876,29 @@ public class PlayerCombat extends Action {
 				return false;
 		} else {
 			NPC n = (NPC) target;
-			if (n.isCantInteract()) {
+		
+			if (!n.getDefinitions().hasAttackOption()) {
 				return false;
 			}
-				if (!n.canBeAttackFromOutOfArea() && !MapAreas.isAtArea(n.getMapAreaNameHash(), player)) {
+			if (n.getId() == 14578) {
+				if (player.getEquipment().getWeaponId() != 2402 && player.getCombatDefinitions().getAutoCastSpell() <= 0
+						&& !hasPolyporeStaff(player)) {
+					player.getPackets().sendGameMessage("I'd better wield Silverlight first.");
+					return false;
+				} else {
+					int slayerLevel = Combat.getSlayerLevelForNPC(n.getId());
+					if (slayerLevel > player.getSkills().getLevel(Skills.SLAYER)) {
+						player.getPackets().sendGameMessage(
+								"You need at least a slayer level of " + slayerLevel + " to fight this.");
+						return false;
+					}
+				}
+			} else if (n.getId() == 6222 || n.getId() == 6223 || n.getId() == 6225 || n.getId() == 6227) {
+				if (isRanging(player) == 0) {
+					player.getPackets().sendGameMessage("I can't reach that!");
 					return false;
 				}
-				if (n.getId() == 14578) {
-					if (player.getEquipment().getWeaponId() != 2402
-							&& player.getCombatDefinitions().getAutoCastSpell() <= 0 && !hasPolyporeStaff(player)) {
-						player.getPackets().sendGameMessage("I'd better wield Silverlight first.");
-						return false;
-					} else {
-						int slayerLevel = Combat.getSlayerLevelForNPC(n.getId());
-						if (slayerLevel > player.getSkills().getLevel(Skills.SLAYER)) {
-							player.getPackets().sendGameMessage(
-									"You need at least a slayer level of " + slayerLevel + " to fight this.");
-							return false;
-						}
-					}
-				} else if (n.getId() == 6222 || n.getId() == 6223 || n.getId() == 6225 || n.getId() == 6227) {
-					if (isRanging(player) == 0) {
-						player.getPackets().sendGameMessage("I can't reach that!");
-						return false;
-					}
-				}
-			
+			}
 		}
 		if (!(target instanceof NPC && ((NPC) target).isForceMultiAttacked())) {
 
@@ -2936,18 +2934,33 @@ public class PlayerCombat extends Action {
 				player.addWalkSteps(player.getX(), target.getY(), 1);
 			return true;
 		}
-		maxDistance = isRanging != 0 || player.getCombatDefinitions().getSpellId() > 0 || hasPolyporeStaff(player) ? 7
-				: 0;
-		if ((!player.clipedProjectile(target, maxDistance == 0))
-				|| distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
-				|| distanceY < -1 - maxDistance) {
-			if (!player.hasWalkSteps()) {
-				player.resetWalkSteps();
-				player.addWalkStepsInteract(target.getX(), target.getY(), player.getMovement().isRun() ? 2 : 1, size, true);
-			}
-			return true;
-		} else {
+		if (Utils.collides(player, target) && !target.hasWalkSteps()) {
 			player.resetWalkSteps();
+			return player.calcFollow(target, true); //might be double fixed and cause issues?.. check on this
+		}
+		int attackRange = getAttackRange(player);
+		if (!Utils.isInRange(player, target, attackRange) || !player.lineOfSightTo(target, attackRange <= 0)) {
+			if (!player.hasWalkSteps() || target.hasWalkSteps()) {
+				player.resetWalkSteps();
+				player.calcFollow(target, player.getRun() ? 2 : 1, true, true);
+			}
+		} else
+			player.resetWalkSteps();
+		if (isRanging == 0 && target.getSize() == 1) {
+			Direction dir = Direction.forDelta(target.getX() - player.getX(), target.getY() - player.getY());
+			if (dir != null) {
+				switch(dir) {
+				case NORTH:
+				case SOUTH:
+				case EAST:
+				case WEST:
+					break;
+				default:
+					player.resetWalkSteps();
+					player.calcFollow(target, player.getRun() ? 2 : 1, true, true);
+					return true;
+				}
+			}
 		}
 //		if (player.getPolDelay() >= Utils.currentTimeMillis() && !(player.getEquipment().getWeaponId() == 15486
 //				|| player.getEquipment().getWeaponId() == 22207 || player.getEquipment().getWeaponId() == 22209
@@ -2979,6 +2992,54 @@ public class PlayerCombat extends Action {
 			return true;
 		}
 		return true;
+	}
+
+	public static int getAttackRange(Player player) {
+		if (player.getCombatDefinitions().getSpellId()<=0)
+			return 10;
+		if (isRanging(player) != 0) {
+			int atkRange = 8;
+			String weaponName = player.getEquipment().getWeaponName().toLowerCase();
+			if (weaponName.contains("salamander"))
+				return 1;
+			else if (weaponName.contains(" dart") || weaponName.contains("blisterwood stake"))
+				atkRange = 3;
+			else if (weaponName.contains(" knife"))
+				atkRange = 4;
+			else if (weaponName.contains(" thrownaxe"))
+				atkRange = 4;
+			else if (weaponName.contains(" comp ogre bow"))
+				atkRange = 5;
+			else if (weaponName.contains("dorgeshuun c'bow"))
+				atkRange = 6;
+			else if (weaponName.contains(" crossbow"))
+				atkRange = 7;
+			else if (weaponName.contains(" shortbow"))
+				atkRange = 7;
+			else if (weaponName.contains(" karil"))
+				atkRange = 8;
+			else if (weaponName.contains("seercull"))
+				atkRange = 8;
+			else if (weaponName.contains(" longbow"))
+				atkRange = 9;
+			else if (weaponName.contains("chinchompa"))
+				atkRange = 9;
+			else if (weaponName.contains("ogre bow"))
+				atkRange = 10;
+			else if (weaponName.contains("composite bow"))
+				atkRange = 10;
+			else if (weaponName.contains("crystal bow"))
+				atkRange = 10;
+			else if (weaponName.contains("dark bow"))
+				atkRange = 10;
+			
+			if (player.getCombatDefinitions().getAttackStyle() == 2)
+				atkRange += 2;
+			return Utils.clampI(atkRange, 0, 10);
+		}
+		if (player.getEquipment().getWeaponId() != -1 && ItemDefinitions.getItemDefinitions(player.getEquipment().getWeaponId()).name.contains("halberd"))
+			return 1;
+		return 0;
 	}
 
 	public boolean specialExecute(Player player) {

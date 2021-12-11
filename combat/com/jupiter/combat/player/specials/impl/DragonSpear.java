@@ -26,7 +26,7 @@ public class DragonSpear implements WeaponSpecials {
 	 */
 	@Override
 	public void execute(Player player, Entity target, PlayerCombat combat) throws Exception {
-		player.stopAll();
+		player.getAttributes().stopAll(player);
 		target.setNextGraphics(new Graphics(80, 5, 60));
 		if(player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR)
 			player.getPackets().sendGameMessage(this.getClass().getName() + " Unfinished special, Needs sound, and testing!");

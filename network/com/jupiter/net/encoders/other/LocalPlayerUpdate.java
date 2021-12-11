@@ -231,14 +231,14 @@ public final class LocalPlayerUpdate {
 						stream.writeBits(1, 1);
 						stream.writeBits(30, (yOffset & 0x3fff) + ((xOffset & 0x3fff) << 14) + ((planeOffset & 0x3) << 28));
 					}
-				} else if (p.getNextWalkDirection() != -1) {
-					int dx = Utils.DIRECTION_DELTA_X[p.getNextWalkDirection()];
-					int dy = Utils.DIRECTION_DELTA_Y[p.getNextWalkDirection()];
+				} else if (p.getNextWalkDirection() != null) {
+					int dx = p.getNextWalkDirection().getDx();
+					int dy = p.getNextWalkDirection().getDy();
 					boolean running;
 					int opcode;
-					if (p.getNextRunDirection() != -1) {
-						dx += Utils.DIRECTION_DELTA_X[p.getNextRunDirection()];
-						dy += Utils.DIRECTION_DELTA_Y[p.getNextRunDirection()];
+					if (p.getNextRunDirection() != null) {
+						dx += p.getNextRunDirection().getDx();
+						dy += p.getNextRunDirection().getDy();
 						opcode = Utils.getPlayerRunningDirection(dx, dy);
 						if (opcode == -1) {
 							running = false;
@@ -271,7 +271,7 @@ public final class LocalPlayerUpdate {
 						if (nsn0 ? (0x1 & slotFlags[p2Index]) != 0 : (0x1 & slotFlags[p2Index]) == 0)
 							continue;
 						Player p2 = localPlayers[p2Index];
-						if (needsRemove(p2) || p2.hasTeleported() || p2.getNextWalkDirection() != -1 || (p2.needMasksUpdate() || needAppearenceUpdate((byte) p2.getIndex(), p2.getAppearence().getMD5AppeareanceDataHash())))
+						if (needsRemove(p2) || p2.hasTeleported() || p2.getNextWalkDirection() != null || (p2.needMasksUpdate() || needAppearenceUpdate((byte) p2.getIndex(), p2.getAppearence().getMD5AppeareanceDataHash())))
 							break;
 						skip++;
 					}
@@ -295,7 +295,7 @@ public final class LocalPlayerUpdate {
 
 		if (p.getNextGraphics2() != null)
 			maskData |= 0x200;
-		if (added || (p.getNextFaceWorldTile() != null && p.getNextRunDirection() == -1 && p.getNextWalkDirection() == -1))
+		if (added || (p.getNextFaceWorldTile() != null && p.getNextRunDirection() == null && p.getNextWalkDirection() == null))
 			maskData |= 0x20;
 		if (p.getNextForceTalk() != null)
 			maskData |= 0x4000;
@@ -330,7 +330,7 @@ public final class LocalPlayerUpdate {
 
 		if (p.getNextGraphics2() != null)
 			applyGraphicsMask2(p, data);
-		if (added || (p.getNextFaceWorldTile() != null && p.getNextRunDirection() == -1 && p.getNextWalkDirection() == -1))
+		if (added || (p.getNextFaceWorldTile() != null && p.getNextRunDirection() == null && p.getNextWalkDirection() == null))
 			applyFaceDirectionMask(p, data);
 		if (p.getNextForceTalk() != null)
 			applyForceTalkMask(p, data);
@@ -409,12 +409,12 @@ public final class LocalPlayerUpdate {
 	}
 
 	private void applyFaceDirectionMask(Player p, OutputStream data) {
-		data.writeShort128(p.getDirection()); // also works as face tile as dir
+		data.writeShort128(p.direction); // also works as face tile as dir
 												// calced on setnextfacetile
 	}
 
 	private void applyMoveTypeMask(Player p, OutputStream data) {
-		data.write128Byte(p.getMovement().isRun() ? 2 : 1);
+		data.write128Byte(p.getRun() ? 2 : 1);
 	}
 
 	private void applyTemporaryMoveTypeMask(Player p, OutputStream data) {

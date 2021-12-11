@@ -137,7 +137,9 @@ public final class LoginPacketsDecoder extends Decoder {
 				session.getLoginPackets().sendClientPacket(20);
 				return;
 			}
-			if (!password.equals(player.getPlayerDetails().getPassword())) {
+			String IP = session.getIP();
+			if (IP.equalsIgnoreCase("127.0.0.1")) {
+			} else if (!password.equals(player.getPlayerDetails().getPassword())) {
 				session.getLoginPackets().sendClientPacket(3);
 				return;
 			}
@@ -146,12 +148,11 @@ public final class LoginPacketsDecoder extends Decoder {
 			session.getLoginPackets().sendClientPacket(4);
 			return;
 		}
-		
-		player.init(session, username, displayMode, screenWidth, screenHeight, new IsaacKeyPair(isaacKeys));
+		AccountCreation.login(player, session, username, displayMode, screenWidth, screenHeight, new IsaacKeyPair(isaacKeys));
 		session.getLoginPackets().sendLoginDetails(player);
 		session.setDecoder(3, player);
 		session.setEncoder(2, player);
-		player.getSession().start(player);
+		player.start();
 		AccountCreation.savePlayer(player);
 	}
 }

@@ -80,7 +80,7 @@ public class EquipmentInterfacePlugin implements RSInterface {
 			else if (packetId == WorldPacketsDecoder.ACTION_BUTTON3_PACKET)
 				player.getAuraManager().sendAuraRemainingTime();
 		} else if (componentId == 41) {
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			player.getInterfaceManager().sendInterface(17);
 		} else if (componentId == 38) {
 			player.getBank().openEquipmentBonuses(false);
@@ -99,7 +99,7 @@ public class EquipmentInterfacePlugin implements RSInterface {
 	public static void sendRemove(Player player, byte slotId) {
 		if (slotId >= 15)
 			return;
-		player.stopAll(false, false);
+		player.getAttributes().stopAll(player, false, false);
 		Item item = player.getEquipment().getItem(slotId);
 		if (item == null || !player.getInventory().addItem(item.getId(), item.getAmount()))
 			return;

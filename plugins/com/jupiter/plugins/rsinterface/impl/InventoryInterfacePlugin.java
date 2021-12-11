@@ -12,6 +12,7 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
@@ -42,7 +43,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				long time = Utils.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
-				player.stopAll(false);
+				player.getAttributes().stopAll(player, false);
 				if (Foods.eat(player, item, slotId))
 					return;
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(0))))
@@ -62,7 +63,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 							slot[i] = slots.get(i);
 						player.getSwitchItemCache().clear();
 						InventoryInterfaceTypePlugin.sendWear(player, slot);
-						player.stopAll(false, true, false);
+						player.getAttributes().stopAll(player, false, true, false);
 						this.cancel();
 					}
 				});
@@ -92,9 +93,9 @@ public class InventoryInterfacePlugin implements RSInterface {
 				long dropTime = Utils.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
-				if (!player.getControlerManager().canDropItem(item))
+				if (!ActivityHandler.execute(player, activity -> activity.canDropItem(player, item)))
 					return;
-				player.stopAll(false);
+				player.getAttributes().stopAll(player, false);
 				
 				if (item.getDefinitions().isOverSized()) {
 					player.getPackets().sendGameMessage("The item appears to be oversized.");
@@ -139,7 +140,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			if (itemUsed == null || usedWith == null || itemUsed.getId() != itemUsedId
 					|| usedWith.getId() != itemUsedWithId)
 				return;
-			player.stopAll();
+			player.getAttributes().stopAll(player);
 			PluginManager.handle(new ItemOnItemEvent(player, itemUsed, usedWith));
 			if (Settings.DEBUG)
 				Logger.log("ItemHandler", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());

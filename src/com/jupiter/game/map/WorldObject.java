@@ -261,6 +261,23 @@ public class WorldObject extends WorldTile {
 		World.getRegion(object.getRegionId()).addObject(object, object.getPlane(), object.getXInRegion(),
 				object.getYInRegion());
 	}
+	
+	public static void refreshSpawnedObjects(Player player) {
+		for (int regionId : player.getMapRegionsIds()) {
+			List<WorldObject> spawnedObjects = World.getRegion(regionId).getSpawnedObjects();
+			if (spawnedObjects != null) {
+				for (WorldObject object : spawnedObjects)
+					if (object.getPlane() == player.getPlane())
+						player.getPackets().sendSpawnedObject(object);
+			}
+			List<WorldObject> removedObjects = World.getRegion(regionId).getRemovedObjects();
+			if (removedObjects != null) {
+				for (WorldObject object : removedObjects)
+					if (object.getPlane() == player.getPlane())
+						player.getPackets().sendDestroyObject(object);
+			}
+		}
+	}
 
 	public int getConfigByFile() {
 		return getDefinitions().configFileId;

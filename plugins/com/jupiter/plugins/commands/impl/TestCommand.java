@@ -1,9 +1,10 @@
 package com.jupiter.plugins.commands.impl;
 
-import com.jupiter.Settings;
+import com.jupiter.game.player.AccountCreation;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.game.player.content.FadingScreen;
+import com.jupiter.game.player.activity.ActivityHandler;
+import com.jupiter.game.player.activity.impl.TestActivity;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
 
@@ -14,10 +15,11 @@ import com.jupiter.plugins.commands.CommandSignature;
  *
  */
 @CommandSignature(alias = { "test" }, rights = { Rights.PLAYER }, syntax = "Test a Command")
-public final class TestCommand implements Command {
+public class TestCommand implements Command {
 
 	@Override
 	public void execute(Player player, String[] cmd, String command) throws Exception {
-		FadingScreen.fadeWithDelay(player, 3, () -> player.setNextWorldTile(Settings.RESPAWN_PLAYER_LOCATION));
+		ActivityHandler.startActivity(player, new TestActivity());
+		AccountCreation.savePlayer(player);
 	}
 }

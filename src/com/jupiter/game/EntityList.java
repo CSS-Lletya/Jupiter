@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.jupiter.Settings;
+
 public class EntityList<T extends Entity> extends AbstractCollection<T> {
-	private static final int MIN_VALUE = 1;
 	public Object[] entities;
 	public Set<Integer> indicies = new HashSet<Integer>();
-	public int curIndex = MIN_VALUE;
 	public int capacity;
 	private final Object lock = new Object();
 
@@ -18,10 +18,25 @@ public class EntityList<T extends Entity> extends AbstractCollection<T> {
 		this.capacity = capacity;
 	}
 
+	public int getEmptySlot() {
+		for (int i = 1; i < entities.length; i++) {
+			if (i >= Settings.NPCS_LIMIT)
+				return -1;
+			if (entities[i] == null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	@Override
 	public boolean add(T entity) {
 		synchronized (lock) {
-			add(entity, curIndex);
+			int slot = getEmptySlot();
+			if (slot == -1) {
+				return false;
+			}
+			add(entity, slot);
 			return true;
 		}
 	}
@@ -30,7 +45,6 @@ public class EntityList<T extends Entity> extends AbstractCollection<T> {
 		synchronized (lock) {
 			entities[entity.getIndex()] = null;
 			indicies.remove(entity.getIndex());
-			decreaseIndex();
 		}
 	}
 
@@ -40,7 +54,6 @@ public class EntityList<T extends Entity> extends AbstractCollection<T> {
 			Object temp = entities[index];
 			entities[index] = null;
 			indicies.remove(index);
-			decreaseIndex();
 			return (T) temp;
 		}
 	}
@@ -48,22 +61,19 @@ public class EntityList<T extends Entity> extends AbstractCollection<T> {
 	@SuppressWarnings("unchecked")
 	public T get(int index) {
 		synchronized (lock) {
-			if (index >= entities.length)
+			if (index >= entities.length || index < 0)
 				return null;
 			return (T) entities[index];
 		}
 	}
 
 	public void add(T entity, int index) {
-		if (entities[curIndex] != null) {
-			increaseIndex();
-			add(entity, curIndex);
-		} else {
-			entities[curIndex] = entity;
-			entity.setIndex(index);
-			indicies.add(curIndex);
-			increaseIndex();
+		if (entities[index] != null) {
+			return;
 		}
+		entities[index] = entity;
+		entity.setIndex(index);
+		indicies.add(index);
 	}
 
 	@Override
@@ -73,27 +83,16 @@ public class EntityList<T extends Entity> extends AbstractCollection<T> {
 		}
 	}
 
-	public void increaseIndex() {
-		curIndex++;
-		if (curIndex >= capacity) {
-			curIndex = MIN_VALUE;
-		}
-	}
-
-	public void decreaseIndex() {
-		curIndex--;
-		if (curIndex <= capacity)
-			curIndex = MIN_VALUE;
-	}
-
 	public boolean contains(T entity) {
 		return indexOf(entity) > -1;
 	}
 
 	public int indexOf(T entity) {
-		for (int index : indicies) {
-			if (entities[index].equals(entity)) {
-				return index;
+		synchronized (lock) {
+			for (int index : indicies) {
+				if (entities[index].equals(entity)) {
+					return index;
+				}
 			}
 		}
 		return -1;

@@ -3,6 +3,7 @@ package com.jupiter.game.player;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.content.Emotes;
 
 import lombok.Getter;
@@ -44,8 +45,12 @@ public class InterfaceManager {
 		sendTab(resizableScreen ? fullScreen ? 1 : 11 : 3, interfaceId); //3 for fixed
 	}
 
-	public void closeOverlay(boolean fullScreen) {
-		player.getPackets().closeInterface(resizableScreen ? fullScreen ? 1 : 11 : 3);
+	public void closeFixedOverlay() {
+		player.getPackets().closeInterface(resizableScreen ? 1 : 3);
+	}
+	
+	public void closeFSOverlay() {
+		player.getPackets().closeInterface(resizableScreen ? 11 : 3);
 	}
 
 	public void sendInterface(int interfaceId) {
@@ -74,12 +79,8 @@ public class InterfaceManager {
 		player.getPrayer().unlockPrayerBookButtons();
 //		if (player.getFamiliar() != null && player.isActive())
 //			player.getFamiliar().unlock();
-		player.getControlerManager().sendInterfaces();
-//		player.getInterfaceManager().sendOverlay(1252, false); //sof
-		refreshAllowChatEffects();
-		refreshMouseButtons();
-		refreshPrivateChatSetup();
-		refreshOtherChatsSetup();
+		ActivityHandler.executeVoid(player, activity -> activity.sendInterfaces(player));
+		player.getInterfaceManager().sendOverlay(1252, false);
 	}
 
 	public void replaceRealChatBoxInterface(int interfaceId) {
@@ -488,40 +489,13 @@ public class InterfaceManager {
 		}
 	}
 	
-	public void switchMouseButtons() {
-		player.getPlayerDetails().setMouseButtons(player.getPlayerDetails().isMouseButtons());
-		refreshMouseButtons();
-	}
-
-	public void switchAllowChatEffects() {
-		player.getPlayerDetails().setAllowChatEffects(player.getPlayerDetails().isAllowChatEffects());
-		refreshAllowChatEffects();
-	}
-
-	public void refreshAllowChatEffects() {
-		player.getPackets().sendConfig(171, player.getPlayerDetails().isAllowChatEffects() ? 0 : 1);
-	}
-
-	public void refreshMouseButtons() {
-		player.getPackets().sendConfig(170, player.getPlayerDetails().isMouseButtons() ? 0 : 1);
-	}
-
-	public void refreshPrivateChatSetup() {
-		player.getPackets().sendConfig(287, player.getPlayerDetails().getPrivateChatSetup());
-	}
-
-	public void refreshOtherChatsSetup() {
-		int value = player.getPlayerDetails().getFriendChatSetup() << 6;
-		player.getPackets().sendConfig(1438, value);
-	}
-	
 	public void closeInterfaces() {
 		if (containsScreenInter())
 			closeScreenInterface();
 		if (containsInventoryInter())
 			closeInventoryInterface();
 		player.endConversation();
-		player.getInterfaceManager().closeChatBoxInterface();
+		closeChatBoxInterface();
 		if (player.getCloseInterfacesEvent() != null) {
 			player.getCloseInterfacesEvent().run();
 			player.setCloseInterfacesEvent(null);
