@@ -11,7 +11,6 @@ import com.jupiter.cores.WorldThread;
 import com.jupiter.game.map.RegionBuilder;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.content.FriendChatsManager;
-import com.jupiter.game.player.controlers.ActivityHandler;
 import com.jupiter.net.ServerChannelHandler;
 import com.jupiter.net.host.HostListType;
 import com.jupiter.net.host.HostManager;
@@ -41,7 +40,6 @@ public class GameLoader {
 		Logger.log("Launcher", "Initializing Cache & Game Network...");
 		Try.run(() -> Cache.init());
 		CoresManager.startThreads();
-		ServerChannelHandler.init();
 		World.get().init();
 		WorldThread.init();
 		getBackgroundLoader().submit(() -> {
@@ -54,7 +52,6 @@ public class GameLoader {
 			ItemExamines.init();
 		});
 		getBackgroundLoader().submit(() -> {
-			ActivityHandler.init();
 			FriendChatsManager.init();
 			RegionBuilder.init();
 			PluginManager.loadPlugins();
@@ -70,6 +67,7 @@ public class GameLoader {
 			HostManager.deserialize(HostListType.BANNED_IP);
 			HostManager.deserialize(HostListType.MUTED_IP);
 		});
+		ServerChannelHandler.init();
 	}
 	
 	@Getter

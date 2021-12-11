@@ -354,7 +354,8 @@ public class Skills {
 	}
 
 	public void addXp(int skill, double exp) {
-		player.getControlerManager().trackXP(skill, (int) exp);
+//		ActivityHandler.execute(player, activity -> activity.trackXP(player, skill, (int) exp));
+		//TODO: This function.
 		if (player.getPlayerDetails().isXpLocked())
 			return;
 		if (skill != ATTACK && skill != DEFENCE && skill != STRENGTH && skill != MAGIC && skill != RANGE

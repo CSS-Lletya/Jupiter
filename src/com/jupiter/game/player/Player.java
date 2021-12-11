@@ -20,6 +20,8 @@ import com.jupiter.game.dialogue.Dialogue;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
+import com.jupiter.game.player.activity.Activity;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.attributes.AttributeMap;
 import com.jupiter.game.player.attributes.PlayerAttribute;
 import com.jupiter.game.player.content.AuraManager;
@@ -29,8 +31,6 @@ import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
-import com.jupiter.game.player.controlers.ActivityManager;
-import com.jupiter.game.player.controlers.impl.Wilderness;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.game.task.Task;
@@ -92,7 +92,12 @@ public class Player extends Entity {
 	protected CombatDefinitions combatDefinitions;
 	protected Prayer prayer;
 	protected Bank bank;
-	protected ActivityManager controlerManager;
+	
+	/**
+	 * The current activity this Player is in.
+	 */
+	private Optional<Activity> currentActivity;
+	
 	protected MusicsManager musicsManager;
 	protected FriendsIgnores friendsIgnores;
 	protected AuraManager auraManager;
@@ -189,14 +194,14 @@ public class Player extends Entity {
 		if (musicsManager.musicEnded())
 			musicsManager.replayMusic();
 		
-		if (!(getControlerManager().getControler() instanceof Wilderness) && Wilderness.isAtWild(this)
-				&& !Wilderness.isAtWildSafe(this)) {
-			getControlerManager().startControler("Wilderness");
-		}
+//		if (!(getControlerManager().getControler() instanceof Wilderness) && Wilderness.isAtWild(this)
+//				&& !Wilderness.isAtWildSafe(this)) {
+//			getControlerManager().startControler("Wilderness");
+//		}
 
 		auraManager.process();
 		actionManager.process();
-		controlerManager.process();
+		ActivityHandler.executeVoid(this, activity -> activity.process(this));
 	}
 	
 	public void run() {
@@ -254,14 +259,15 @@ public class Player extends Entity {
 			if (currentFriendChat == null) // failed
 				getPlayerDetails().setCurrentFriendChatOwner(null);
 		}
+		ActivityHandler.executeVoid(this, activity -> activity.login(this));
 		isActive = true;
 		updateMovementType = true;
 		getAppearence().getAppeareanceBlocks();
-		getControlerManager().login(); // checks what to do on login after welcome
+		
 		OwnedObjectManager.linkKeys(this);
 		
 		if (!HostManager.contains(getUsername(), HostListType.STARTER_RECEIVED)) {
-			Settings.STATER_KIT.forEach(item -> getInventory().addItem(item));
+			Settings.STATER_KIT.forEach(getInventory()::addItem);
 			HostManager.add(this, HostListType.STARTER_RECEIVED, true);
 		}
 	}
@@ -307,7 +313,7 @@ public class Player extends Entity {
 		if (hasFinished())
 			return;
 		getAttributes().stopAll(this);
-		controlerManager.logout(); // checks what to do on before logout for
+		ActivityHandler.executeVoid(this, activity -> activity.logout(this));
 		// login
 		isActive = false;
 		friendsIgnores.sendFriendsMyStatus(false);

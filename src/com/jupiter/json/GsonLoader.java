@@ -23,6 +23,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.activity.Activity;
 import com.jupiter.json.impl.NPCSpawns;
 import com.jupiter.utils.Logger;
 
@@ -42,6 +43,7 @@ public class GsonLoader {
 	static {
 		GSON = new GsonBuilder().setPrettyPrinting().disableInnerClassSerialization().enableComplexMapKeySerialization()
 				.setDateFormat(DateFormat.LONG).setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+				.registerTypeAdapter(Activity.class, new ActivityAdapter<Activity>())
 				.registerTypeAdapter(EnumMap.class, new InstanceCreator<EnumMap>() {
 					@Override
 					public EnumMap createInstance(Type type) {
@@ -49,6 +51,7 @@ public class GsonLoader {
 						return new EnumMap((Class<?>) types[0]);
 					}
 				}).create();
+		
 		Try.run(() -> NPCSpawns.init());
 	}
 

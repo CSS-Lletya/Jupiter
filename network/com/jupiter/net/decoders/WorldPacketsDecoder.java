@@ -12,6 +12,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.PlayerFollow;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.game.player.content.SkillCapeCustomizer;
 import com.jupiter.game.route.RouteFinder;
@@ -508,11 +509,11 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (targetPlayer == null || targetPlayer.isDead() || targetPlayer.hasFinished() || !player.getMapRegionsIds().contains(targetPlayer.getRegionId()))
 				return;
 			
-			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !player.getControlerManager().canPlayerOption1(targetPlayer))
+			if (player.getMovement().getLockDelay() > Utils.currentTimeMillis() || !ActivityHandler.execute(player, activity -> activity.canPlayerOption1(player, targetPlayer)))
 				return;
 			if (!player.isCanPvp())
 				return;
-			if (!player.getControlerManager().canAttack(targetPlayer))
+			if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, targetPlayer)))
 				return;
 			
 			if (!player.isCanPvp() || !targetPlayer.isCanPvp()) {
@@ -553,7 +554,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (npc == null || npc.isDead() || npc.hasFinished() || !player.getMapRegionsIds().contains(npc.getRegionId()) || !npc.getDefinitions().hasAttackOption()) {
 				return;
 			}
-			if (!player.getControlerManager().canAttack(npc)) {
+			if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc))) {
 				return;
 			}
 			if (!npc.isForceMultiAttacked()) {
@@ -645,7 +646,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 23:
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(p2.getCoordFaceX(p2.getSize()), p2.getCoordFaceY(p2.getSize()), p2.getPlane()));
-						if (!player.getControlerManager().canAttack(p2))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, p2)))
 							return;
 						if (!player.isCanPvp() || !p2.isCanPvp()) {
 							player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
@@ -706,7 +707,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 81: // entangle
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(p2.getCoordFaceX(p2.getSize()), p2.getCoordFaceY(p2.getSize()), p2.getPlane()));
-						if (!player.getControlerManager().canAttack(p2))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, p2)))
 							return;
 						if (!player.isCanPvp() || !p2.isCanPvp()) {
 							player.getPackets().sendGameMessage("You can only attack players in a player-vs-player area.");
@@ -783,7 +784,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			switch (interfaceId) {
 			case Inventory.INVENTORY_INTERFACE:
 				Item item = player.getInventory().getItem(interfaceSlot);
-				if (item == null || !player.getControlerManager().processItemOnNPC(npc, item))
+				if (item == null || !ActivityHandler.execute(player, activity -> activity.processItemOnNPC(player, npc, item)))
 					return;
 				InventoryInterfacePlugin.handleItemOnNPC(player, npc, item);
 				break;
@@ -807,7 +808,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 23:
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getPlane()));
-						if (!player.getControlerManager().canAttack(npc))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc)))
 							return;
 						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {
@@ -857,7 +858,7 @@ public final class WorldPacketsDecoder extends Decoder {
 				case 81: // entangle
 					if (Magic.checkCombatSpell(player, componentId, 1, false)) {
 						player.setNextFaceWorldTile(new WorldTile(npc.getCoordFaceX(npc.getSize()), npc.getCoordFaceY(npc.getSize()), npc.getPlane()));
-						if (!player.getControlerManager().canAttack(npc))
+						if (!ActivityHandler.execute(player, activity -> activity.canAttack(player, npc)))
 							return;
 						if (!npc.isForceMultiAttacked()) {
 							if (!npc.isAtMultiArea() || !player.isAtMultiArea()) {

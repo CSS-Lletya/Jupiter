@@ -3,6 +3,7 @@ package com.jupiter.game.player;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.content.Emotes;
 
 import lombok.Getter;
@@ -78,7 +79,7 @@ public class InterfaceManager {
 		player.getPrayer().unlockPrayerBookButtons();
 //		if (player.getFamiliar() != null && player.isActive())
 //			player.getFamiliar().unlock();
-		player.getControlerManager().sendInterfaces();
+		ActivityHandler.executeVoid(player, activity -> activity.sendInterfaces(player));
 		player.getInterfaceManager().sendOverlay(1252, false);
 	}
 

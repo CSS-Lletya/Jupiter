@@ -12,6 +12,7 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Inventory;
 import com.jupiter.game.player.Player;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
@@ -92,7 +93,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				long dropTime = Utils.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
-				if (!player.getControlerManager().canDropItem(item))
+				if (!ActivityHandler.execute(player, activity -> activity.canDropItem(player, item)))
 					return;
 				player.getAttributes().stopAll(player, false);
 				

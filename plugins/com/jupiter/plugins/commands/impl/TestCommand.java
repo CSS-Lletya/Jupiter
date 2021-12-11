@@ -1,8 +1,12 @@
 package com.jupiter.plugins.commands.impl;
 
+import java.util.Optional;
+
+import com.jupiter.game.player.AccountCreation;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.game.player.attributes.PlayerAttribute;
+import com.jupiter.game.player.activity.ActivityHandler;
+import com.jupiter.game.player.activity.impl.TestActivity;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
 
@@ -17,7 +21,7 @@ public class TestCommand implements Command {
 
 	@Override
 	public void execute(Player player, String[] cmd, String command) throws Exception {
-		player.getAttributes().toggle(PlayerAttribute.BUSY);
-		System.out.println(player.getAttributes().contains(PlayerAttribute.BUSY, false));
+		ActivityHandler.startActivity(player, new TestActivity());
+		AccountCreation.savePlayer(player);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.utils.ItemExamines;
 import com.jupiter.utils.Utils;
 
@@ -48,7 +49,7 @@ public final class Inventory {
 
 	public boolean addItem(int itemId, int amount) {
 		if (itemId < 0 || amount < 0 || !Utils.itemExists(itemId)
-				|| !player.getControlerManager().canAddInventoryItem(itemId, amount))
+				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, itemId, amount)))
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();
 		if (!items.add(new Item(itemId, amount))) {
@@ -63,7 +64,7 @@ public final class Inventory {
 
 	public boolean addItem(Item item) {
 		if (item.getId() < 0 || item.getAmount() < 0 || !Utils.itemExists(item.getId())
-				|| !player.getControlerManager().canAddInventoryItem(item.getId(), item.getAmount()))
+				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, item.getId(), item.getAmount())))
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();
 		if (!items.add(item)) {
@@ -77,7 +78,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(int slot, Item item) {
-		if (!player.getControlerManager().canDeleteInventoryItem(item.getId(), item.getAmount()))
+		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(slot, item);
@@ -89,7 +90,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(int itemId, int amount) {
-		if (!player.getControlerManager().canDeleteInventoryItem(itemId, amount))
+		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, itemId, amount)))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(new Item(itemId, amount));
@@ -97,7 +98,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(Item item) {
-		if (!player.getControlerManager().canDeleteInventoryItem(item.getId(), item.getAmount()))
+		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(item);

@@ -3,6 +3,7 @@ package com.jupiter.game.player;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.jupiter.cache.loaders.VarManager;
@@ -16,7 +17,6 @@ import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
-import com.jupiter.game.player.controlers.ActivityManager;
 import com.jupiter.json.GsonLoader;
 import com.jupiter.net.Session;
 import com.jupiter.net.decoders.LogicPacket;
@@ -68,8 +68,6 @@ public class AccountCreation {
 			player.prayer = new Prayer();
 		if (player.bank == null)
 			player.bank = new Bank();
-		if (player.controlerManager == null)
-			player.controlerManager = new ActivityManager();
 		if (player.musicsManager == null)
 			player.musicsManager = new MusicsManager();
 		if (player.friendsIgnores == null)
@@ -82,6 +80,8 @@ public class AccountCreation {
 			player.lodeStone = new LodeStone();
 		if (player.getPlayerDetails().getActivatedLodestones() == null)
 			player.getPlayerDetails().setActivatedLodestones(new boolean[16]);
+		if (player.getCurrentActivity() == null)
+			player.setCurrentActivity(Optional.empty());
 		if (player.varsManager == null)
 			player.varsManager = new VarManager(player);
 		player.interfaceManager = new InterfaceManager(player);
@@ -102,13 +102,13 @@ public class AccountCreation {
 		player.combatDefinitions.setPlayer(player);
 		player.prayer.setPlayer(player);
 		player.bank.setPlayer(player);
-		player.controlerManager.setPlayer(player);
 		player.musicsManager.setPlayer(player);
 		player.friendsIgnores.setPlayer(player);
 		player.auraManager.setPlayer(player);
 		player.temporaryMovementType = -1;
 		player.logicPackets = new ConcurrentLinkedQueue<LogicPacket>();
 		player.switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
+		
 		player.initEntity();
 		player.packetsDecoderPing = Utils.currentTimeMillis();
 		World.addPlayer(player);

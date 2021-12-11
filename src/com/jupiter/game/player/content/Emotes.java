@@ -287,7 +287,7 @@ public class Emotes {
 				if (!TileAttributes.isTileFree(player.getPlane(), player.getX(), player.getY(), 3)) {
 					player.getPackets().sendGameMessage("You need clear space in order to perform this emote.", true);
 					return false;
-				} else if (player.getControlerManager().getControler() != null) {
+				} else if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.", true);
 					return false;
 				}
@@ -529,7 +529,7 @@ public class Emotes {
 				 */
 				break;
 			case 20763: // Veteran cape
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
@@ -537,7 +537,7 @@ public class Emotes {
 				player.setNextGraphics(new Graphics(1446));
 				break;
 			case 20765: // Classic cape
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
@@ -547,7 +547,7 @@ public class Emotes {
 				break;
 			case 20767: // Max cape
 				 NPC npc;
-				if (player.getControlerManager().getControler() != null) {
+				if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}
@@ -614,7 +614,7 @@ public class Emotes {
 				if (!TileAttributes.floorAndWallsFree(player, 3)) {
 					player.getPackets().sendGameMessage("Need more space to perform this skillcape emote.");
 					return;
-				} else if (player.getControlerManager().getControler() != null) {
+				} else if (player.getCurrentActivity().isPresent()) {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}

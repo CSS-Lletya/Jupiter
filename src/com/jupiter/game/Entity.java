@@ -29,6 +29,7 @@ import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.PlayerDeath;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.ClipType;
 import com.jupiter.game.route.Direction;
 import com.jupiter.game.route.RouteFinder;
@@ -550,10 +551,10 @@ public abstract class Entity extends WorldTile {
 			return false;
 		if (!force && check && !TileAttributes.checkWalkStep(getPlane(), lastX, lastY, dir, getSize(), getClipType()))// double
 			return false;
-		if (this instanceof Player) {
-			if (!((Player) this).getControlerManager().checkWalkStep(lastX, lastY, nextX, nextY))
-				return false;
-		}
+		ifPlayer(player -> {
+			if (!ActivityHandler.execute((Player) this, activity -> activity.checkWalkStep((Player) this, lastX, lastY, nextX, nextY)))
+				return;
+		});
 		getMovement().getWalkSteps().add(new WalkStep(dir, nextX, nextY, check));
 		return true;
 	}
@@ -1158,7 +1159,7 @@ public abstract class Entity extends WorldTile {
 				int musicId = region.getMusicId();
 				if (musicId != -1)
 					player.getMusicsManager().checkMusic(musicId);
-				player.getControlerManager().moved();
+				ActivityHandler.executeVoid(player, activity -> activity.moved(player));
 				if (player.isStarted()) {
 //					checkControlersAtMove(player);
 				}
@@ -1170,13 +1171,11 @@ public abstract class Entity extends WorldTile {
 			entity.checkMultiArea();
 			entity.setLastRegionId(regionId);
 		} else {
-			if (entity instanceof Player) {
-				Player player = (Player) entity;
-				player.getControlerManager().moved();
-				if (player.isStarted()) {
-//					checkControlersAtMove(player);					
-				}
-			}
+			ifPlayer(player -> {
+				ActivityHandler.executeVoid(player, activity -> activity.moved(player));
+//				if (player.isStarted())
+//					checkControlersAtMove(player);
+			});
 			entity.checkMultiArea();
 		}
 	}

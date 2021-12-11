@@ -16,7 +16,7 @@ import com.jupiter.cores.CoresManager;
 import com.jupiter.game.Entity;
 import com.jupiter.game.EntityList;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.player.controlers.impl.Wilderness;
+import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.TaskManager;
 import com.jupiter.game.task.impl.DrainPrayerTask;
@@ -255,7 +255,7 @@ public final class World {
 	}
 
 	public static final boolean isPvpArea(WorldTile tile) {
-		return Wilderness.isAtWild(tile);
+		return WildernessActivity.isAtWild(tile);
 	}
 
 	public static void sendWorldMessage(String message) {

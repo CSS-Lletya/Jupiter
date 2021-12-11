@@ -7,6 +7,7 @@ import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
+import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
@@ -84,7 +85,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (!player.getControlerManager().canEquip(targetSlot, itemId))
+		if (ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
@@ -136,6 +137,8 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		player.getPackets().sendSound(2240, 0, 1);
 		return true;
 	}
+	
+	static int finalSlot;
 
 	public static boolean sendWear2(Player player, int slotId, int itemId) {
 		if (player.hasFinished() || player.isDead())
@@ -157,6 +160,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 			return false;
 		}
 		byte targetSlot = Equipment.getItemSlot(itemId);
+		finalSlot = targetSlot;
 		if (itemId == 4084)
 			targetSlot = 3;
 		if (targetSlot == -1) {
@@ -192,8 +196,9 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!player.getControlerManager().canEquip(targetSlot, itemId))
+		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId))) {
 			return false;
+		}
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {
 			if (isTwoHandedWeapon && player.getEquipment().getItem(5) != null) {
