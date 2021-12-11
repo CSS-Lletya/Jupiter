@@ -500,7 +500,7 @@ public class Foods {
 		if (food == null)
 			return false;
 		if (!ActivityHandler.execute(player, activity -> activity.canEat(player, food)))
-			return true;
+			return false;
 		String name = ItemDefinitions.getItemDefinitions(food.getId()).getName().toLowerCase();
 		player.getPackets().sendGameMessage("You eat the " + name + ".");
 		player.setNextAnimation(EAT_ANIM);
