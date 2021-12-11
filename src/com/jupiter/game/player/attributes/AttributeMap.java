@@ -12,7 +12,7 @@ import io.vavr.control.Try;
  * @author Seven
  * @author frostbit3
  */
-public class AttributeMap<Props extends Enum<Props> & Attribute> {
+public class AttributeMap<Props extends Enum<Props> & AttributeType> {
 
     /**
      * The underlying map of attributes.

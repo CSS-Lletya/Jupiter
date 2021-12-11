@@ -1,7 +1,5 @@
 package com.jupiter.plugins.commands.impl;
 
-import java.util.Optional;
-
 import com.jupiter.game.player.AccountCreation;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;

@@ -4,22 +4,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Vec2 {
+public class Vector {
 	
 	private float x, y;
 	
-	public Vec2(float x, float y) {
+	public Vector(float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public Vec2(WorldTile tile) {
+	public Vector(WorldTile tile) {
 		this.x = tile.getX();
 		this.y = tile.getY();
 	}
 
-	public Vec2 sub(Vec2 v2) {
-		return new Vec2(this.x - v2.x, this.y - v2.y);
+	public Vector sub(Vector v2) {
+		return new Vector(this.x - v2.x, this.y - v2.y);
 	}
 	
 	public void norm() {

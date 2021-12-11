@@ -23,7 +23,7 @@ import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.map.DynamicRegion;
 import com.jupiter.game.map.Region;
 import com.jupiter.game.map.TileAttributes;
-import com.jupiter.game.map.Vec2;
+import com.jupiter.game.map.Vector;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
@@ -47,6 +47,7 @@ import com.jupiter.net.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
 import com.jupiter.utils.MutableNumber;
+import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.Utils;
 
 import lombok.Getter;
@@ -129,8 +130,6 @@ public abstract class Entity extends WorldTile {
 		nextWalkDirection = nextRunDirection = null;
 		lastFaceEntity = -1;
 		nextFaceEntity = -2;
-		if (!(this instanceof NPC))
-			direction = 2;
 		movement = new Movement(this);
 	}
 
@@ -173,6 +172,12 @@ public abstract class Entity extends WorldTile {
 
 	public void reset() {
 		reset(true);
+		ifNpc(npc -> {
+			npc.direction = npc.getRespawnDirection();
+			npc.getCombat().reset();
+			npc.setBonuses(NPCBonuses.getBonuses(npc.getId())); // back to real bonuses
+			npc.setForceWalk(null);
+		});
 	}
 
 	public void resetCombat() {
@@ -703,6 +708,7 @@ public abstract class Entity extends WorldTile {
 		processMovement();
 		processReceivedHits();
 		processReceivedDamage();
+		ifNpc(npc -> npc.processNPC());
 	}
 
 	public void loadMapRegions() {
@@ -1274,10 +1280,10 @@ public abstract class Entity extends WorldTile {
 		return size == 1 ? this : new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getPlane());
 	}
 	
-	public Vec2 getMiddleWorldTileAsVector() {
+	public Vector getMiddleWorldTileAsVector() {
 		int size = getSize();
 		if (size == 1)
-			return new Vec2(this);
-		return new Vec2(getX() + (size-1)/ 2.0f, getY() + (size-1)/ 2.0f);
+			return new Vector(this);
+		return new Vector(getX() + (size-1)/ 2.0f, getY() + (size-1)/ 2.0f);
 	}
 }

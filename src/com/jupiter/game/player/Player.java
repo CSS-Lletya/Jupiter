@@ -23,7 +23,7 @@ import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.attributes.AttributeMap;
-import com.jupiter.game.player.attributes.PlayerAttribute;
+import com.jupiter.game.player.attributes.Attribute;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.Emotes;
 import com.jupiter.game.player.content.FriendChatsManager;
@@ -83,7 +83,7 @@ public class Player extends Entity {
 	protected transient LocalNPCUpdate localNPCUpdate;
 	
 	protected PlayerDetails playerDetails = new PlayerDetails();
-	public AttributeMap<PlayerAttribute> attributes = new AttributeMap<>(PlayerAttribute.class);
+	public AttributeMap<Attribute> attributes = new AttributeMap<>(Attribute.class);
 	
 	protected Appearance appearence;
 	protected Inventory inventory;

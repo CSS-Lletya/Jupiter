@@ -143,13 +143,13 @@ public final class LocalNPCUpdate {
 		if (n.getNextGraphics3() != null) {
 			maskData |= 0x2000000;
 		}
-		if (n.hasChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
+		if (n.isChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
 			maskData |= 0x10000;
 		}
 		if (n.getNextFaceWorldTile() != null && n.getNextRunDirection() == null && n.getNextWalkDirection() == null) {
 			maskData |= 0x4;
 		}
-		if (n.hasChangedName() || (added && n.getCustomName() != null)) {
+		if (n.isChangedName() || (added && n.getCustomName() != null)) {
 			maskData |= 0x800000;
 		}
 		if (n.getNextForceTalk() != null) {
@@ -199,13 +199,13 @@ public final class LocalNPCUpdate {
 		if (n.getNextGraphics3() != null) {
 			applyGraphicsMask3(n, data);
 		}
-		if (n.hasChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
+		if (n.isChangedCombatLevel() || (added && n.getCustomCombatLevel() >= 0)) {
 			applyChangeLevelMask(n, data);
 		}
 		if (n.getNextFaceWorldTile() != null) {
 			applyFaceWorldTileMask(n, data);
 		}
-		if (n.hasChangedName() || (added && n.getCustomName() != null)) {
+		if (n.isChangedName() || (added && n.getCustomName() != null)) {
 			applyNameChangeMask(n, data);
 		}
 		if (n.getNextForceTalk() != null) {

@@ -14,6 +14,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.route.ClipType;
+import com.jupiter.game.route.Direction;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.strategy.DumbRouteFinder;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
@@ -33,17 +34,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class NPC extends Entity {
 
-	public static int NORMAL_WALK = 0x2, WATER_WALK = 0x4, FLY_WALK = 0x8;
+	private int NORMAL_WALK = 0x2, WATER_WALK = 0x4, FLY_WALK = 0x8;
 
 	private int id;
 	private WorldTile respawnTile;
 	private boolean canBeAttackFromOutOfArea;
-	private boolean randomwalk;
-	private int[] bonuses; // 0 stab, 1 slash, 2 crush,3 mage, 4 range, 5 stab
-	// def, blahblah till 9
+	private boolean randomWalk;
+	private int[] bonuses;
 	private boolean spawned;
 	private transient NPCCombat combat;
-	public WorldTile forceWalk;
+	private WorldTile forceWalk;
 	private int walkType;
 
 	private long lastAttackedByTarget;
@@ -59,7 +59,6 @@ public class NPC extends Entity {
 
 	// npc masks
 	private transient Transformation nextTransformation;
-	// name changing masks
 	private String name;
 	private transient boolean changedName;
 	private int combatLevel;
@@ -68,6 +67,10 @@ public class NPC extends Entity {
 
 	public NPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea) {
 		this(id, tile, canBeAttackFromOutOfArea, false);
+	}
+	
+	public NPC(int id, WorldTile tile) {
+		this(id, tile, false, false);
 	}
 
 	/*
@@ -81,45 +84,21 @@ public class NPC extends Entity {
 		this.setSpawned(spawned);
 		combatLevel = -1;
 		setHitpoints(getMaxHitpoints());
-		setRandomWalk(getDefinitions().walkMask);
-		setStartTile(tile);
-		bonuses = NPCBonuses.getBonuses(id);
-		combat = new NPCCombat(this);
-		capDamage = -1;
-		lureDelay = 12000;
-		// npc is inited on creating instance
-		initEntity();
-		World.addNPC(this);
-		updateEntityRegion(this);
-		// npc is started on creating instance
-		loadMapRegions();
-		checkMultiArea();
-	}
-	
-	public NPC(int id, WorldTile tile) {
-		super(tile, EntityType.NPC);
-		this.id = id;
-		this.respawnTile = new WorldTile(tile);
-		this.canBeAttackFromOutOfArea = false;
-		this.setSpawned(spawned);
-		combatLevel = -1;
-		setHitpoints(getMaxHitpoints());
-		setRandomWalk(getDefinitions().walkMask);
+		setWalkType(getDefinitions().walkMask);
 		setStartTile(tile);
 		setClipType((getDefinitions().walkMask & 0x4) != 0 ? ClipType.WATER : ClipType.NORMAL);
 		if (getName().contains("impling")) {
 			setRandomWalk(true);
 			setClipType(ClipType.FLYING);
 		}
+		direction = getRespawnDirection();
 		bonuses = NPCBonuses.getBonuses(id);
 		combat = new NPCCombat(this);
 		capDamage = -1;
 		lureDelay = 12000;
-		// npc is inited on creating instance
 		initEntity();
 		World.addNPC(this);
 		updateEntityRegion(this);
-		// npc is started on creating instance
 		loadMapRegions();
 		checkMultiArea();
 	}
@@ -134,24 +113,12 @@ public class NPC extends Entity {
 		bonuses = NPCBonuses.getBonuses(id);
 	}
 
-	public void setCanBeAttackFromOutOfArea(boolean b) {
-		canBeAttackFromOutOfArea = b;
-	}
-
-	public boolean canBeAttackFromOutOfArea() {
-		return canBeAttackFromOutOfArea;
-	}
-
 	public NPCDefinitions getDefinitions() {
 		return NPCDefinitions.getNPCDefinitions(id);
 	}
 
 	public NPCCombatDefinitions getCombatDefinitions() {
 		return NPCCombatDefinitionsL.getNPCCombatDefinitions(id);
-	}
-
-	public int getId() {
-		return id;
 	}
 
 	public void processNPC() {
@@ -210,17 +177,8 @@ public class NPC extends Entity {
 		}
 	}
 
-	@Override
-	public void processEntity() {
-		super.processEntity();
-		processNPC();
-	}
-
 	public int getRespawnDirection() {
-		NPCDefinitions definitions = getDefinitions();
-		if (definitions.anInt853 << 32 != 0 && definitions.respawnDirection > 0 && definitions.respawnDirection <= 8)
-			return (4 + definitions.respawnDirection) << 11;
-		return 0;
+		return Direction.getById(getDefinitions().respawnDirection).getAngle();
 	}
 
 	/*
@@ -462,16 +420,6 @@ public class NPC extends Entity {
 				}
 			}
 		}
-
-	}
-
-	@Override
-	public void reset() {
-		super.reset();
-		direction = getRespawnDirection();
-		combat.reset();
-		bonuses = NPCBonuses.getBonuses(id); // back to real bonuses
-		forceWalk = null;
 	}
 
 	@Override
@@ -511,34 +459,15 @@ public class NPC extends Entity {
 		checkMultiArea();
 	}
 
-	public NPCCombat getCombat() {
-		return combat;
-	}
-
 	public void drop() {
-		try {
-			Player killer = getMostDamageReceivedSourcePlayer();
-			if (killer == null) {
-				return;	
-			}
-			//drop stuff
-		} catch (Exception e) {
-			e.printStackTrace();
-		} catch (Error e) {
-			e.printStackTrace();
-		}
+		Player killer = getMostDamageReceivedSourcePlayer();
+		if (killer == null)
+			return;
+		//do stuff that doesn't exist yet
 	}
 
 	public int getMaxHit() {
 		return getCombatDefinitions().getMaxHit();
-	}
-
-	public int[] getBonuses() {
-		return bonuses;
-	}
-
-	public WorldTile getRespawnTile() {
-		return respawnTile;
 	}
 
 	public boolean isUnderCombat() {
@@ -622,91 +551,15 @@ public class NPC extends Entity {
 		return false;
 	}
 
-	public boolean isCantInteract() {
-		return cantInteract;
-	}
-
 	public void setCantInteract(boolean cantInteract) {
 		this.cantInteract = cantInteract;
 		if (cantInteract)
 			combat.reset();
 	}
 
-	public int getCapDamage() {
-		return capDamage;
-	}
-
-	public void setCapDamage(int capDamage) {
-		this.capDamage = capDamage;
-	}
-
-	public int getLureDelay() {
-		return lureDelay;
-	}
-
-	public void setLureDelay(int lureDelay) {
-		this.lureDelay = lureDelay;
-	}
-
-	public boolean isCantFollowUnderCombat() {
-		return cantFollowUnderCombat;
-	}
-
-	public void setCantFollowUnderCombat(boolean canFollowUnderCombat) {
-		this.cantFollowUnderCombat = canFollowUnderCombat;
-	}
-
-	public Transformation getNextTransformation() {
-		return nextTransformation;
-	}
-
 	@Override
 	public String toString() {
 		return getDefinitions().name + " - " + id + " - " + getX() + " " + getY() + " " + getPlane();
-	}
-
-	public boolean isForceAgressive() {
-		return forceAgressive;
-	}
-
-	public void setForceAgressive(boolean forceAgressive) {
-		this.forceAgressive = forceAgressive;
-	}
-
-	public int getForceTargetDistance() {
-		return forceTargetDistance;
-	}
-
-	public void setForceTargetDistance(int forceTargetDistance) {
-		this.forceTargetDistance = forceTargetDistance;
-	}
-
-	public boolean isForceFollowClose() {
-		return forceFollowClose;
-	}
-
-	public void setForceFollowClose(boolean forceFollowClose) {
-		this.forceFollowClose = forceFollowClose;
-	}
-
-	public boolean isForceMultiAttacked() {
-		return forceMultiAttacked;
-	}
-
-	public void setForceMultiAttacked(boolean forceMultiAttacked) {
-		this.forceMultiAttacked = forceMultiAttacked;
-	}
-
-	public boolean hasRandomWalk() {
-		return randomwalk;
-	}
-
-	public void setRandomWalk(boolean forceRandomWalk) {
-		this.randomwalk = forceRandomWalk;
-	}
-
-	public void setRandomWalk(int forceRandomWalk) {
-		this.walkType = forceRandomWalk;
 	}
 
 	public String getCustomName() {
@@ -735,72 +588,18 @@ public class NPC extends Entity {
 		changedCombatLevel = true;
 	}
 
-	public boolean hasChangedName() {
-		return changedName;
-	}
-
-	public boolean hasChangedCombatLevel() {
-		return changedCombatLevel;
-	}
-
 	public WorldTile getMiddleWorldTile() {
 		int size = getSize();
 		return new WorldTile(getCoordFaceX(size), getCoordFaceY(size), getPlane());
 	}
 
-	public boolean isSpawned() {
-		return spawned;
-	}
-
-	public void setSpawned(boolean spawned) {
-		this.spawned = spawned;
-	}
-
-	public boolean isNoDistanceCheck() {
-		return noDistanceCheck;
-	}
-
-	public void setNoDistanceCheck(boolean noDistanceCheck) {
-		this.noDistanceCheck = noDistanceCheck;
-	}
-
 	public boolean withinDistance(Player tile, int distance) {
 		return super.withinDistance(tile, distance);
-	}
-
-	/**
-	 * Gets the locked.
-	 * @return The locked.
-	 */
-	public boolean isLocked() {
-		return locked;
-	}
-
-	/**
-	 * Sets the locked.
-	 * @param locked The locked to set.
-	 */
-	public void setLocked(boolean locked) {
-		this.locked = locked;
-	}
-	
-	/**
-	 * @return the startTile
-	 */
-	public WorldTile getStartTile() {
-		return startTile;
-	}
-	
-	/**
-	 * @param startTile
-	 *            the startTile to set
-	 */
-	public void setStartTile(WorldTile startTile) {
-		this.startTile = startTile;
 	}
 	
 	private WorldTile startTile;
 	
+	//TODO: Rework how npc instances are done. No more of this big code block stuff.
 	public static final NPC spawnNPC(int id, WorldTile tile, boolean canBeAttackFromOutOfArea, boolean spawned) {
 		return new NPC(id, tile,canBeAttackFromOutOfArea, spawned);
 	}

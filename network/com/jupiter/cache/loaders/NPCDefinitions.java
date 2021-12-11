@@ -16,7 +16,7 @@ public final class NPCDefinitions {
 	public int anInt833;
 	public int anInt836;
 	public int anInt837;
-	public byte respawnDirection;
+	public byte respawnDirection = 4;
 	public int size = 1;
 	public int[][] anIntArrayArray840;
 	public boolean aBoolean841;

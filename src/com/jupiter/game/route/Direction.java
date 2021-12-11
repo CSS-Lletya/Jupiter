@@ -1,11 +1,16 @@
 package com.jupiter.game.route;
 
 import com.jupiter.game.Entity;
-import com.jupiter.game.map.Vec2;
+import com.jupiter.game.map.Vector;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.utils.Utils;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum Direction {
 	NORTH(0, 0, 1),
 	NORTHEAST(1, 1, 1),
@@ -20,12 +25,6 @@ public enum Direction {
 	private int dx;
 	private int dy;
 	
-	private Direction(int id, int dx, int dy) {
-		this.id = id;
-		this.dx = dx;
-		this.dy = dy;
-	}
-	
 	public int getAngle() {
 		return Utils.getAngleTo(dx, dy);
 	}
@@ -34,20 +33,8 @@ public enum Direction {
 		return values()[Utils.random(values().length)];
 	}
 	
-	public int getId() {
-		return id;
-	}
-	
 	public boolean isDiagonal() {
 		return dx != 0 && dy != 0;
-	}
-	
-	public int getDx() {
-		return dx;
-	}
-	
-	public int getDy() {
-		return dy;
 	}
 
 	public static Direction getById(int id) {
@@ -113,9 +100,9 @@ public enum Direction {
 	}
 	
 	public static Direction getDirectionTo(Entity entity, WorldTile target) {
-		Vec2 from = entity.getMiddleWorldTileAsVector();
-		Vec2 to = target instanceof Entity ? ((Entity)target).getMiddleWorldTileAsVector() : new Vec2(target);
-		Vec2 sub = to.sub(from);
+		Vector from = entity.getMiddleWorldTileAsVector();
+		Vector to = target instanceof Entity ? ((Entity)target).getMiddleWorldTileAsVector() : new Vector(target);
+		Vector sub = to.sub(from);
 		sub.norm();
 		WorldTile delta = sub.toTile();
 		return Direction.forDelta(delta.getX(), delta.getY());

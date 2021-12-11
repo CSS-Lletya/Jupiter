@@ -11,7 +11,7 @@ import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.attributes.AttributeMap;
-import com.jupiter.game.player.attributes.PlayerAttribute;
+import com.jupiter.game.player.attributes.Attribute;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
@@ -53,7 +53,7 @@ public class AccountCreation {
 		player.screenHeight = screenHeight;
 		player.isaacKeyPair = isaacKeyPair;
 		if (player.getAttributes() == null)
-			player.attributes = new AttributeMap<>(PlayerAttribute.class);
+			player.attributes = new AttributeMap<>(Attribute.class);
 		if (player.appearence == null)
 			player.appearence = new Appearance();
 		if (player.inventory == null)
