@@ -2,7 +2,7 @@ package com.jupiter.game.player.content;
 
 import com.jupiter.cache.loaders.ClientScriptMap;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Animation;
 
 public final class PlayerLook {
 

@@ -7,8 +7,8 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.NPCClickEvent;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public abstract class NPCClickHandler extends PluginHandler<NPCClickEvent> {
 	private boolean checkDistance = true;

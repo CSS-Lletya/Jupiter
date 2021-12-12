@@ -2,10 +2,10 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.Rest;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 @RSInterfaceSignature(interfaceId = { 548, 746, 750, 749, 755, 1214})
 public class WorldMapInterfacePlugin implements RSInterface {
@@ -111,7 +111,7 @@ public class WorldMapInterfacePlugin implements RSInterface {
 						player.getAttributes().stopAll(player);
 						return;
 					}
-					long currentTime = Utils.currentTimeMillis();
+					long currentTime = Utility.currentTimeMillis();
 					if (player.getNextEmoteEnd() >= currentTime) {
 						player.getPackets().sendGameMessage("You can't rest while perfoming an emote.");
 						return;

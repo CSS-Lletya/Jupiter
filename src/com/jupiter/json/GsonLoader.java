@@ -25,7 +25,7 @@ import com.google.gson.stream.JsonWriter;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.json.impl.NPCSpawns;
-import com.jupiter.utils.LogUtility;
+import com.jupiter.utility.LogUtility;
 
 import io.vavr.control.Try;
 

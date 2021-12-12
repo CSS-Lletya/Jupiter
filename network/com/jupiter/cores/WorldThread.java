@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.jupiter.Settings;
 import com.jupiter.game.map.World;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 import lombok.SneakyThrows;

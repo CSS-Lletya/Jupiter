@@ -9,8 +9,8 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 
 
 @WeaponSpecialSignature(weapons = { ItemNames.DRAGON_BATTLEAXE }, specAmount = 100)

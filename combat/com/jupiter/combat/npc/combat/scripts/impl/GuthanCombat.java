@@ -5,9 +5,9 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Guthan"})
 public class GuthanCombat extends MobCombatInterface {
@@ -17,7 +17,7 @@ public class GuthanCombat extends MobCombatInterface {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
 		npc.setNextAnimation(new Animation(defs.getAttackEmote()));
 		int damage = getRandomMaxHit(npc, defs.getMaxHit(), NPCCombatDefinitions.MELEE, target);
-		if (damage != 0 && Utils.random(3) == 0) {
+		if (damage != 0 && RandomUtility.random(3) == 0) {
 			target.setNextGraphics(new Graphics(398));
 			npc.heal(damage);
 		}

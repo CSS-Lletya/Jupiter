@@ -6,7 +6,7 @@ import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.ItemExamines;
+import com.jupiter.utility.ItemExamines;
 
 public final class Equipment {
 

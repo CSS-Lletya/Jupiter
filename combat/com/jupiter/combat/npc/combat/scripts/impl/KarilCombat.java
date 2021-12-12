@@ -6,10 +6,10 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Karil"})
 public class KarilCombat extends MobCombatInterface {
@@ -19,7 +19,7 @@ public class KarilCombat extends MobCombatInterface {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
 		npc.setNextAnimation(new Animation(defs.getAttackEmote()));
 		int damage = getRandomMaxHit(npc, defs.getMaxHit(), NPCCombatDefinitions.RANGE, target);
-		if (damage != 0 && target instanceof Player && Utils.random(3) == 0) {
+		if (damage != 0 && target instanceof Player && RandomUtility.random(3) == 0) {
 			target.setNextGraphics(new Graphics(401, 0, 100));
 			Player targetPlayer = (Player) target;
 			int drain = (int) (targetPlayer.getSkills().getLevelForXp(Skills.AGILITY) * 0.2);

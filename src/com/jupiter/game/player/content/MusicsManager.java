@@ -6,7 +6,8 @@ import com.jupiter.cache.loaders.ClientScriptMap;
 import com.jupiter.game.map.Region;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 public final class MusicsManager  {
 
@@ -168,25 +169,25 @@ public final class MusicsManager  {
 	}
 
 	public boolean musicEnded() {
-		return playingMusic != -2 && playingMusicDelay + (180000) < Utils.currentTimeMillis();
+		return playingMusic != -2 && playingMusicDelay + (180000) < Utility.currentTimeMillis();
 	}
 
 	public void replayMusic() {
 		if (playListOn && playList.size() > 0) {
 			if (shuffleOn)
-				playingMusic = playList.get(Utils.getRandom(playList.size() - 1));
+				playingMusic = playList.get(RandomUtility.getRandom(playList.size() - 1));
 			else {
 				if (nextPlayListMusic >= playList.size())
 					nextPlayListMusic = 0;
 				playingMusic = playList.get(nextPlayListMusic++);
 			}
 		} else if (unlockedMusics.size() > 0) // random music
-			playingMusic = unlockedMusics.get(Utils.getRandom(unlockedMusics.size() - 1));
+			playingMusic = unlockedMusics.get(RandomUtility.getRandom(unlockedMusics.size() - 1));
 		playMusic(playingMusic);
 	}
 
 	public void checkMusic(int requestMusicId) {
-		if (playListOn || settedMusic && playingMusicDelay + (180000) >= Utils.currentTimeMillis())
+		if (playListOn || settedMusic && playingMusicDelay + (180000) >= Utility.currentTimeMillis())
 			return;
 		settedMusic = false;
 		if (playingMusic != requestMusicId)
@@ -226,7 +227,7 @@ public final class MusicsManager  {
 	public void playMusic(int musicId) {
 		if (!player.isStarted())
 			return;
-		playingMusicDelay = Utils.currentTimeMillis();
+		playingMusicDelay = Utility.currentTimeMillis();
 		if (musicId == -2) {
 			playingMusic = musicId;
 			player.getPackets().sendMusic(-1);

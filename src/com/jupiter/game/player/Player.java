@@ -37,24 +37,24 @@ import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.CombatEffectTask;
 import com.jupiter.game.task.impl.SkillActionTask;
-import com.jupiter.net.Session;
-import com.jupiter.net.decoders.LogicPacket;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
-import com.jupiter.net.encoders.WorldPacketsEncoder;
-import com.jupiter.net.encoders.other.HintIconsManager;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.LocalNPCUpdate;
-import com.jupiter.net.encoders.other.LocalPlayerUpdate;
-import com.jupiter.net.encoders.other.PublicChatMessage;
-import com.jupiter.net.host.HostListType;
-import com.jupiter.net.host.HostManager;
+import com.jupiter.network.Session;
+import com.jupiter.network.decoders.LogicPacket;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
+import com.jupiter.network.encoders.WorldPacketsEncoder;
+import com.jupiter.network.encoders.other.HintIconsManager;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.LocalNPCUpdate;
+import com.jupiter.network.encoders.other.LocalPlayerUpdate;
+import com.jupiter.network.encoders.other.PublicChatMessage;
+import com.jupiter.network.host.HostListType;
+import com.jupiter.network.host.HostManager;
+import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
-import com.jupiter.utils.IsaacKeyPair;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.MutableNumber;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.MutableNumber;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -85,8 +85,7 @@ public class Player extends Entity {
 	protected transient LocalNPCUpdate localNPCUpdate;
 	
 	protected PlayerDetails playerDetails = new PlayerDetails();
-	public AttributeMap<Attribute> attributes = new AttributeMap<>(Attribute.class);
-	
+	protected AttributeMap<Attribute> attributes = new AttributeMap<>(Attribute.class);
 	protected Appearance appearence;
 	protected Inventory inventory;
 	protected Equipment equipment;
@@ -94,6 +93,11 @@ public class Player extends Entity {
 	protected CombatDefinitions combatDefinitions;
 	protected Prayer prayer;
 	protected Bank bank;
+	protected MusicsManager musicsManager;
+	protected FriendsIgnores friendsIgnores;
+	protected AuraManager auraManager;
+	protected LodeStone lodeStone;
+	protected Toolbelt toolbelt;
 	
 	/**
 	 * The current activity this Player is in.
@@ -111,12 +115,6 @@ public class Player extends Entity {
 	 * Holds an optional wrapped inside the Antifire details.
 	 */
 	private Optional<AntifireDetails> antifireDetails = Optional.empty();
-	
-	protected MusicsManager musicsManager;
-	protected FriendsIgnores friendsIgnores;
-	protected AuraManager auraManager;
-	protected LodeStone lodeStone;
-	protected Toolbelt toolbelt;
 
 	private transient boolean started;
 	private transient boolean isActive;
@@ -168,23 +166,6 @@ public class Player extends Entity {
 			getInterfaceManager().closeChatBoxInterface();
 	}
 
-	@Override
-	public void loadMapRegions() {
-		boolean wasAtDynamicRegion = isAtDynamicRegion();
-		super.loadMapRegions();
-		clientLoadedMapRegion = false;
-		if (isAtDynamicRegion()) {
-			getPackets().sendDynamicMapRegion(!started);
-			if (!wasAtDynamicRegion)
-				localNPCUpdate.reset();
-		} else {
-			getPackets().sendMapRegion(!started);
-			if (wasAtDynamicRegion)
-				localNPCUpdate.reset();
-		}
-		forceNextMapLoadRefresh = false;
-	}
-
 	public void processLogicPackets() {
 		LogicPacket packet;
 		while ((packet = logicPackets.poll()) != null)
@@ -218,7 +199,7 @@ public class Player extends Entity {
 	
 	public void run() {
 		if (World.exiting_start != 0) {
-			int delayPassed = (int) ((Utils.currentTimeMillis() - World.exiting_start) / 1000);
+			int delayPassed = (int) ((Utility.currentTimeMillis() - World.exiting_start) / 1000);
 			getPackets().sendSystemUpdate(World.exiting_delay - delayPassed);
 		}
 		
@@ -304,12 +285,12 @@ public class Player extends Entity {
 		finishing = true;
 		// if combating doesnt stop when xlog this way ends combat
 		getAttributes().stopAll(this, false, true, !(actionManager.getAction() instanceof PlayerCombat));
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if ((getAttackedByDelay() + 10000 > currentTime && tryCount < 6)
 				|| getNextEmoteEnd() >= currentTime || getMovement().getLockDelay() >= currentTime) {
 			CoresManager.schedule(() -> {
 				try {
-					packetsDecoderPing = Utils.currentTimeMillis();
+					packetsDecoderPing = Utility.currentTimeMillis();
 					finishing = false;
 					finish(tryCount + 1);
 				} catch (Throwable e) {
@@ -365,7 +346,7 @@ public class Player extends Entity {
 	}
 	
 	public String getDisplayName() {
-		return Utils.formatPlayerNameForDisplay(username);
+		return Utility.formatPlayerNameForDisplay(username);
 	}
 
 	@Override
@@ -428,7 +409,7 @@ public class Player extends Entity {
 	}
 	
 	public void setTeleBlockDelay(long teleDelay) {
-		getTemporaryAttributtes().put("TeleBlocked", teleDelay + Utils.currentTimeMillis());
+		getTemporaryAttributtes().put("TeleBlocked", teleDelay + Utility.currentTimeMillis());
 	}
 
 	public long getTeleBlockDelay() {
@@ -439,7 +420,7 @@ public class Player extends Entity {
 	}
 
 	public void setPrayerDelay(long teleDelay) {
-		getTemporaryAttributtes().put("PrayerBlocked", teleDelay + Utils.currentTimeMillis());
+		getTemporaryAttributtes().put("PrayerBlocked", teleDelay + Utility.currentTimeMillis());
 		prayer.closeAllPrayers();
 	}
 

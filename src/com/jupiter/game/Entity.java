@@ -38,17 +38,18 @@ import com.jupiter.game.route.strategy.DumbRouteFinder;
 import com.jupiter.game.route.strategy.EntityStrategy;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.route.strategy.ObjectStrategy;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceMovement;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceMovement;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.MutableNumber;
-import com.jupiter.utils.NPCBonuses;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.MutableNumber;
+import com.jupiter.utility.NPCBonuses;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 import lombok.Getter;
 
@@ -188,8 +189,8 @@ public abstract class Entity extends WorldTile {
 
 	public void processReceivedHits() {
 		ifPlayer(p -> {
-			if (p.getMovement().getLockDelay() > Utils.currentTimeMillis() ||
-				p.getNextEmoteEnd() >= Utils.currentTimeMillis())
+			if (p.getMovement().getLockDelay() > Utility.currentTimeMillis() ||
+				p.getNextEmoteEnd() >= Utility.currentTimeMillis())
 				return;
 		});
 		Hit hit;
@@ -396,7 +397,7 @@ public abstract class Entity extends WorldTile {
 				WalkStep previewStep = previewNextWalkStep();
 				if (previewStep == null)
 					break;
-				if (Utils.getPlayerRunningDirection(nextStep.getDir().getDx() + previewStep.getDir().getDx(), nextStep.getDir().getDy() + previewStep.getDir().getDy()) == -1)
+				if (Utility.getPlayerRunningDirection(nextStep.getDir().getDx() + previewStep.getDir().getDx(), nextStep.getDir().getDy() + previewStep.getDir().getDy()) == -1)
 					break;
 			}
 		}
@@ -415,7 +416,7 @@ public abstract class Entity extends WorldTile {
 	@Override
 	public void moveLocation(int xOffset, int yOffset, int planeOffset) {
 		super.moveLocation(xOffset, yOffset, planeOffset);
-		direction = Utils.getFaceDirection(xOffset, yOffset);
+		direction = Utility.getFaceDirection(xOffset, yOffset);
 	}
 
 	private boolean needMapUpdate() {
@@ -471,7 +472,7 @@ public abstract class Entity extends WorldTile {
 				myY++;
 			else if (myY > destY)
 				myY--;
-			int dir = Utils.getMoveDirection(myX - lastTileX, myY - lastTileY);
+			int dir = Utility.getMoveDirection(myX - lastTileX, myY - lastTileY);
 			if (dir == -1)
 				return false;
 			if (checkClose) {
@@ -613,7 +614,7 @@ public abstract class Entity extends WorldTile {
 		if (hitpoints > maxHp) {
 			if (this instanceof Player) {
 				Player player = (Player) this;
-				if (player.getPrayer().usingPrayer(1, 5) && Utils.getRandom(100) <= 15)
+				if (player.getPrayer().usingPrayer(1, 5) && RandomUtility.getRandom(100) <= 15)
 					return false;
 			}
 			setHitpoints(hitpoints - 1);
@@ -712,6 +713,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void loadMapRegions() {
+		boolean wasAtDynamicRegion = isAtDynamicRegion();
 		mapRegionsIds.clear();
 		isAtDynamicRegion = false;
 		int chunkX = getChunkX();
@@ -726,8 +728,20 @@ public abstract class Entity extends WorldTile {
 					isAtDynamicRegion = true;
 				mapRegionsIds.add(regionId);
 			}
-		lastLoadedMapRegionTile = new WorldTile(this); // creates a immutable
-														// copy of this
+		lastLoadedMapRegionTile = new WorldTile(this);
+		ifPlayer(p -> {
+			p.setClientLoadedMapRegion(false);
+			if (p.isAtDynamicRegion()) {
+				p.getPackets().sendDynamicMapRegion(!p.isStarted());
+				if (!wasAtDynamicRegion)
+					p.getLocalNPCUpdate().reset();
+			} else {
+				p.getPackets().sendMapRegion(!p.isStarted());
+				if (wasAtDynamicRegion)
+					p.getLocalNPCUpdate().reset();
+			}
+			p.setForceNextMapLoadRefresh(false);
+		});
 	}
 
 	public void setIndex(int index) {
@@ -769,12 +783,12 @@ public abstract class Entity extends WorldTile {
 
 	public void setNextAnimation(Animation nextAnimation) {
 		if (nextAnimation != null && nextAnimation.getIds()[0] >= 0)
-			lastAnimationEnd = Utils.currentTimeMillis() + AnimationDefinitions.getAnimationDefinitions(nextAnimation.getIds()[0]).getEmoteTime();
+			lastAnimationEnd = Utility.currentTimeMillis() + AnimationDefinitions.getAnimationDefinitions(nextAnimation.getIds()[0]).getEmoteTime();
 		this.nextAnimation = nextAnimation;
 	}
 
 	public void setNextAnimationNoPriority(Animation nextAnimation) {
-		if (lastAnimationEnd > Utils.currentTimeMillis())
+		if (lastAnimationEnd > Utility.currentTimeMillis())
 			return;
 		setNextAnimation(nextAnimation);
 	}
@@ -879,9 +893,9 @@ public abstract class Entity extends WorldTile {
 			return;
 		this.nextFaceWorldTile = nextFaceWorldTile;
 		if (nextWorldTile != null)
-			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - nextWorldTile.getX(), nextFaceWorldTile.getY() - nextWorldTile.getY());
+			direction = Utility.getFaceDirection(nextFaceWorldTile.getX() - nextWorldTile.getX(), nextFaceWorldTile.getY() - nextWorldTile.getY());
 		else
-			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
+			direction = Utility.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
 	}
 
 	public int getSize() {
@@ -928,7 +942,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void addFrozenBlockedDelay(int time) {
-		frozenBlocked = time + Utils.currentTimeMillis();
+		frozenBlocked = time + Utility.currentTimeMillis();
 	}
 
 	public void addFreezeDelay(long time) {
@@ -936,7 +950,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void addFreezeDelay(long time, boolean entangleMessage) {
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (currentTime > freezeDelay) {
 			resetWalkSteps();
 			freezeDelay = time + currentTime;

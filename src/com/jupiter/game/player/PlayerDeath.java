@@ -9,8 +9,8 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.impl.ActorDeathTask;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.host.HostManager;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.host.HostManager;
 import com.jupiter.skills.Skills;
 
 public class PlayerDeath extends ActorDeathTask<Player> {

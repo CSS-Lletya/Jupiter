@@ -3,8 +3,8 @@ package com.jupiter.plugins.commands.impl;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
 

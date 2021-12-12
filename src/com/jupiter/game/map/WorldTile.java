@@ -2,7 +2,7 @@ package com.jupiter.game.map;
 
 import com.jupiter.Settings;
 import com.jupiter.game.Entity;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 public class WorldTile   {
 
@@ -33,8 +33,8 @@ public class WorldTile   {
 	}
 
 	public WorldTile(WorldTile tile, int randomize) {
-		this.x = (short) (tile.x + Utils.getRandom(randomize * 2) - randomize);
-		this.y = (short) (tile.y + Utils.getRandom(randomize * 2) - randomize);
+		this.x = (short) (tile.x + RandomUtility.getRandom(randomize * 2) - randomize);
+		this.y = (short) (tile.y + RandomUtility.getRandom(randomize * 2) - randomize);
 		this.plane = tile.plane;
 	}
 

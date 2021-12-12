@@ -3,7 +3,7 @@ package com.jupiter.skills.fishing;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -19,7 +19,7 @@ public enum Tool {
 	BIG_NET(305, 16, -1, 0.50, 620, new Catchable[]{Catchable.MACKEREL, Catchable.COD, Catchable.BASS, Catchable.CASKET, Catchable.LEATHER_BOOTS, Catchable.LEATHER_GLOVES, Catchable.OYSTER, Catchable.SEAWEED, Catchable.ROCKTAIL}) {
 		@Override
 		public Item[] onCatch(Player player) {
-			int amount = Utils.inclusive(1, 3);
+			int amount = RandomUtility.inclusive(1, 3);
 			int slots = player.getInventory().getFreeSlots();
 			if(amount > slots)
 				amount = slots;
@@ -85,7 +85,7 @@ public enum Tool {
 				continue;
 			if(!c.catchable(player))
 				continue;
-			if(!Utils.success(c.getChance()))
+			if(!RandomUtility.success(c.getChance()))
 				continue;
 			success.add(new Item(c.getId()));
 			index--;

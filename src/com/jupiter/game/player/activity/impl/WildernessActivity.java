@@ -11,7 +11,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class WildernessActivity extends Activity {
 
@@ -45,7 +45,7 @@ public class WildernessActivity extends Activity {
 		if (target.getAttackedBy() != player && player.getAttackedBy() != target)
 			Combat.effect(player, CombatEffectType.SKULL);
 		if (player.getCombatDefinitions().getSpellId() <= 0
-				&& Utils.inCircle(new WorldTile(3105, 3933, 0), target, 24)) {
+				&& Utility.inCircle(new WorldTile(3105, 3933, 0), target, 24)) {
 			player.getPackets().sendGameMessage("You can only use magic in the arena.");
 			return false;
 		}

@@ -1,6 +1,6 @@
 package com.jupiter.tools;
 
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class MapUtils {
 
@@ -86,7 +86,7 @@ public class MapUtils {
 
 		@Override
 		public String toString() {
-			return Utils.formatPlayerNameForDisplay(name());
+			return Utility.formatPlayerNameForDisplay(name());
 		}
 	}
 

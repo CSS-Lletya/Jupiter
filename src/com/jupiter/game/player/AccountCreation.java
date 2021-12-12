@@ -18,15 +18,15 @@ import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
 import com.jupiter.json.GsonLoader;
-import com.jupiter.net.Session;
-import com.jupiter.net.decoders.LogicPacket;
-import com.jupiter.net.encoders.other.HintIconsManager;
-import com.jupiter.net.encoders.other.LocalNPCUpdate;
-import com.jupiter.net.encoders.other.LocalPlayerUpdate;
+import com.jupiter.network.Session;
+import com.jupiter.network.decoders.LogicPacket;
+import com.jupiter.network.encoders.other.HintIconsManager;
+import com.jupiter.network.encoders.other.LocalNPCUpdate;
+import com.jupiter.network.encoders.other.LocalPlayerUpdate;
+import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
-import com.jupiter.utils.IsaacKeyPair;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import lombok.Data;
 
@@ -110,7 +110,7 @@ public class AccountCreation {
 		player.switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
 		
 		player.initEntity();
-		player.packetsDecoderPing = Utils.currentTimeMillis();
+		player.packetsDecoderPing = Utility.currentTimeMillis();
 		World.addPlayer(player);
 		player.updateEntityRegion(player);
 

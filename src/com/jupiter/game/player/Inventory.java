@@ -3,11 +3,11 @@ package com.jupiter.game.player;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import com.jupiter.cache.utility.CacheUtility;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.utils.ItemExamines;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.ItemExamines;
 
 import io.vavr.collection.Array;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public final class Inventory {
 	}
 
 	public boolean addItem(int itemId, int amount) {
-		if (itemId < 0 || amount < 0 || !Utils.itemExists(itemId)
+		if (itemId < 0 || amount < 0 || !CacheUtility.itemExists(itemId)
 				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, itemId, amount)))
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();
@@ -63,7 +63,7 @@ public final class Inventory {
 	}
 
 	public boolean addItem(Item item) {
-		if (item.getId() < 0 || item.getAmount() < 0 || !Utils.itemExists(item.getId())
+		if (item.getId() < 0 || item.getAmount() < 0 || !CacheUtility.itemExists(item.getId())
 				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, item.getId(), item.getAmount())))
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();

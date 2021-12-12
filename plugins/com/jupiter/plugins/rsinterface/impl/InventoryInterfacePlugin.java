@@ -2,7 +2,6 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import java.util.List;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.WorldThread;
@@ -15,7 +14,7 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ItemClickEvent;
 import com.jupiter.plugin.events.ItemOnItemEvent;
@@ -23,9 +22,9 @@ import com.jupiter.plugin.events.ItemOnNPCEvent;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.cooking.Foods;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
+import com.jupiter.utility.Utility;
 
 @RSInterfaceSignature(interfaceId = {679})
 public class InventoryInterfacePlugin implements RSInterface {
@@ -41,7 +40,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			
 			switch(packetId) {
 			case WorldPacketsDecoder.ACTION_BUTTON1_PACKET:
-				long time = Utils.currentTimeMillis();
+				long time = Utility.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
 				player.getAttributes().stopAll(player, false);
@@ -53,7 +52,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
 				if (player.isDisableEquip())
 					return;
-				long passedTime = Utils.currentTimeMillis() - WorldThread.WORLD_CYCLE;
+				long passedTime = Utility.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
 					
 					@Override
@@ -91,7 +90,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON8_PACKET:
-				long dropTime = Utils.currentTimeMillis();
+				long dropTime = Utility.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
 				if (!ActivityHandler.execute(player, activity -> activity.canDropItem(player, item)))

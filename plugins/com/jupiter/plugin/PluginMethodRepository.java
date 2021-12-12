@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.jupiter.plugin.events.PluginEvent;
 import com.jupiter.plugin.handlers.PluginHandler;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class PluginMethodRepository {
 

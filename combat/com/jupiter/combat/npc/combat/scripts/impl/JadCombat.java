@@ -7,9 +7,9 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 /**
  * Non melee doesn't hit, find out why.
@@ -23,13 +23,13 @@ public class JadCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		int attackStyle = Utils.random(3);
+		int attackStyle = RandomUtility.random(3);
 		if (attackStyle == 2) { // melee
 			int distanceX = target.getX() - npc.getX();
 			int distanceY = target.getY() - npc.getY();
 			int size = npc.getSize();
 			if (distanceX > size || distanceX < -1 || distanceY > size || distanceY < -1)
-				attackStyle = Utils.random(2); // set mage
+				attackStyle = RandomUtility.random(2); // set mage
 			else {
 				npc.setNextAnimation(new Animation(defs.getAttackEmote()));
 				delayHit(npc, 1, target,

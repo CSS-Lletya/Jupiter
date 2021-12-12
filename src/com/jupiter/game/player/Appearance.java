@@ -3,7 +3,7 @@ package com.jupiter.game.player;
 import com.jupiter.cache.io.OutputStream;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.cache.loaders.NPCDefinitions;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class Appearance {
 
@@ -325,7 +325,7 @@ public class Appearance {
 
 		byte[] appeareanceData = new byte[stream.getOffset()];
 		System.arraycopy(stream.getBuffer(), 0, appeareanceData, 0, appeareanceData.length);
-		byte[] md5Hash = Utils.encryptUsingMD5(appeareanceData);
+		byte[] md5Hash = Utility.encryptUsingMD5(appeareanceData);
 		this.appearanceBlock = appeareanceData;
 		encryptedAppearenceBlock = md5Hash;
 

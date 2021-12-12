@@ -6,8 +6,8 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {15203}, mobName = {})
 public class TokHaarMejCombat extends MobCombatInterface {
@@ -19,7 +19,7 @@ public class TokHaarMejCombat extends MobCombatInterface {
 		int distanceY = target.getY() - npc.getY();
 		int size = npc.getSize();
 		int hit = 0;
-		int attackStyle = Utils.random(2);
+		int attackStyle = RandomUtility.random(2);
 		if (attackStyle == 0 && (distanceX > size || distanceX < -1 || distanceY > size || distanceY < -1)) {
 			attackStyle = 1;
 		}

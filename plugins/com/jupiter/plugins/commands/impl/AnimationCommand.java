@@ -2,7 +2,7 @@ package com.jupiter.plugins.commands.impl;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Animation;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
 

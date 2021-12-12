@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import lombok.Data;
 
@@ -91,7 +91,7 @@ public final class PlayerDetails {
 	 * @param i
 	 */
 	public void addDisplayTime(long i) {
-		this.displayTime = i + Utils.currentTimeMillis();
+		this.displayTime = i + Utility.currentTimeMillis();
 	}
 
 	/**

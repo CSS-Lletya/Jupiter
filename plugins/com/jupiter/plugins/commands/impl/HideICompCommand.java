@@ -1,10 +1,10 @@
 package com.jupiter.plugins.commands.impl;
 
+import com.jupiter.cache.utility.CacheUtility;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
-import com.jupiter.utils.Utils;
 
 @CommandSignature(alias = {"hideicomp"}, rights = {Rights.ADMINISTRATOR}, syntax = "Hides interface components from first to an optional second")
 public final class HideICompCommand implements Command {
@@ -25,7 +25,7 @@ public final class HideICompCommand implements Command {
                 endComponentID = Integer.valueOf(cmd[3]);
 
             for (int componentId = startComponentID; componentId <= endComponentID; componentId++) {
-                if(componentId < Utils.getInterfaceDefinitionsComponentsSize(interId))
+                if(componentId < CacheUtility.getInterfaceDefinitionsComponentsSize(interId))
                     player.getPackets().sendHideIComponent(interId, componentId, true);
             }
         } catch (NumberFormatException e) {

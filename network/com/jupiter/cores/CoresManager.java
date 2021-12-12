@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.jupiter.Settings;
-import com.jupiter.utils.CatchExceptionRunnable;
+import com.jupiter.utility.CatchExceptionRunnable;
 
 public final class CoresManager {
 

@@ -5,8 +5,8 @@ import com.jupiter.combat.npc.combat.scripts.NPCCombatDispatcher;
 import com.jupiter.combat.player.Combat;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.utility.Utility;
 
 public final class NPCCombat {
 
@@ -48,7 +48,7 @@ public final class NPCCombat {
 		if (target == null)
 			return 0;
 		// if hes frooze not gonna attack
-		if (npc.getFreezeDelay() >= Utils.currentTimeMillis())
+		if (npc.getFreezeDelay() >= Utility.currentTimeMillis())
 			return 0;
 		// check if close to target, if not let it just walk and dont attack
 		// this gameticket
@@ -84,7 +84,7 @@ public final class NPCCombat {
 	public void addAttackedByDelay(Entity target) { // prevents multithread
 													// issues
 		target.setAttackedBy(npc);
-		target.setAttackedByDelay(Utils.currentTimeMillis() + npc.getCombatDefinitions().getAttackDelay() * 600 + 600); // 8seconds
+		target.setAttackedByDelay(Utility.currentTimeMillis() + npc.getCombatDefinitions().getAttackDelay() * 600 + 600); // 8seconds
 	}
 
 	public void setTarget(Entity target) {
@@ -103,7 +103,7 @@ public final class NPCCombat {
 		if (npc.isDead() || npc.hasFinished() || npc.isForceWalking() || target.isDead() || target.hasFinished()
 				|| npc.getPlane() != target.getPlane())
 			return false;
-		if (npc.getFreezeDelay() >= Utils.currentTimeMillis())
+		if (npc.getFreezeDelay() >= Utility.currentTimeMillis())
 			return true; // if freeze cant move ofc
 		int distanceX = npc.getX() - npc.getRespawnTile().getX();
 		int distanceY = npc.getY() - npc.getRespawnTile().getY();
@@ -132,9 +132,9 @@ public final class NPCCombat {
 
 			if (!npc.isForceMultiAttacked()) {
 				if (!target.isAtMultiArea() || !npc.isAtMultiArea()) {
-					if (npc.getAttackedBy() != target && npc.getAttackedByDelay() > Utils.currentTimeMillis())
+					if (npc.getAttackedBy() != target && npc.getAttackedByDelay() > Utility.currentTimeMillis())
 						return false;
-					if (target.getAttackedBy() != npc && target.getAttackedByDelay() > Utils.currentTimeMillis())
+					if (target.getAttackedBy() != npc && target.getAttackedByDelay() > Utility.currentTimeMillis())
 						return false;
 				}
 			
@@ -177,7 +177,7 @@ public final class NPCCombat {
 					: (attackStyle == NPCCombatDefinitions.MELEE || attackStyle == NPCCombatDefinitions.SPECIAL2) ? 0
 							: 7;
 			npc.resetWalkSteps();
-			if ((!npc.lineOfSightTo(target, maxDistance == 0)) || !Utils.isInRange(npc.getX(), npc.getY(), size,
+			if ((!npc.lineOfSightTo(target, maxDistance == 0)) || !Utility.isInRange(npc.getX(), npc.getY(), size,
 					target.getX(), target.getY(), targetSize, maxDistance)) {
 				npc.calcFollow(target, npc.getRun() ? 2 : 1, true, false);
 				return true;

@@ -4,7 +4,8 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.map.Vector;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,11 +27,11 @@ public enum Direction {
 	private int dy;
 	
 	public int getAngle() {
-		return Utils.getAngleTo(dx, dy);
+		return Utility.getAngleTo(dx, dy);
 	}
 	
 	public static Direction random() {
-		return values()[Utils.random(values().length)];
+		return values()[RandomUtility.random(values().length)];
 	}
 	
 	public boolean isDiagonal() {

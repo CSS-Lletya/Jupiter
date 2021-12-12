@@ -3,11 +3,11 @@ package com.jupiter.plugins.commands.impl;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.host.HostListType;
-import com.jupiter.net.host.HostManager;
+import com.jupiter.network.host.HostListType;
+import com.jupiter.network.host.HostManager;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 @CommandSignature(alias = {"mute"}, rights = {Rights.ADMINISTRATOR}, syntax = "Mute a specified Player")
 public final class MuteCommand implements Command {
@@ -23,6 +23,6 @@ public final class MuteCommand implements Command {
 		if (target == null)
 			return;
 		HostManager.add(target, HostListType.MUTED_IP, true);
-		target.getPlayerDetails().setMuted(Utils.currentTimeMillis() + (player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR ? (48 * 60 * 60 * 1000) : (1 * 60 * 60 * 1000)));
+		target.getPlayerDetails().setMuted(Utility.currentTimeMillis() + (player.getPlayerDetails().getRights() == Rights.ADMINISTRATOR ? (48 * 60 * 60 * 1000) : (1 * 60 * 60 * 1000)));
 	}
 }

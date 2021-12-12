@@ -6,11 +6,11 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class AuraManager {
 
@@ -30,12 +30,12 @@ public class AuraManager {
 	public void process() {
 		if (!isActivated())
 			return;
-		if (activation - Utils.currentTimeMillis() <= 60000 && !warned) {
+		if (activation - Utility.currentTimeMillis() <= 60000 && !warned) {
 			player.getPackets().sendGameMessage("Your aura will deplete in 1 minute.");
 			warned = true;
 			return;
 		}
-		if (Utils.currentTimeMillis() < activation)
+		if (Utility.currentTimeMillis() < activation)
 			return;
 		desactive();
 		player.getAppearence().generateAppearenceData();
@@ -77,7 +77,7 @@ public class AuraManager {
 				// TODO message already activated
 				return;
 			}
-			if (Utils.currentTimeMillis() <= getCoolDown(item.getId())) {
+			if (Utility.currentTimeMillis() <= getCoolDown(item.getId())) {
 				// TODO message cooldown
 				return;
 			}
@@ -91,7 +91,7 @@ public class AuraManager {
 //				player.getPackets().sendGameMessage("You need to be a donator to use this feature.");
 //				return;
 //			}
-			activation = Utils.currentTimeMillis() + getActivationTime(item.getId()) * 1000;
+			activation = Utility.currentTimeMillis() + getActivationTime(item.getId()) * 1000;
 			cooldowns.put(item.getId(), activation + getCooldown(item.getId()) * 1000);
 			player.setNextAnimation(new Animation(2231));
 			player.setNextGraphics(new Graphics(getActiveGraphic(tier)));
@@ -141,16 +141,16 @@ public class AuraManager {
 	public void sendAuraRemainingTime() {
 		if (!isActivated()) {
 			long cooldown = getCoolDown(player.getEquipment().getAuraId());
-			if (Utils.currentTimeMillis() <= cooldown) {
+			if (Utility.currentTimeMillis() <= cooldown) {
 				player.getPackets().sendGameMessage("Currently recharging. <col=ff0000>"
-						+ getFormatedTime((cooldown - Utils.currentTimeMillis()) / 1000) + " remaining.");
+						+ getFormatedTime((cooldown - Utility.currentTimeMillis()) / 1000) + " remaining.");
 				return;
 			}
 			player.getPackets().sendGameMessage("Currently desactivate. It is ready to use.");
 			return;
 		}
 		player.getPackets().sendGameMessage("Currently active. <col=00ff00>"
-				+ getFormatedTime((activation - Utils.currentTimeMillis()) / 1000) + " remaining");
+				+ getFormatedTime((activation - Utility.currentTimeMillis()) / 1000) + " remaining");
 	}
 
 	public String getFormatedTime(long seconds) {
@@ -165,12 +165,12 @@ public class AuraManager {
 
 	public void sendTimeRemaining(int aura) {
 		long cooldown = getCoolDown(aura);
-		if (cooldown < Utils.currentTimeMillis()) {
+		if (cooldown < Utility.currentTimeMillis()) {
 			player.getPackets().sendGameMessage("The aura has finished recharging. It is ready to use.");
 			return;
 		}
 		player.getPackets().sendGameMessage("Currently recharging. <col=ff0000>"
-				+ getFormatedTime((cooldown - Utils.currentTimeMillis()) / 1000) + " remaining.");
+				+ getFormatedTime((cooldown - Utility.currentTimeMillis()) / 1000) + " remaining.");
 	}
 
 	public boolean isActivated() {

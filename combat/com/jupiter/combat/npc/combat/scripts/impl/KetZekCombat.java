@@ -8,9 +8,9 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {15207}, mobName = {"Ket-Zek"})
 public class KetZekCombat extends MobCombatInterface {
@@ -26,7 +26,7 @@ public class KetZekCombat extends MobCombatInterface {
 			commenceMagicAttack(npc, target, hit);
 			return defs.getAttackDelay();
 		}
-		int attackStyle = Utils.getRandom(1);
+		int attackStyle = RandomUtility.getRandom(1);
 		switch (attackStyle) {
 		case 0:
 			hit = getRandomMaxHit(npc, defs.getMaxHit(), NPCCombatDefinitions.MELEE, target);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ClientScriptMap;
@@ -13,10 +12,10 @@ import com.jupiter.cores.CoresManager;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
 import com.jupiter.json.impl.NPCSpawns;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.MapArchiveKeys;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.MapArchiveKeys;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class Region {
 	private int regionId;
@@ -987,7 +986,7 @@ public class Region {
 			return -1;
 		if (musicIds.length == 1)
 			return musicIds[0];
-		return musicIds[Utils.getRandom(musicIds.length - 1)];
+		return musicIds[RandomUtility.getRandom(musicIds.length - 1)];
 	}
 
 	public int getLoadMapStage() {

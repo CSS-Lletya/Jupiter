@@ -8,9 +8,9 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Giant Mole"})
 public class GiantMoleCombat extends MobCombatInterface {
@@ -22,7 +22,7 @@ public class GiantMoleCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		if (Utils.random(5) == 0) { // bury
+		if (RandomUtility.random(5) == 0) { // bury
 			npc.setNextAnimation(new Animation(3314));
 			npc.setCantInteract(true);
 			npc.getCombat().removeTarget();
@@ -55,7 +55,7 @@ public class GiantMoleCombat extends MobCombatInterface {
 							new WorldTile(middle.getX() - 1, middle.getY(), middle.getPlane()));
 					World.sendGraphics(npc, new Graphics(571),
 							new WorldTile(middle.getX() + 1, middle.getY(), middle.getPlane()));
-					npc.setNextWorldTile(new WorldTile(COORDS[Utils.random(COORDS.length)]));
+					npc.setNextWorldTile(new WorldTile(COORDS[RandomUtility.random(COORDS.length)]));
 					npc.setNextAnimation(new Animation(3315));
 					this.cancel();
 				}

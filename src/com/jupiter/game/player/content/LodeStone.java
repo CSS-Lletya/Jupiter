@@ -6,7 +6,7 @@ import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.actions.HomeTeleport;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Graphics;
 
 public class LodeStone {
 	private static final int[] CONFIG_IDS = new int[] { 10900, 10901, 10902,

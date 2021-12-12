@@ -4,7 +4,7 @@ import com.jupiter.Settings;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.plugins.rsinterface.impl.CombatBonusesInterfacePlugin;
-import com.jupiter.utils.ItemExamines;
+import com.jupiter.utility.ItemExamines;
 
 public class Bank {
 

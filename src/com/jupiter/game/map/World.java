@@ -26,11 +26,11 @@ import com.jupiter.game.task.impl.RestoreHitpointsTask;
 import com.jupiter.game.task.impl.RestoreRunEnergyTask;
 import com.jupiter.game.task.impl.RestoreSkillsTask;
 import com.jupiter.game.task.impl.RestoreSpecialTask;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.AntiFlood;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.utility.AntiFlood;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -115,7 +115,7 @@ public final class World {
 	}
 
 	public static final Player getPlayerByDisplayName(String username) {
-		String formatedUsername = Utils.formatPlayerNameForDisplay(username);
+		String formatedUsername = Utility.formatPlayerNameForDisplay(username);
 		for (Player player : getPlayers()) {
 			if (player == null)
 				continue;
@@ -137,7 +137,7 @@ public final class World {
 	public final void safeShutdown(final boolean restart, int delay) {
 		if (exiting_start != 0)
 			return;
-		exiting_start = Utils.currentTimeMillis();
+		exiting_start = Utility.currentTimeMillis();
 		exiting_delay = delay;
 		players().forEach(p -> p.getPackets().sendSystemUpdate(delay));
 		CoresManager.schedule(new Runnable() {
@@ -313,7 +313,7 @@ public final class World {
 	public void queueLogout(Player player) {
 		if (!player.isActive())
 			return;
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (player.getAttackedByDelay() + 10000 > currentTime) {
 			player.getPackets().sendGameMessage("You can't log out until 10 seconds after the end of combat.");
 			return;

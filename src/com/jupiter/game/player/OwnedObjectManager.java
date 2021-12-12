@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.task.Task;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import io.vavr.collection.Array;
 
@@ -133,7 +133,7 @@ public class OwnedObjectManager {
 	}
 
 	public void resetLifeTime() {
-		this.lifeTime = Utils.currentTimeMillis() + cycleTime;
+		this.lifeTime = Utility.currentTimeMillis() + cycleTime;
 	}
 
 	public boolean forceMoveNextStage() {
@@ -171,7 +171,7 @@ public class OwnedObjectManager {
 	}
 
 	public void process() {
-		if (Utils.currentTimeMillis() > lifeTime)
+		if (Utility.currentTimeMillis() > lifeTime)
 			forceMoveNextStage();
 	}
 

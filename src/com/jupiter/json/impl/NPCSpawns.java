@@ -10,8 +10,8 @@ import java.util.List;
 import com.google.gson.JsonIOException;
 import com.jupiter.combat.npc.NPCSpawn;
 import com.jupiter.json.GsonLoader;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.collection.Array;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;

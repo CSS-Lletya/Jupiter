@@ -9,13 +9,13 @@ import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.ChatColors;
-import com.jupiter.utils.ItemExamines;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.ChatColors;
+import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.Utility;
 
 @RSInterfaceSignature(interfaceId = { 667, 670 })
 public class CombatBonusesInterfacePlugin implements RSInterface {
@@ -40,10 +40,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				}
 			}
 
@@ -60,10 +60,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				} else if (packetId == 216) {
 					player.getEquipment().sendRemoveEquipment(slotId);
 					refreshEquipBonuses(player);
@@ -83,10 +83,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				}
 //				if (packetId == 22) {
 //					sendItemStats(player, item);

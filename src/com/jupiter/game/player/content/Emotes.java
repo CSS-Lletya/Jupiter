@@ -9,10 +9,11 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.LinkedTaskSequence;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -205,11 +206,11 @@ public class Emotes {
 		}
 
 		public void setNextEmoteEnd(Player player, long delay) {
-			player.setNextEmoteEnd(Utils.currentTimeMillis() + delay);
+			player.setNextEmoteEnd(Utility.currentTimeMillis() + delay);
 		}
 
 		public static boolean isDoingEmote(Player player) {
-			return player.getNextEmoteEnd() >= Utils.currentTimeMillis();
+			return player.getNextEmoteEnd() >= Utility.currentTimeMillis();
 		}
 	}
 
@@ -541,7 +542,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
-				int random = Utils.getRandom(2);
+				int random = RandomUtility.getRandom(2);
 				player.setNextAnimation(new Animation(122));
 				player.setNextGraphics(new Graphics(random == 0 ? 1471 : 1466));
 				break;
@@ -555,7 +556,7 @@ public class Emotes {
 				WorldTile spawnTile = new WorldTile(new WorldTile(player.getX() + 1, player.getY(), player.getPlane()));
 				if (!TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 					spawnTile = null;
-					int[][] dirs = Utils.getCoordOffsetsNear(size);
+					int[][] dirs = Utility.getCoordOffsetsNear(size);
 					for (int dir = 0; dir < dirs[0].length; dir++) {
 						final WorldTile tile = new WorldTile(new WorldTile(player.getX() + dirs[0][dir],
 								player.getY() + dirs[1][dir], player.getPlane()));
@@ -569,7 +570,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("Need more space to perform this skillcape emote.");
 					return;
 				}
-				player.setNextEmoteEnd(Utils.currentTimeMillis() + (25 * 600));
+				player.setNextEmoteEnd(Utility.currentTimeMillis() + (25 * 600));
 				final WorldTile npcTile = spawnTile;
 				LinkedTaskSequence maxCapeSeq = new LinkedTaskSequence();
 				npc = new NPC(1224, npcTile, false);
@@ -618,7 +619,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}
-				player.setNextEmoteEnd(Utils.currentTimeMillis() + (20 * 600));
+				player.setNextEmoteEnd(Utility.currentTimeMillis() + (20 * 600));
 
 				LinkedTaskSequence compCapeSeq = new LinkedTaskSequence();
 

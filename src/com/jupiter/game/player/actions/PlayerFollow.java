@@ -1,7 +1,7 @@
 package com.jupiter.game.player.actions;
 
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 //TODO: Fix this, doesn't seem to work prior to movement update.
 public class PlayerFollow extends Action {
@@ -31,7 +31,7 @@ public class PlayerFollow extends Action {
 		if (player.getPlane() != target.getPlane() || distanceX > size + maxDistance || distanceX < -1 - maxDistance
 				|| distanceY > size + maxDistance || distanceY < -1 - maxDistance)
 			return false;
-		if (player.getFreezeDelay() >= Utils.currentTimeMillis())
+		if (player.getFreezeDelay() >= Utility.currentTimeMillis())
 			return true;
 		maxDistance = 0;
 		if ((!player.clipedProjectile(target, maxDistance == 0)) || distanceX > size + maxDistance

@@ -9,9 +9,9 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @WeaponSpecialSignature(weapons = { ItemNames.SARADOMIN_SWORD, 23690 }, specAmount = 100)
 public class SaradominSword implements WeaponSpecials {
@@ -34,7 +34,7 @@ public class SaradominSword implements WeaponSpecials {
 
         //implementation
         int regularDmg = combat.getRandomMaxHit(player, weaponId, attackStyle, false, true, 1, true);
-        int magicDamage = 50 + Utils.getRandom(180);
+        int magicDamage = 50 + RandomUtility.getRandom(180);
         combat.delayNormalHit(weaponId, attackStyle,
                 combat.getMeleeHit(player, regularDmg),
                 combat.getMagicHit(player, magicDamage));

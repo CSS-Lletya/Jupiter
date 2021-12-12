@@ -2,8 +2,8 @@ package com.jupiter.game.map;
 
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class DynamicRegion extends Region {
 

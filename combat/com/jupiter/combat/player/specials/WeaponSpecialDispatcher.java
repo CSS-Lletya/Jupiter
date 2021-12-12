@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -122,7 +122,7 @@ public final class WeaponSpecialDispatcher {
 	 * <b>Method should only be called once on start-up.</b>
 	 */
 	public static void load() {
-		List<WeaponSpecials> weapons = Utils.getClassesInDirectory("com.jupiter.combat.player.specials.impl").stream()
+		List<WeaponSpecials> weapons = Utility.getClassesInDirectory("com.jupiter.combat.player.specials.impl").stream()
 				.map(clazz -> (WeaponSpecials) clazz).collect(Collectors.toList());
 		for (WeaponSpecials WeaponSpecials : weapons) {
 			if (WeaponSpecials.getClass().getAnnotation(WeaponSpecialSignature.class) == null) {

@@ -17,9 +17,9 @@ import com.jupiter.plugin.annotations.PluginEventHandler;
 import com.jupiter.plugin.annotations.ServerStartupEvent;
 import com.jupiter.plugin.events.PluginEvent;
 import com.jupiter.plugin.handlers.PluginHandler;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class PluginManager {
 	
@@ -41,8 +41,8 @@ public class PluginManager {
 		try {
 			long start = System.currentTimeMillis();
 			LogUtility.log(Type.INFO, "Plugin Manager", "Loading new plugins...");
-			ArrayList<Class<?>> eventTypes = Utils.getClassesArray("com.jupiter.plugin.events");
-			ArrayList<Class<?>> classes = Utils.getClassesWithAnnotation("com.jupiter", PluginEventHandler.class);
+			ArrayList<Class<?>> eventTypes = Utility.getClassesArray("com.jupiter.plugin.events");
+			ArrayList<Class<?>> classes = Utility.getClassesWithAnnotation("com.jupiter", PluginEventHandler.class);
 			Set<Method> visitedMethods = new HashSet<>();
 			Set<Field> visitedFields = new HashSet<>();
 			LogUtility.log(Type.INFO, "Plugin Manager", "Loading " + eventTypes.size() + " event types and " + classes.size() + " plugin enabled classes.");

@@ -1,6 +1,6 @@
 package com.jupiter.combat.player.type;
 
-import com.jupiter.utils.MutableNumber;
+import com.jupiter.utility.MutableNumber;
 
 public final class AntifireDetails {
 	

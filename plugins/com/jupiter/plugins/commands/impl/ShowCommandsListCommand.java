@@ -9,7 +9,7 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.plugins.commands.Command;
 import com.jupiter.plugins.commands.CommandSignature;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 @CommandSignature(alias = {"commandslist"}, rights = {Rights.ADMINISTRATOR}, syntax = "Lists all commands")
 public final class ShowCommandsListCommand implements Command {
@@ -18,7 +18,7 @@ public final class ShowCommandsListCommand implements Command {
     public void execute(Player player, String[] cmd, String command) throws Exception {
         player.getInterfaceManager().sendInterface(275);
 
-        List<Command> commands = Utils.getClassesInDirectory("main.impl.commands").stream().map(clazz -> (Command) clazz).collect(Collectors.toList());
+        List<Command> commands = Utility.getClassesInDirectory("main.impl.commands").stream().map(clazz -> (Command) clazz).collect(Collectors.toList());
 
         List<String> text = new ArrayList<>();
         text.add("~~Commands~~");

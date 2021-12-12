@@ -5,8 +5,8 @@ import java.util.Optional;
 import com.jupiter.combat.player.PlayerCombat;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 
 /**
  * Represents a Weapon with a Special attack event

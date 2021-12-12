@@ -6,10 +6,10 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.net.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Hit;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public final class CombatDefinitions {
 
@@ -471,7 +471,7 @@ public final class CombatDefinitions {
 			case 19152:
 			case 19157:
 			case 19162:
-				this.bonuses[Bonus.RANGE_STR.ordinal()] += Utils.clampI((int) (player.getSkills().getLevelForXp(Skills.RANGE) * 0.7), 0, 49);
+				this.bonuses[Bonus.RANGE_STR.ordinal()] += Utility.clampI((int) (player.getSkills().getLevelForXp(Skills.RANGE) * 0.7), 0, 49);
 				break;
 			}
 		}

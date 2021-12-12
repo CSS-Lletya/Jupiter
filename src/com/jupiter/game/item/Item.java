@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.jupiter.cache.loaders.ItemDefinitions;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import lombok.Data;
 
@@ -22,11 +22,11 @@ public class Item {
 
 	@Override
 	public Item clone() {
-		return new Item(id, amount, Utils.cloneMap(metaData));
+		return new Item(id, amount, Utility.cloneMap(metaData));
 	}
 	
 	public Item(Item item) {
-		this(item.getId(), item.getAmount(), Utils.cloneMap(item.getMetaData()));
+		this(item.getId(), item.getAmount(), Utility.cloneMap(item.getMetaData()));
 	}
 
 	public Item(int id) {

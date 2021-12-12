@@ -3,8 +3,8 @@ package com.jupiter.game.player;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.item.ItemsContainer;
-import com.jupiter.utils.EconomyPrices;
-import com.jupiter.utils.ItemExamines;
+import com.jupiter.utility.EconomyPrices;
+import com.jupiter.utility.ItemExamines;
 
 public class Trade {
 

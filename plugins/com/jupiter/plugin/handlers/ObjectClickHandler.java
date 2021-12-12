@@ -12,9 +12,9 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.route.strategy.RouteEvent;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ObjectClickEvent;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent> {
 
@@ -56,7 +56,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 	public static void handleOption(final Player player, InputStream stream, int option) {
 		if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 			return;
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 			return;
 

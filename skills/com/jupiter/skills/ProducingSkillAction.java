@@ -6,7 +6,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 /**
  * The skill action that represents an action where one item in an inventory is
@@ -52,7 +52,7 @@ public abstract class ProducingSkillAction extends SkillHandler {
 							continue;
 						if(!getPlayer().getInventory().contains(item)) {
 							String anyOrEnough = item.getAmount() == 1 ? "any" : "enough";
-							getPlayer().getPackets().sendGameMessage("You don't have " + anyOrEnough + " " + Utils.appendPluralCheck(item.getDefinitions().getName()) + ".");
+							getPlayer().getPackets().sendGameMessage("You don't have " + anyOrEnough + " " + Utility.appendPluralCheck(item.getDefinitions().getName()) + ".");
 							return false;
 						}
 					}

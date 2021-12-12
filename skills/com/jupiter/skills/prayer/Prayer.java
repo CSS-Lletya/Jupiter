@@ -2,10 +2,10 @@ package com.jupiter.skills.prayer;
 
 import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class Prayer {
 
@@ -404,7 +404,7 @@ public class Prayer {
 				return false;
 			}
 		}
-		if (player.getPrayerDelay() >= Utils.currentTimeMillis()) {
+		if (player.getPrayerDelay() >= Utility.currentTimeMillis()) {
 			player.getPackets().sendGameMessage("You are currently injured and cannot use protection prayers!");
 			if (ancientcurses && prayerId >= 6 && prayerId <= 9)
 				return false;
@@ -560,7 +560,7 @@ public class Prayer {
 		if (!hasPrayersOn())
 			return;
 		int prayerBook = getPrayerBook();
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		int drain = 0;
 		int prayerPoints = player.getCombatDefinitions().getBonuses()[CombatDefinitions.PRAYER_BONUS];
 		for (int index = 0; index < onPrayers[prayerBook].length; index++) {
@@ -587,7 +587,7 @@ public class Prayer {
 	}
 
 	public void resetDrainPrayer(int index) {
-		nextDrain[index] = (long) (Utils.currentTimeMillis() + (prayerDrainRate[getPrayerBook()][index] * 1000) + (player.getCombatDefinitions().getBonuses()[CombatDefinitions.PRAYER_BONUS] * 50));
+		nextDrain[index] = (long) (Utility.currentTimeMillis() + (prayerDrainRate[getPrayerBook()][index] * 1000) + (player.getCombatDefinitions().getBonuses()[CombatDefinitions.PRAYER_BONUS] * 50));
 	}
 
 	public int getOnPrayersCount() {

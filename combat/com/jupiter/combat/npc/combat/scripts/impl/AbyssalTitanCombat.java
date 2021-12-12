@@ -5,8 +5,8 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 
 @MobCombatSignature(mobId = {}, mobName = {"Abbysal Titan"})
 public class AbyssalTitanCombat extends MobCombatInterface {

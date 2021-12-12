@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.combat.npc.combat.scripts.impl.DefaultCombat;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -92,7 +92,7 @@ public final class NPCCombatDispatcher {
 	 * <b>Method should only be called once on start-up.</b>
 	 */
 	public static void load() {
-		List<MobCombatInterface> interfaces = Utils.getClassesInDirectory("com.jupiter.combat.npc.combat.scripts.impl").stream().map(clazz -> (MobCombatInterface) clazz).collect(Collectors.toList());
+		List<MobCombatInterface> interfaces = Utility.getClassesInDirectory("com.jupiter.combat.npc.combat.scripts.impl").stream().map(clazz -> (MobCombatInterface) clazz).collect(Collectors.toList());
 		
 		for(MobCombatInterface MobCombatInterface : interfaces) {
 			if(MobCombatInterface.getClass().getAnnotation(MobCombatSignature.class) == null) {

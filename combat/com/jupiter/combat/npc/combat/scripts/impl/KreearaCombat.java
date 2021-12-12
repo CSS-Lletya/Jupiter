@@ -11,9 +11,9 @@ import com.jupiter.game.map.TileAttributes;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {6222}, mobName = {})
 public class KreearaCombat extends MobCombatInterface {
@@ -30,7 +30,7 @@ public class KreearaCombat extends MobCombatInterface {
 		}
 		npc.setNextAnimation(new Animation(6976));
 		for (Entity t : npc.getPossibleTargets()) {
-			if (Utils.getRandom(2) == 0)
+			if (RandomUtility.getRandom(2) == 0)
 				sendMagicAttack(npc, t);
 			else {
 				delayHit(npc, 1, t, getRangeHit(npc, getRandomMaxHit(npc, 720, NPCCombatDefinitions.RANGE, t)));

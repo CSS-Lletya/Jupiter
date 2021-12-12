@@ -8,7 +8,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.route.RouteFinder;
 import com.jupiter.game.route.RouteStrategy;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class RouteEvent {
 
@@ -92,7 +92,7 @@ public class RouteEvent {
 				if (steps == -1)
 					continue;
 				if (this.instanceOfEntity() && this.object instanceof NPC) {
-					if (Utils.getDistance(((NPC) object), player) <= 3)
+					if (Utility.getDistance(((NPC) object), player) <= 3)
 						((NPC) object).resetWalkSteps();
 				}
 				if ((!RouteFinder.lastIsAlternative() && steps <= 0) || alternative) {
@@ -117,7 +117,7 @@ public class RouteEvent {
 				if (steps == -1)
 					continue;
 				if (this.instanceOfEntity() && this.object instanceof NPC) {
-					if (Utils.getDistance(((NPC) object), player) <= 3)
+					if (Utility.getDistance(((NPC) object), player) <= 3)
 						((NPC) object).resetWalkSteps();
 				}
 				if ((!RouteFinder.lastIsAlternative() && steps <= 0)) {
@@ -133,7 +133,7 @@ public class RouteEvent {
 				WorldTile last = new WorldTile(bufferX[0], bufferY[0], player.getPlane());
 				player.resetWalkSteps();
 				player.getPackets().sendMinimapFlag(last.getLocalX(player.getLastLoadedMapRegionTile(), player.getMapSize()), last.getLocalY(player.getLastLoadedMapRegionTile(), player.getMapSize()));
-				if (player.getFreezeDelay() > Utils.currentTimeMillis())
+				if (player.getFreezeDelay() > Utility.currentTimeMillis())
 					return false;
 				for (int step = steps - 1; step >= 0; step--) {
 					if (!player.addWalkSteps(bufferX[step], bufferY[step], 25, true))

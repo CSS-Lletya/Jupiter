@@ -4,7 +4,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemConstants;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.EconomyPrices;
+import com.jupiter.utility.EconomyPrices;
 
 public class PriceCheckManager {
 

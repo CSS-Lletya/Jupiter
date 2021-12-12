@@ -10,20 +10,20 @@ import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
 import com.jupiter.game.map.RegionBuilder;
 import com.jupiter.game.map.World;
-import com.jupiter.net.ServerChannelHandler;
-import com.jupiter.utils.LogUtility;
-import com.jupiter.utils.LogUtility.Type;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.ServerChannelHandler;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 
 public final class Launcher {
 
 	public static void main(String[] args) throws Exception {
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		GameLoader.getGameLoader().getBackgroundLoader().waitForPendingTasks().shutdown();
 		LogUtility.log(Type.INFO, "Launcher",
-				"Server took " + (Utils.currentTimeMillis() - currentTime) + " milli seconds to launch.");
+				"Server took " + (Utility.currentTimeMillis() - currentTime) + " milli seconds to launch.");
 		addCleanMemoryTask();
 	}
 
