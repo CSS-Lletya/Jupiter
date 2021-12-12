@@ -22,8 +22,9 @@ import com.jupiter.game.player.InterfaceManager.Tab;
 import com.jupiter.game.player.actions.ActionManager;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.game.player.attributes.AttributeMap;
+import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.player.attributes.Attribute;
+import com.jupiter.game.player.attributes.AttributeMap;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.Emotes;
 import com.jupiter.game.player.content.FriendChatsManager;
@@ -50,7 +51,8 @@ import com.jupiter.net.host.HostManager;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utils.IsaacKeyPair;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.MutableNumber;
 import com.jupiter.utils.Utils;
 
@@ -97,6 +99,18 @@ public class Player extends Entity {
 	 * The current activity this Player is in.
 	 */
 	private Optional<Activity> currentActivity;
+	
+	/**
+	 * The current skill action that is going on for this player.
+	 */
+	private Optional<SkillActionTask> action = Optional.empty();
+
+	private final MutableNumber poisonImmunity = new MutableNumber(), skullTimer = new MutableNumber();
+
+	/**
+	 * Holds an optional wrapped inside the Antifire details.
+	 */
+	private Optional<AntifireDetails> antifireDetails = Optional.empty();
 	
 	protected MusicsManager musicsManager;
 	protected FriendsIgnores friendsIgnores;
@@ -194,11 +208,9 @@ public class Player extends Entity {
 		if (musicsManager.musicEnded())
 			musicsManager.replayMusic();
 		
-//		if (!(getControlerManager().getControler() instanceof Wilderness) && Wilderness.isAtWild(this)
-//				&& !Wilderness.isAtWildSafe(this)) {
-//			getControlerManager().startControler("Wilderness");
-//		}
-
+		if (!(getCurrentActivity().get() instanceof WildernessActivity) && WildernessActivity.isInideWilderness(this)) {
+			ActivityHandler.startActivity(this, new WildernessActivity());
+		}
 		auraManager.process();
 		actionManager.process();
 		ActivityHandler.executeVoid(this, activity -> activity.process(this));
@@ -301,7 +313,7 @@ public class Player extends Entity {
 					finishing = false;
 					finish(tryCount + 1);
 				} catch (Throwable e) {
-					Logger.handle(e);
+					LogUtility.log(Type.ERROR, "Player", e.getMessage());
 				}
 			}, 10);
 			return;
@@ -443,11 +455,6 @@ public class Player extends Entity {
 			getPlayerDetails().setOwnedObjectsManagerKeys(new LinkedList<String>());
 		return getPlayerDetails().getOwnedObjectsManagerKeys();
 	}
-
-	/**
-	 * The current skill action that is going on for this player.
-	 */
-	private Optional<SkillActionTask> action = Optional.empty();
 	
 	/**
 	 * Sends a delayed task for this player.
@@ -462,13 +469,6 @@ public class Player extends Entity {
 			}
 		}.submit();
 	}
-
-	private final MutableNumber poisonImmunity = new MutableNumber(), skullTimer = new MutableNumber();
-
-	/**
-	 * Holds an optional wrapped inside the Antifire details.
-	 */
-	private Optional<AntifireDetails> antifireDetails = Optional.empty();
 	
 	public void sendTab(Tab tab) {
 		getPackets().sendGlobalConfig(168, tab.getBeltId());

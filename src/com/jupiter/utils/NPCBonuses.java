@@ -13,6 +13,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 
+import com.jupiter.utils.LogUtility.Type;
+
 public final class NPCBonuses {
 	private final static HashMap<Integer, int[]> npcBonuses = new HashMap<Integer, int[]>();
 	private static final String PACKED_PATH = "data/npcs/packedBonuses.nb";
@@ -29,7 +31,7 @@ public final class NPCBonuses {
 	}
 
 	private static void loadUnpackedNPCBonuses() {
-		Logger.log("NPCBonuses", "Packing npc bonuses...");
+		LogUtility.log(Type.INFO, "NPC Bonuses", "Packing npc bonuses...");
 		try {
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(PACKED_PATH));
 			BufferedReader in = new BufferedReader(new FileReader("data/npcs/unpackedBonuses.txt"));
@@ -58,7 +60,7 @@ public final class NPCBonuses {
 			}
 			
 		} catch (Throwable e) {
-			Logger.handle(e);
+			LogUtility.log(Type.ERROR, "NPC Bonuses",  e.getMessage());
 		}
 	}
 

@@ -12,6 +12,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 
 import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
+import com.jupiter.utils.LogUtility.Type;
 
 public final class NPCCombatDefinitionsL {
 
@@ -36,7 +37,7 @@ public final class NPCCombatDefinitionsL {
 
 	private static void loadUnpackedNPCCombatDefinitions() {
 		int count = 0;
-		Logger.log("NPCCombatDefinitionsL", "Packing npc combat definitions...");
+		LogUtility.log(Type.INFO, "NPC Combat Definitions", "Packing npc combat definitions...");
 		try {
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(PACKED_PATH));
 			BufferedReader in = new BufferedReader(new FileReader("data/npcs/unpackedCombatDefinitionsList.txt"));
@@ -104,7 +105,7 @@ public final class NPCCombatDefinitionsL {
 				out.close();
 			}
 		} catch (Throwable e) {
-			Logger.handle(e);
+			LogUtility.log(Type.ERROR, "NPC Combat Definitions", e.getMessage());
 		}
 	}
 
@@ -144,7 +145,7 @@ public final class NPCCombatDefinitionsL {
 			channel.close();
 			in.close();
 		} catch (Throwable e) {
-			Logger.handle(e);
+			LogUtility.log(Type.ERROR, "NPC Combat Definitions", e.getMessage());
 		}
 	}
 

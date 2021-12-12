@@ -13,7 +13,8 @@ import com.jupiter.cores.CoresManager;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
 import com.jupiter.json.impl.NPCSpawns;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.MapArchiveKeys;
 import com.jupiter.utils.Utils;
 
@@ -581,7 +582,7 @@ public class Region {
 							setLoadedNPCSpawns(true);
 						}
 					} catch (Throwable e) {
-						Logger.handle(e);
+						LogUtility.log(Type.INFO, "Region", e.getMessage());
 					}
 				}
 			});
@@ -671,8 +672,8 @@ public class Region {
 				}
 			}
 		}
-		if (Settings.DEBUG && landContainerData == null && landArchiveId != -1 && MapArchiveKeys.getMapKeys(regionId) != null)
-			Logger.log(this, "Missing xteas for region " + regionId + ".");
+		if (landContainerData == null && landArchiveId != -1 && MapArchiveKeys.getMapKeys(regionId) != null)
+			LogUtility.log(Type.INFO, "Region", "Missing xteas for region " + regionId + ".");
 	}
 
 	public void addObject(WorldObject object, int plane, int localX, int localY) {
@@ -1011,5 +1012,18 @@ public class Region {
 
 	public void setLoadedNPCSpawns(boolean loadedNPCSpawns) {
 		this.loadedNPCSpawns = loadedNPCSpawns;
+	}
+
+		/**
+	 * Unload's map from memory.
+	 */
+	public void unloadMap() {
+		if (getLoadMapStage() == 2
+				&& (playersIndexes == null || playersIndexes.isEmpty())
+				&& (npcsIndexes == null || npcsIndexes.isEmpty())) {
+			objects = null;
+			map = null;
+			setLoadMapStage(0);
+		}
 	}
 }

@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -117,8 +118,6 @@ public final class RSInterfaceDispatcher {
 		final byte slotId = (byte) stream.readUnsignedShort128();
 		final int itemId = stream.readUnsignedShortLE128();
 		RSInterfaceDispatcher.execute(player, interfaceId, componentId, packetId, slotId, slotId2);
-		
-		if (Settings.DEBUG)
-			Logger.log("ButtonHandler", "Interface ID: " + interfaceId + " - Comonent: " + componentId + " - PacketId: " + packetId);
+		LogUtility.log(Type.INFO, "RS Interface Dispatcher", "Interface ID: " + interfaceId + " - Comonent: " + componentId + " - PacketId: " + packetId);
 	}
 }

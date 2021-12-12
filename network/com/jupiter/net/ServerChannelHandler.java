@@ -18,7 +18,8 @@ import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cores.DecoderThreadFactory;
 import com.jupiter.net.decoders.WorldPacketsDecoder;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 
 public final class ServerChannelHandler extends SimpleChannelHandler {
 
@@ -98,7 +99,7 @@ public final class ServerChannelHandler extends SimpleChannelHandler {
 			try {
 				session.getDecoder().decode(new InputStream(buffer));
 			} catch (Throwable er) {
-				Logger.handle(er);
+				LogUtility.log(Type.ERROR, "Server Channel Handler", er.getMessage());
 			}
 		}
 	}

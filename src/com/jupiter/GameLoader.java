@@ -19,7 +19,8 @@ import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.utils.Huffman;
 import com.jupiter.utils.ItemExamines;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.MapArchiveKeys;
 import com.jupiter.utils.NPCBonuses;
 import com.jupiter.utils.NPCCombatDefinitionsL;
@@ -37,7 +38,7 @@ public class GameLoader {
 	private final BlockingExecutorService backgroundLoader = new BlockingExecutorService(Executors.newCachedThreadPool());
 
 	public void load() {
-		Logger.log("Launcher", "Initializing Cache & Game Network...");
+		LogUtility.log(Type.INFO, "Game Loader", "Initializing Cache & Game Network...");
 		Try.run(() -> Cache.init());
 		CoresManager.startThreads();
 		World.get().init();

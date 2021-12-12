@@ -17,7 +17,8 @@ import com.jupiter.plugin.annotations.PluginEventHandler;
 import com.jupiter.plugin.annotations.ServerStartupEvent;
 import com.jupiter.plugin.events.PluginEvent;
 import com.jupiter.plugin.handlers.PluginHandler;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 public class PluginManager {
@@ -39,12 +40,12 @@ public class PluginManager {
 	public static void loadPlugins() {
 		try {
 			long start = System.currentTimeMillis();
-			Logger.log("PluginManager", "Loading new plugins...");
+			LogUtility.log(Type.INFO, "Plugin Manager", "Loading new plugins...");
 			ArrayList<Class<?>> eventTypes = Utils.getClassesArray("com.jupiter.plugin.events");
 			ArrayList<Class<?>> classes = Utils.getClassesWithAnnotation("com.jupiter", PluginEventHandler.class);
 			Set<Method> visitedMethods = new HashSet<>();
 			Set<Field> visitedFields = new HashSet<>();
-			Logger.log("PluginManager", "Loading " + eventTypes.size() + " event types and " + classes.size() + " plugin enabled classes.");
+			LogUtility.log(Type.INFO, "Plugin Manager", "Loading " + eventTypes.size() + " event types and " + classes.size() + " plugin enabled classes.");
 			int handlers = 0;
 			for (Class<?> clazz : classes) {
 				for (Method method : clazz.getMethods()) {
@@ -92,7 +93,7 @@ public class PluginManager {
 					}
 				}
 			}
-			Logger.log("PluginManager", "Loaded " + handlers + " plugin event handlers in " + (System.currentTimeMillis()-start) + "ms.");
+			LogUtility.log(Type.INFO, "Plugin Manager", "Loaded " + handlers + " plugin event handlers in " + (System.currentTimeMillis()-start) + "ms.");
 		} catch (ClassNotFoundException | IOException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +111,7 @@ public class PluginManager {
 			}
 			long time = System.currentTimeMillis() - start;
 			if (time > 100L)
-				Logger.log(m.getDeclaringClass().getSimpleName(), "Executed " + m.getName() + " in " + time + "ms...");
+				LogUtility.log(Type.INFO, "Plugin Manager", "Executed " + m.getName() + " in " + time + "ms...");
 		}
 	}
 	
@@ -147,7 +148,7 @@ public class PluginManager {
 		try {
 			return (boolean) method.invoke(null, event);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			Logger.log("Plugin Manager", e);
+			LogUtility.log(Type.ERROR, "Plugin Manager", e.getMessage());
 		}
 		return false;
 	}

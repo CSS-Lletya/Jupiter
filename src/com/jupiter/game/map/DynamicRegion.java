@@ -1,9 +1,9 @@
 package com.jupiter.game.map;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 
 public class DynamicRegion extends Region {
 
@@ -74,7 +74,7 @@ public class DynamicRegion extends Region {
 							setLoadedNPCSpawns(true);
 						}
 					} catch (Throwable e) {
-						Logger.handle(e);
+						LogUtility.log(Type.INFO, "Dynamic Region", e.getMessage());
 					}
 				}
 			});
@@ -102,8 +102,8 @@ public class DynamicRegion extends Region {
 		int realRegionId = RegionBuilder.getRegionHash(realChunkX / 8, realChunkY / 8);
 		Region region = World.getRegion(realRegionId, true);
 		if (region instanceof DynamicRegion) {
-			if (Settings.DEBUG)
-				Logger.log(this, "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
+			
+				LogUtility.log(Type.INFO, "Dynamic Region", "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
 			return null; // no information so that data not loaded
 		}
 		int realRegionOffsetX = (realChunkX - ((realChunkX / 8) * 8));
@@ -136,8 +136,8 @@ public class DynamicRegion extends Region {
 		int realRegionId = (((realChunkX / 8) << 8) + (realChunkY / 8));
 		Region region = World.getRegion(realRegionId, true);
 		if (region instanceof DynamicRegion) {
-			if (Settings.DEBUG)
-				Logger.log(this, "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
+			
+				LogUtility.log(Type.INFO, "Dynamic Region", "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
 			return -1; // no information so that data not loaded
 		}
 		int realRegionOffsetX = (realChunkX - ((realChunkX / 8) * 8));
@@ -178,8 +178,8 @@ public class DynamicRegion extends Region {
 		int realRegionId = (((realChunkX / 8) << 8) + (realChunkY / 8));
 		Region region = World.getRegion(realRegionId, true);
 		if (region instanceof DynamicRegion) {
-			if (Settings.DEBUG)
-				Logger.log(this, "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
+			
+				LogUtility.log(Type.INFO, "Dynamic Region", "YOU CANT MAKE A REAL MAP AREA INTO A DYNAMIC REGION!, IT MAY DEADLOCK!");
 			return -1; // no information so that data not loaded
 		}
 		int realRegionOffsetX = (realChunkX - ((realChunkX / 8) * 8));

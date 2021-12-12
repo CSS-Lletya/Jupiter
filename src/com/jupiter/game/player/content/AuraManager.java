@@ -8,7 +8,8 @@ import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.net.encoders.other.Animation;
 import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 public class AuraManager {
@@ -211,7 +212,7 @@ public class AuraManager {
 		case 23854: // Supreme harmony.
 			return 68613;
 		default:
-			Logger.log("AurasManager", "Unknown wings: " + aura);
+			LogUtility.log(Type.INFO, "Aura Manager", "Unknown wings: " + aura);
 			return -1;
 		}
 	}

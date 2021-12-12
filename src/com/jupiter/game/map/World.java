@@ -28,7 +28,8 @@ import com.jupiter.game.task.impl.RestoreSkillsTask;
 import com.jupiter.game.task.impl.RestoreSpecialTask;
 import com.jupiter.net.encoders.other.Graphics;
 import com.jupiter.utils.AntiFlood;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -146,7 +147,7 @@ public final class World {
 					players().forEach(p -> p.realFinish());
 					Launcher.shutdown();
 				} catch (Throwable e) {
-					Logger.handle(e);
+					LogUtility.log(Type.ERROR, "World", e.getMessage());
 				}
 			}
 		}, delay);

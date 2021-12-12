@@ -16,17 +16,17 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.common.reflect.ClassPath;
-import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
 import com.jupiter.game.Entity;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.skills.Skills;
+import com.jupiter.utils.LogUtility.Type;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -92,7 +92,7 @@ public final class Utils {
 				algorithm.reset();
 				return digest;
 			} catch (Throwable e) {
-				Logger.handle(e);
+				LogUtility.log(Type.ERROR, "Utils", e.getMessage());
 			}
 			return null;
 		}
@@ -841,8 +841,7 @@ public final class Utils {
 			int value = player.getHitpoints();
 			data = new byte[] { (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value };
 		}
-		else if (Settings.DEBUG)
-			Logger.log("Utils", "qc: " + fileId + ", " + (data == null ? 0 : data.length));
+		LogUtility.log(Type.INFO, "Utils", "qc: " + fileId + ", " + (data == null ? 0 : data.length));
 		return data;
 	}
 

@@ -9,7 +9,7 @@ import com.jupiter.skills.fishing.Fishing;
 import com.jupiter.skills.fishing.Tool;
 
 @PluginEventHandler
-public class FishingSpots {
+public class FishingSpotsNPC {
 
 	public static NPCClickHandler fishingSpots = new NPCClickHandler("Fishing spot") {
 		

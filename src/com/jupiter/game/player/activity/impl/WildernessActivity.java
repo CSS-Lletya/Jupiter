@@ -21,11 +21,9 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public void start(Player player) {
-		System.out.println("Started");
 		checkBoosts(player);
 		sendInterfaces(player);
 		moved(player);
-		System.out.println("back in action");
 	}
 
 	@Override
@@ -35,7 +33,6 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public void login(Player player) {
-		System.out.println("back in action");
 		moved(player);
 	}
 
@@ -82,11 +79,7 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public boolean processMagicTeleport(Player player, WorldTile toTile) {
-		if (getWildLevel(player) > 20) {
-			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
-			return false;
-		}
-		if (player.getTeleBlockDelay() > 0) {
+		if (getWildLevel(player) > 20 || player.getTeleBlockDelay() > 0) {
 			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
 			return false;
 		}
@@ -96,11 +89,7 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public boolean processItemTeleport(Player player, WorldTile toTile) {
-		if (getWildLevel(player) > 30) {
-			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
-			return false;
-		}
-		if (player.getTeleBlockDelay() > 0) {
+		if (getWildLevel(player) > 30 || player.getTeleBlockDelay() > 0) {
 			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
 			return false;
 		}
@@ -158,11 +147,6 @@ public class WildernessActivity extends Activity {
 			player.setCurrentActivity(Optional.empty());
 		}
 	}
-	
-	@Override
-	public boolean logout(Player player) {
-		return false;
-	}
 
 	@Override
 	public void forceClose(Player player) {
@@ -180,14 +164,18 @@ public class WildernessActivity extends Activity {
 				|| (tile.getX() >= 3012 && tile.getX() <= 3059 && tile.getY() >= 10303 && tile.getY() <= 10351);
 	}
 
-	public boolean isAtWildSafe(Player player) {
+	public static boolean isAtWildSafe(Player player) {
 		player.getInterfaceManager().closeFixedOverlay();
 		return (player.getX() >= 2940 && player.getX() <= 3395 && player.getY() <= 3524 && player.getY() >= 3523);
+	}
+	
+	public static boolean isInideWilderness(Player player) {
+		return WildernessActivity.isAtWild(player) && !WildernessActivity.isAtWildSafe(player);
 	}
 
 	public int getWildLevel(Player player) {
 		if (player.getY() > 9900)
-			return (player.getY() - 9912) / 8 + 1;
+			return (player.getY() - 9920) / 8 + 1;
 		return (player.getY() - 3520) / 8 + 1;
 	}
 	

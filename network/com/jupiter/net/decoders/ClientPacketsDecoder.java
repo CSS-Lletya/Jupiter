@@ -3,7 +3,8 @@ package com.jupiter.net.decoders;
 import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.net.Session;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 
 public final class ClientPacketsDecoder extends Decoder {
 
@@ -23,8 +24,7 @@ public final class ClientPacketsDecoder extends Decoder {
 			decodeGrab(stream);
 			break;
 		default:
-			if (Settings.DEBUG)
-				Logger.log(this, "PacketId " + packetId);
+			LogUtility.log(Type.ERROR, "Client Packets Decoder", "Decoder response:" + packetId);
 			session.getChannel().close();
 			break;
 		}

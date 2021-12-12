@@ -12,6 +12,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 
+import com.jupiter.utils.LogUtility.Type;
+
 public final class MapArchiveKeys {
 
 	private final static HashMap<Integer, int[]> keys = new HashMap<Integer, int[]>();
@@ -43,12 +45,12 @@ public final class MapArchiveKeys {
 			channel.close();
 			in.close();
 		} catch (Throwable e) {
-			Logger.handle(e);
+			LogUtility.log(Type.ERROR, "Map Archive Keys", e.getMessage());
 		}
 	}
 
 	public static final void loadUnpackedKeys() {
-		Logger.log("MapArchiveKeys", "Packing map containers xteas...");
+		LogUtility.log(Type.INFO, "Map Archive Keys", "Packing map containers xteas...");
 		try {
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(PACKED_PATH));
 			File unpacked = new File("data/map/archiveKeys/unpacked/");

@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
 import com.jupiter.game.item.Item;
+import com.jupiter.utils.LogUtility.Type;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -50,12 +51,12 @@ public class ItemExamines {
 			channel.close();
 			in.close();
 		} catch (Throwable e) {
-			Logger.handle(e);
+			LogUtility.log(Type.INFO, "Item Examines", e.getMessage());
 		}
 	}
 
 	private static void loadUnpackedItemExamines() {
-		Logger.log("ItemExamines", "Packing item examines...");
+		LogUtility.log(Type.ERROR, "Item Examines", "Packing item examines...");
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(UNPACKED_PATH));
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(PACKED_PATH));

@@ -11,7 +11,8 @@ import com.jupiter.net.host.HostManager;
 import com.jupiter.utils.AntiFlood;
 import com.jupiter.utils.Encrypt;
 import com.jupiter.utils.IsaacKeyPair;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 public final class LoginPacketsDecoder extends Decoder {
@@ -23,7 +24,7 @@ public final class LoginPacketsDecoder extends Decoder {
 	@Override
 	public void decode(InputStream stream) {
 		session.setDecoder(-1);
-		int packetId = stream.readUnsignedByte();
+		int resonse = stream.readUnsignedByte();
 		if (World.exiting_start != 0) {
 			session.getLoginPackets().sendClientPacket(14);
 			return;
@@ -41,11 +42,10 @@ public final class LoginPacketsDecoder extends Decoder {
 			return;
 		}
 
-		if (packetId == 16 || packetId == 18) // 16 world login
+		if (resonse == 16 || resonse == 18) // 16 world login
 			decodeWorldLogin(stream);
 		else {
-			if (Settings.DEBUG)
-				Logger.log(this, "PacketId " + packetId);
+			LogUtility.log(Type.ERROR, "Login Packets Decoder", "Login Decoder response:" + resonse);
 			session.getChannel().close();
 		}
 	}

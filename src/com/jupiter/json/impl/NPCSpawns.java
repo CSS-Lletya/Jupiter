@@ -10,7 +10,8 @@ import java.util.List;
 import com.google.gson.JsonIOException;
 import com.jupiter.combat.npc.NPCSpawn;
 import com.jupiter.json.GsonLoader;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 
 import io.vavr.collection.Array;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -25,13 +26,13 @@ public final class NPCSpawns {
 	private static final Object2ObjectArrayMap<Integer, List<NPCSpawn>> NPC_SPAWNS = new Object2ObjectArrayMap<>();
 
 	public static final void init() throws JsonIOException, IOException {
-		Logger.log("NPCSpawns", "Loading NPC spawns...");
+		LogUtility.log(Type.INFO, "NPC Spawns", "Loading NPC spawns...");
 		File[] spawnFiles = new File(PATH).listFiles();
 		for (File files : spawnFiles) {
 			NPCSpawn[] spawns = (NPCSpawn[]) GsonLoader.loadJsonFile(files, NPCSpawn[].class);
 			Array.of(spawns).filter(spawn -> spawn != null).forEach(spawn -> add(spawn));
 		}
-		Logger.log("NPCSpawns", "Loaded " + ALL_SPAWNS.size() + " NPC spawns...");
+		LogUtility.log(Type.INFO, "NPC Spawns", "Loaded " + ALL_SPAWNS.size() + " NPC spawns...");
 	}
 
 	public static void add(NPCSpawn spawn) {

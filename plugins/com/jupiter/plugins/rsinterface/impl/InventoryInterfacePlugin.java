@@ -23,7 +23,8 @@ import com.jupiter.plugin.events.ItemOnNPCEvent;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.cooking.Foods;
-import com.jupiter.utils.Logger;
+import com.jupiter.utils.LogUtility;
+import com.jupiter.utils.LogUtility.Type;
 import com.jupiter.utils.Utils;
 
 @RSInterfaceSignature(interfaceId = {679})
@@ -126,8 +127,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 		int interfaceId = stream.readIntV2() >> 16;
 		int itemUsedId = stream.readShortLE();
 		
-		if (Settings.DEBUG)
-			System.out.println(String.format("fromInter: %s, toInter: %s, fromSlot: %s, toSlot %s, item1: %s, item2: %s", interfaceId, interfaceId2, fromSlot, toSlot, itemUsedId, itemUsedWithId));
+		
+		LogUtility.log(Type.INFO, "Inventory Interface Plugin", String.format("fromInter: %s, toInter: %s, fromSlot: %s, toSlot %s, item1: %s, item2: %s", interfaceId, interfaceId2, fromSlot, toSlot, itemUsedId, itemUsedWithId));
 		
 		//fromInter: 44498944, toInter: 44498944, fromSlot: 11694, toSlot 0, item1: 14484, item2: 8
 
@@ -142,8 +143,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 				return;
 			player.getAttributes().stopAll(player);
 			PluginManager.handle(new ItemOnItemEvent(player, itemUsed, usedWith));
-			if (Settings.DEBUG)
-				Logger.log("ItemHandler", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());
+			
+				LogUtility.log(Type.INFO, "Inventory Interface Plugin", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());
 		}
 	}
 
