@@ -10,8 +10,8 @@ import com.jupiter.cache.loaders.VarManager;
 import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.actions.ActionManager;
-import com.jupiter.game.player.attributes.AttributeMap;
 import com.jupiter.game.player.attributes.Attribute;
+import com.jupiter.game.player.attributes.AttributeMap;
 import com.jupiter.game.player.content.AuraManager;
 import com.jupiter.game.player.content.LodeStone;
 import com.jupiter.game.player.content.MusicsManager;
@@ -25,7 +25,7 @@ import com.jupiter.network.encoders.other.LocalNPCUpdate;
 import com.jupiter.network.encoders.other.LocalPlayerUpdate;
 import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
-import com.jupiter.skills.prayer.Prayer;
+import com.jupiter.skills.prayer.PrayerManager;
 import com.jupiter.utility.Utility;
 
 import lombok.Data;
@@ -65,7 +65,7 @@ public class AccountCreation {
 		if (player.combatDefinitions == null)
 			player.combatDefinitions = new CombatDefinitions();
 		if (player.prayer == null)
-			player.prayer = new Prayer();
+			player.prayer = new PrayerManager();
 		if (player.bank == null)
 			player.bank = new Bank();
 		if (player.musicsManager == null)

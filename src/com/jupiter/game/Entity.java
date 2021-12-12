@@ -46,9 +46,9 @@ import com.jupiter.network.encoders.other.Hit;
 import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
+import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utility.MutableNumber;
 import com.jupiter.utility.NPCBonuses;
-import com.jupiter.utility.RandomUtility;
 import com.jupiter.utility.Utility;
 
 import lombok.Getter;
@@ -110,6 +110,7 @@ public abstract class Entity extends WorldTile {
 	private transient Movement movement;
 
 	public transient int direction;
+	private transient long tickCounter = 0;
 	
 	// saving stuff
 	private int hitpoints;
@@ -240,11 +241,11 @@ public abstract class Entity extends WorldTile {
 					hit.getSource().applyHit(new Hit(player, (int) (hit.getDamage() * 0.1), HitLook.REFLECTED_DAMAGE));
 			}
 			if (player.getPrayer().hasPrayersOn()) {
-				if ((hitpoints < player.getMaxHitpoints() * 0.1) && player.getPrayer().usingPrayer(0, 23)) {
+				if ((hitpoints < player.getMaxHitpoints() * 0.1) && player.getPrayer().active(Prayer.REDEMPTION)) {
 					setNextGraphics(new Graphics(436));
 					setHitpoints((int) (hitpoints + player.getSkills().getLevelForXp(Skills.PRAYER) * 2.5));
 					player.getSkills().set(Skills.PRAYER, 0);
-					player.getPrayer().setPrayerpoints((byte) 0);
+					player.getPrayer().setPoints(0);
 				} else if (player.getEquipment().getAmuletId() != 11090 && player.getEquipment().getRingId() == 11090 && player.getHitpoints() <= player.getMaxHitpoints() * 0.1) {
 					Magic.sendNormalTeleportSpell(player, 1, 0, Settings.RESPAWN_PLAYER_LOCATION);
 					player.getEquipment().deleteItem(11090, 1);
@@ -612,28 +613,19 @@ public abstract class Entity extends WorldTile {
 	public boolean restoreHitPoints() {
 		int maxHp = getMaxHitpoints();
 		if (hitpoints > maxHp) {
-			if (this instanceof Player) {
-				Player player = (Player) this;
-				if (player.getPrayer().usingPrayer(1, 5) && RandomUtility.getRandom(100) <= 15)
-					return false;
-			}
 			setHitpoints(hitpoints - 1);
 			return true;
 		} else if (hitpoints < maxHp) {
 			setHitpoints(hitpoints + 1);
-			if (this instanceof Player) {
-				Player player = (Player) this;
-				if (player.getPrayer().usingPrayer(0, 9) && hitpoints < maxHp)
-					setHitpoints(hitpoints + 1);
-				else if (player.getPrayer().usingPrayer(0, 26) && hitpoints < maxHp)
-					setHitpoints(hitpoints + (hitpoints + 4 > maxHp ? maxHp - hitpoints : 4));
-
-			}
 			return true;
 		}
 		return false;
 	}
 
+	public long getTickCounter() {
+		return tickCounter;
+	}
+	
 	public boolean needMasksUpdate() {
 		if (isPlayer())
 			return (toPlayer().getTemporaryMovementType() != -1)
@@ -706,6 +698,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void processEntity() {
+		tickCounter++;
 		processMovement();
 		processReceivedHits();
 		processReceivedDamage();

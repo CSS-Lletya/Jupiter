@@ -51,10 +51,11 @@ import com.jupiter.network.host.HostManager;
 import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
+import com.jupiter.skills.prayer.PrayerManager;
 import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 import com.jupiter.utility.MutableNumber;
 import com.jupiter.utility.Utility;
-import com.jupiter.utility.LogUtility.Type;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -91,7 +92,7 @@ public class Player extends Entity {
 	protected Equipment equipment;
 	protected Skills skills;
 	protected CombatDefinitions combatDefinitions;
-	protected Prayer prayer;
+	protected PrayerManager prayer;
 	protected Bank bank;
 	protected MusicsManager musicsManager;
 	protected FriendsIgnores friendsIgnores;
@@ -236,7 +237,7 @@ public class Player extends Entity {
 		getPrayer().init();
 		getFriendsIgnores().init();
 		getSkills().refreshHitPoints();
-		getPrayer().refreshPrayerPoints();
+		getPrayer().refreshPoints();
 		getPackets().sendGlobalConfig(823, 1);
 		getPackets().sendConfig(281, 1000); // unlock can't do this on tutorial
 		getPackets().sendConfig(1160, -1); // unlock summoning orb
@@ -327,13 +328,21 @@ public class Player extends Entity {
 			return false;
 		}
 		boolean update = super.restoreHitPoints();
-		if (update) {
-			if (prayer.usingPrayer(0, 9))
-				super.restoreHitPoints();
-			if (resting)
-				super.restoreHitPoints();
+		int toRegen = 0;
+		if (isResting())
+			toRegen += 1;
+		if (getPrayer().active(Prayer.RAPID_HEAL))
+			toRegen += 1;
+		if (getPrayer().active(Prayer.RAPID_RENEWAL))
+			toRegen += 4;
+		if (getEquipment().getGlovesId() == 11133)
+			toRegen *= 2;
+		if ((getHitpoints() + toRegen) > getMaxHitpoints())
+			toRegen = getMaxHitpoints() - getHitpoints();
+		if (getHitpoints() < getMaxHitpoints())
+			setHitpoints(getHitpoints() + toRegen);
+		if (update || toRegen > 0)
 			getSkills().refreshHitPoints();
-		}
 		return update;
 	}
 	
@@ -453,6 +462,6 @@ public class Player extends Entity {
 	
 	public void sendTab(Tab tab) {
 		getPackets().sendGlobalConfig(168, tab.getBeltId());
-		tab.getAction().accept(this);
+//		tab.getAction().accept(this);
 	}
 }

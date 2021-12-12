@@ -9,6 +9,7 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.network.encoders.other.Animation;
 import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Frost Dragon"})
@@ -28,13 +29,12 @@ public class FrostDragonsCombat extends MobCombatInterface {
 			} else {
 				damage = RandomUtility.getRandom(650);
 				if (Combat.hasAntiDragProtection(target) || (player != null
-						&& (player.getPrayer().usingPrayer(0, 17) || player.getPrayer().usingPrayer(1, 7)))) {
+						&& (player.getPrayer().active(Prayer.PROTECT_MAGIC) || player.getPrayer().active(Prayer.DEFLECT_MAGIC)))) {
 					damage = 0;
 					player.getPackets()
 							.sendGameMessage("Your " + (Combat.hasAntiDragProtection(target) ? "shield" : "prayer")
 									+ " absorbs most of the dragon's breath!", true);
-				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().usingPrayer(0, 17)
-						|| !player.getPrayer().usingPrayer(1, 7))
+				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().active(Prayer.PROTECT_MAGIC) || !player.getPrayer().active(Prayer.DEFLECT_MAGIC))
 				&& player.getAntifireDetails().isPresent()) {
 					damage = RandomUtility.getRandom(164);
 					player.getPackets().sendGameMessage("Your potion absorbs most of the dragon's breath!", true);
@@ -48,13 +48,12 @@ public class FrostDragonsCombat extends MobCombatInterface {
 			if (npc.withinDistance(target, 3)) {
 				damage = RandomUtility.getRandom(650);
 				if (Combat.hasAntiDragProtection(target) || (player != null
-						&& (player.getPrayer().usingPrayer(0, 17) || player.getPrayer().usingPrayer(1, 7)))) {
+						&& (player.getPrayer().active(Prayer.PROTECT_MAGIC) || player.getPrayer().active(Prayer.DEFLECT_MAGIC)))) {
 					damage = 0;
 					player.getPackets()
 							.sendGameMessage("Your " + (Combat.hasAntiDragProtection(target) ? "shield" : "prayer")
 									+ " absorbs most of the dragon's breath!", true);
-				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().usingPrayer(0, 17)
-						|| !player.getPrayer().usingPrayer(1, 7))
+				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().active(Prayer.PROTECT_MAGIC) || !player.getPrayer().active(Prayer.DEFLECT_MAGIC))
 				/* && player.getFireImmune() > Utils.currentTimeMillis() */) {
 					damage = RandomUtility.getRandom(164);
 					player.getPackets().sendGameMessage(
@@ -66,13 +65,12 @@ public class FrostDragonsCombat extends MobCombatInterface {
 			} else {
 				damage = RandomUtility.getRandom(650);
 				if (Combat.hasAntiDragProtection(target) || (player != null
-						&& (player.getPrayer().usingPrayer(0, 17) || player.getPrayer().usingPrayer(1, 7)))) {
+						&& (player.getPrayer().active(Prayer.PROTECT_MAGIC) || player.getPrayer().active(Prayer.DEFLECT_MAGIC)))) {
 					damage = 0;
 					player.getPackets()
 							.sendGameMessage("Your " + (Combat.hasAntiDragProtection(target) ? "shield" : "prayer")
 									+ " absorbs most of the dragon's breath!", true);
-				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().usingPrayer(0, 17)
-						|| !player.getPrayer().usingPrayer(1, 7))
+				} else if ((!Combat.hasAntiDragProtection(target) || !player.getPrayer().active(Prayer.PROTECT_MAGIC) || !player.getPrayer().active(Prayer.DEFLECT_MAGIC))
 						&& player.getAntifireDetails().isPresent()) {
 					damage = RandomUtility.getRandom(164);
 					player.getPackets().sendGameMessage(

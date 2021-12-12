@@ -21,7 +21,7 @@ public class AbyssalTitanCombat extends MobCombatInterface {
 
 		if (target instanceof Player) { // cjay failed dragonkk saved the day
 			Player player = (Player) target;
-			if (damage > 0 && player.getPrayer().getPrayerpoints() > 0)
+			if (damage > 0 && player.getPrayer().getPoints() > 0)
 				player.getPrayer().drainPrayer(damage / 2);
 		}
 		delayHit(npc, 0, target, getMeleeHit(npc, damage));

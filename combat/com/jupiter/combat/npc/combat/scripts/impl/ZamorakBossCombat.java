@@ -11,6 +11,7 @@ import com.jupiter.game.player.Player;
 import com.jupiter.network.encoders.other.Animation;
 import com.jupiter.network.encoders.other.ForceTalk;
 import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {6203}, mobName = {})
@@ -67,8 +68,8 @@ public class ZamorakBossCombat extends MobCombatInterface {
 		case 2:// melee attack
 			int damage = 463;// normal
 			for (Entity e : npc.getPossibleTargets()) {
-				if (e instanceof Player && (((Player) e).getPrayer().usingPrayer(0, 19)
-						|| ((Player) e).getPrayer().usingPrayer(1, 9))) {
+				if (e instanceof Player && (((Player) e).getPrayer().active(Prayer.PROTECT_MELEE)
+						|| ((Player) e).getPrayer().active(Prayer.DEFLECT_MELEE))) {
 					Player player = (Player) e;
 					damage = 497;
 					npc.setNextForceTalk(new ForceTalk("YARRRRRRR!"));

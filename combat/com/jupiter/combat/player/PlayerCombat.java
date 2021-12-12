@@ -26,6 +26,7 @@ import com.jupiter.network.encoders.other.Hit;
 import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
+import com.jupiter.skills.prayer.Prayer;
 import com.jupiter.utility.RandomUtility;
 import com.jupiter.utility.Utility;
 
@@ -1407,7 +1408,7 @@ public class PlayerCombat extends Action {
 						if (p.getInventory().containsItem(946, 1) || slashBased) {
 							delay /= 2;
 						}
-						if (p.getPrayer().usingPrayer(0, 18) || p.getPrayer().usingPrayer(1, 8)) {
+						if (p.getPrayer().isProtectingRange()) {
 							delay /= 2;
 						}
 						if (delay < 5000) {
@@ -2387,7 +2388,7 @@ public class PlayerCombat extends Action {
 			Player player = (Player) hit.getSource();
 			if (target instanceof Player) {
 				Player p2 = (Player) target;
-				if (player.getPrayer().usingPrayer(1, 18))
+				if (player.getPrayer().active(Prayer.SOUL_SPLIT))
 					p2.getCombatDefinitions().sendSoulSplit(hit, player);
 			}
 			int damage = hit.getDamage() > target.getHitpoints() ? target.getHitpoints() : hit.getDamage();
@@ -2522,8 +2523,8 @@ public class PlayerCombat extends Action {
 								if (block_tele) {
 									if (target instanceof Player) {
 										Player targetPlayer = (Player) target;
-										targetPlayer.setTeleBlockDelay((targetPlayer.getPrayer().usingPrayer(0, 17)
-												|| targetPlayer.getPrayer().usingPrayer(1, 7) ? 100000 : 300000));
+//										targetPlayer.setTeleBlockDelay((targetPlayer.getPrayer().usingPrayer(0, 17)
+//												|| targetPlayer.getPrayer().usingPrayer(1, 7) ? 100000 : 300000));
 										targetPlayer.getPackets().sendGameMessage("You have been teleblocked.", true);
 									}
 								}
@@ -3588,36 +3589,36 @@ public class PlayerCombat extends Action {
 		}
 		if (player.getPrayer().hasPrayersOn() && hit.getDamage() != 0) {
 			if (hit.getLook() == HitLook.MAGIC_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 17))
+				if (player.getPrayer().active(Prayer.PROTECT_MAGIC))
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 7)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_MAGIC)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2228));
 						player.setNextAnimation(new Animation(12573));
 					}
 				}
 			} else if (hit.getLook() == HitLook.RANGE_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 18))
+				if (player.getPrayer().active(Prayer.PROTECT_RANGE))
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 8)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_RANGE)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2229));
 						player.setNextAnimation(new Animation(12573));
 					}
 				}
 			} else if (hit.getLook() == HitLook.MELEE_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 19))
+				if (player.getPrayer().active(Prayer.PROTECT_MELEE))
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 9)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_MELEE)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2230));
 						player.setNextAnimation(new Animation(12573));
@@ -3655,309 +3656,16 @@ public class PlayerCombat extends Action {
 				hit.setDamage((int) (hit.getDamage() * 0.75));
 		} else if (shieldId == 13740) { // divine
 			int drain = (int) (Math.ceil(hit.getDamage() * 0.3) / 2);
-			if (player.getPrayer().getPrayerpoints() >= drain) {
+			if (player.getPrayer().getPoints() >= drain) {
 				hit.setDamage((int) (hit.getDamage() * 0.70));
 				player.getPrayer().drainPrayer(drain);
 			}
 		}
 		//TODO: player details veng
-//		if (player.castedVeng && hit.getDamage() >= 4) {
-//			player.castedVeng = false;
-//			player.setNextForceTalk(new ForceTalk("Taste vengeance!"));
-//			source.applyHit(new Hit(this, (int) (hit.getDamage() * 0.75), HitLook.REGULAR_DAMAGE));
-//		}
-		if (source instanceof Player) {
-			final Player p2 = (Player) source;
-			if (p2.getPrayer().hasPrayersOn()) {
-				if (p2.getPrayer().usingPrayer(0, 24)) { // smite
-					int drain = hit.getDamage() / 4;
-					if (drain > 0)
-						player.getPrayer().drainPrayer(drain);
-				} else {
-					if (hit.getDamage() == 0)
-						return;
-					if (!p2.getPrayer().isBoostedLeech()) {
-						if (hit.getLook() == HitLook.MELEE_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 19)) {
-								if (RandomUtility.getRandom(4) == 0) {
-									p2.getPrayer().increaseTurmoilBonus(player);
-									p2.getPrayer().setBoostedLeech(true);
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 1)) { // sap att
-								if (RandomUtility.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(0)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(0);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Attack from the enemy, boosting your Attack.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2214));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2215, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2216));
-											this.cancel();
-										}
-									});
-									return;
-								}
-							} else {
-								if (p2.getPrayer().usingPrayer(1, 10)) {
-									if (RandomUtility.getRandom(7) == 0) {
-										if (p2.getPrayer().reachedMax(3)) {
-											p2.getPackets().sendGameMessage(
-													"Your opponent has been weakened so much that your leech curse has no effect.",
-													true);
-										} else {
-											p2.getPrayer().increaseLeechBonus(3);
-											p2.getPackets().sendGameMessage(
-													"Your curse drains Attack from the enemy, boosting your Attack.",
-													true);
-										}
-										p2.setNextAnimation(new Animation(12575));
-										p2.getPrayer().setBoostedLeech(true);
-										World.sendProjectile(p2, player, 2231, 35, 35, 20, 5, 0, 0);
-										World.get().submit(new Task(1) {
-											@Override
-											protected void execute() {
-												player.setNextGraphics(new Graphics(2232));
-											}
-										});
-										return;
-									}
-								}
-								if (p2.getPrayer().usingPrayer(1, 14)) {
-									if (RandomUtility.getRandom(7) == 0) {
-										if (p2.getPrayer().reachedMax(7)) {
-											p2.getPackets().sendGameMessage(
-													"Your opponent has been weakened so much that your leech curse has no effect.",
-													true);
-										} else {
-											p2.getPrayer().increaseLeechBonus(7);
-											p2.getPackets().sendGameMessage(
-													"Your curse drains Strength from the enemy, boosting your Strength.",
-													true);
-										}
-										p2.setNextAnimation(new Animation(12575));
-										p2.getPrayer().setBoostedLeech(true);
-										World.sendProjectile(p2, player, 2248, 35, 35, 20, 5, 0, 0);
-										World.get().submit(new Task(1) {
-											@Override
-											protected void execute() {
-												player.setNextGraphics(new Graphics(2250));
-											}
-										});
-										return;
-									}
-								}
-
-							}
-						}
-						if (hit.getLook() == HitLook.RANGE_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 2)) { // sap range
-								if (RandomUtility.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(1)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(1);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Range from the enemy, boosting your Range.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2217));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2218, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2219));
-										}
-									});
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 11)) {
-								if (RandomUtility.getRandom(7) == 0) {
-									if (p2.getPrayer().reachedMax(4)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your leech curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(4);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Range from the enemy, boosting your Range.", true);
-									}
-									p2.setNextAnimation(new Animation(12575));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2236, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2238));
-										}
-									});
-									return;
-								}
-							}
-						}
-						if (hit.getLook() == HitLook.MAGIC_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 3)) { // sap mage
-								if (RandomUtility.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(2)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(2);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Magic from the enemy, boosting your Magic.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2220));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2221, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2222));
-										}
-									});
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 12)) {
-								if (RandomUtility.getRandom(7) == 0) {
-									if (p2.getPrayer().reachedMax(5)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your leech curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(5);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Magic from the enemy, boosting your Magic.", true);
-									}
-									p2.setNextAnimation(new Animation(12575));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2240, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2242));
-										}
-									});
-									return;
-								}
-							}
-						}
-
-						// overall
-
-						if (p2.getPrayer().usingPrayer(1, 13)) { // leech defence
-							if (RandomUtility.getRandom(10) == 0) {
-								if (p2.getPrayer().reachedMax(6)) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getPrayer().increaseLeechBonus(6);
-									p2.getPackets().sendGameMessage(
-											"Your curse drains Defence from the enemy, boosting your Defence.", true);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2244, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2246));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 15)) {
-							if (RandomUtility.getRandom(10) == 0) {
-								if (player.getPlayerDetails().getRunEnergy() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 90 ? 100 : p2.getPlayerDetails().getRunEnergy() + 10);
-									player.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 10 ? player.getPlayerDetails().getRunEnergy() - 10 : 0);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2256, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2258));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 16)) {
-							if (RandomUtility.getRandom(10) == 0) {
-								if (player.getCombatDefinitions().getSpecialAttackPercentage() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getCombatDefinitions().restoreSpecialAttack();
-									player.getCombatDefinitions().decreaseSpecialAttack(10);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2252, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2254));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 4)) { // sap spec
-							if (RandomUtility.getRandom(10) == 0) {
-								p2.setNextAnimation(new Animation(12569));
-								p2.setNextGraphics(new Graphics(2223));
-								p2.getPrayer().setBoostedLeech(true);
-								if (player.getCombatDefinitions().getSpecialAttackPercentage() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your sap curse has no effect.",
-											true);
-								} else {
-									player.getCombatDefinitions().decreaseSpecialAttack(10);
-								}
-								World.sendProjectile(p2, player, 2224, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2225));
-									}
-								});
-								return;
-							}
-						}
-					}
-				}
-			}
-		} else {
-			NPC n = (NPC) source;
-			if (n.getId() == 13448)
-				player.getCombatDefinitions().sendSoulSplit(hit, n);
+		if (player.isCastedVeng() && hit.getDamage() >= 4) {
+			player.setCastedVeng(false);
+			player.setNextForceTalk(new ForceTalk("Taste vengeance!"));
+			source.applyHit(new Hit(player, (int) (hit.getDamage() * 0.75), HitLook.REGULAR_DAMAGE));
 		}
 	}
 }
