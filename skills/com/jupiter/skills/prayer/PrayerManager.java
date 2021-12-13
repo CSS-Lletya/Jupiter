@@ -226,7 +226,7 @@ public class PrayerManager {
 		} else {
 			active.add(prayer);
 			if (isOverhead(prayer))
-				player.getAppearence().generateAppearenceData();
+				player.getAppearance().generateAppearenceData();
 			player.getPackets().sendSound(2662, 0, 1);
 		}
 		refresh();
@@ -279,7 +279,7 @@ public class PrayerManager {
 		}
 		active.remove(prayer);
 		if (isOverhead(prayer))
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		player.getPackets().sendSound(2663, 0, 1);
 		if (active.isEmpty())
 			setQuickPrayersOn(false);
@@ -420,7 +420,7 @@ public class PrayerManager {
 		statMods = new int[5];
 		setQuickPrayersOn(false);
 		player.getPackets().sendConfig(curses ? 1582 : 1395, 0);
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 		resetStatMods();
 	}
 	

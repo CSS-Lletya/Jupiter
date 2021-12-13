@@ -48,7 +48,7 @@ public class HostList {
 	 * Adds a blocked entry with a username.
 	 */
 	public void add(Player player) {
-		BLOCKED.add(player.getSession().getIP() + "-" + player.getUsername());
+		BLOCKED.add(player.getSession().getIP() + "-" + player.getPlayerDetails().getUsername());
 	}
 	
 	/**

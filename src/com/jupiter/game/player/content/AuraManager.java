@@ -38,7 +38,7 @@ public class AuraManager {
 		if (Utility.currentTimeMillis() < activation)
 			return;
 		desactive();
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 	}
 
 	public void removeAura() {
@@ -71,7 +71,7 @@ public class AuraManager {
 		if (toId != -1) {
 			player.getEquipment().getItem(Equipment.SLOT_AURA).setId(toId);
 			player.getEquipment().refresh(Equipment.SLOT_AURA);
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		} else {
 			if (activation != 0) {
 				// TODO message already activated
@@ -95,7 +95,7 @@ public class AuraManager {
 			cooldowns.put(item.getId(), activation + getCooldown(item.getId()) * 1000);
 			player.setNextAnimation(new Animation(2231));
 			player.setNextGraphics(new Graphics(getActiveGraphic(tier)));
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		}
 	}
 

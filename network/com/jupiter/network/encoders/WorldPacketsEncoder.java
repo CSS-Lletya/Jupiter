@@ -713,7 +713,7 @@ public class WorldPacketsEncoder extends Encoder {
 		for (int count = 0; count < 20; count++)
 			for (int i = 0; i < 4; i++)
 				stream.writeInt(0);
-		byte[] appearence = player.getAppearence().getAppeareanceBlocks();
+		byte[] appearence = player.getAppearance().getAppeareanceBlocks();
 		stream.writeByte(appearence.length);
 		stream.writeBytes(appearence);
 		stream.endPacketVarShort();
@@ -959,21 +959,21 @@ public class WorldPacketsEncoder extends Encoder {
 	}
 
 	public void sendTradeRequestMessage(Player p) {
-		if (player.getFriendsIgnores().getIgnores().contains(p.getUsername())) {
+		if (player.getFriendsIgnores().getIgnores().contains(p.getPlayerDetails().getUsername())) {
 			return;
 		}
 		sendMessage(100, "wishes to trade with you.", p);
 	}
 
 	public void sendClanWarsRequestMessage(Player p) {
-		if (player.getFriendsIgnores().getIgnores().contains(p.getUsername())) {
+		if (player.getFriendsIgnores().getIgnores().contains(p.getPlayerDetails().getUsername())) {
 			return;
 		}
 		sendMessage(101, "wishes to challenge your clan to a clan war.", p);
 	}
 
 	public void sendDuelChallengeRequestMessage(Player p, boolean friendly) {
-		if (player.getFriendsIgnores().getIgnores().contains(p.getUsername())) {
+		if (player.getFriendsIgnores().getIgnores().contains(p.getPlayerDetails().getUsername())) {
 			return;
 		}
 		sendMessage(101, "wishes to duel with you(" + (friendly ? "friendly" : "stake") + ").", p);
@@ -998,7 +998,7 @@ public class WorldPacketsEncoder extends Encoder {
 		if ((maskData & 0x1) != 0) {
 			stream.writeString(p.getDisplayName());
 //			if (p.hasDisplayName())
-//				stream.writeString(Utils.formatPlayerNameForDisplay(p.getUsername()));
+//				stream.writeString(Utils.formatPlayerNameForDisplay(p.getPlayerDetails().getUsername()));
 		}
 		stream.writeString(text);
 		stream.endPacketVarByte();

@@ -167,7 +167,7 @@ public abstract class Entity extends WorldTile {
 			toPlayer().getPoisonDamage().set(0);
 			toPlayer().setCastedVeng(false);
 			toPlayer().getPlayerDetails().setRunEnergy(100);
-			toPlayer().getAppearence().getAppeareanceBlocks();
+			toPlayer().getAppearance().getAppeareanceBlocks();
 		}
 		
 	}
@@ -402,6 +402,13 @@ public abstract class Entity extends WorldTile {
 					break;
 			}
 		}
+		ifPlayer(p -> {
+			if (nextRunDirection != null) {
+				player.getMovement().drainRunEnergy((Math.min(p.getWeight(), 64) / 100.0) + 0.64);
+				if (p.getPlayerDetails().getRunEnergy() == 0.0)
+					p.setRun(false);
+			}
+		});
 		updateEntityRegion(this);
 		if (needMapUpdate())
 			loadMapRegions();
@@ -892,7 +899,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public int getSize() {
-		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearence().getSize();
+		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearance().getSize();
 	}
 
 	public void cancelFaceEntityNoCheck() {

@@ -310,7 +310,7 @@ public final class Equipment {
 			player.setHitpoints(player.getMaxHitpoints());
 			player.getSkills().refreshHitPoints();
 		}
-		player.getAppearence().generateAppearenceData();;
+		player.getAppearance().generateAppearenceData();;
 
 	}
 
@@ -348,7 +348,7 @@ public final class Equipment {
 	/**
 	 * The bonuses of the player
 	 */
-	private int[] bonuses = new int[18];
+	private transient int[] bonuses = new int[18];
 	
 	/**
 	 * Gets the bonus at an index

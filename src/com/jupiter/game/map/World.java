@@ -111,7 +111,7 @@ public final class World {
 	}
 	
 	public static final Optional<Player> containsPlayer(String username) {
-		return players().filter(p -> p.getUsername().equalsIgnoreCase(username)).findFirst();
+		return players().filter(p -> p.getPlayerDetails().getUsername().equalsIgnoreCase(username)).findFirst();
 	}
 
 	public static final Player getPlayerByDisplayName(String username) {
@@ -119,7 +119,7 @@ public final class World {
 		for (Player player : getPlayers()) {
 			if (player == null)
 				continue;
-			if (player.getUsername().equalsIgnoreCase(formatedUsername)
+			if (player.getPlayerDetails().getUsername().equalsIgnoreCase(formatedUsername)
 					|| player.getDisplayName().equalsIgnoreCase(formatedUsername))
 				return player;
 		}

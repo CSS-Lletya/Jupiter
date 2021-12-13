@@ -37,6 +37,10 @@ public final class PlayerDetails {
 	}
 
 	/**
+	 * The players raw Username (non-formatted)
+	 */
+	private transient String username;
+	/**
 	 * The players personal password for login
 	 */
 	private String password;

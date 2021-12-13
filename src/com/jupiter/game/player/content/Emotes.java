@@ -239,12 +239,12 @@ public class Emotes {
 				});
 				turkeySeq.connect(2, () -> {
 					player.setNextAnimation(new Animation(10996));
-					player.getAppearence().transformIntoNPC(8499);
+					player.getAppearance().transformIntoNPC(8499);
 				});
 				turkeySeq.connect(6, () -> {
 					player.setNextAnimation(new Animation(10995));
 					player.setNextGraphics(new Graphics(86));
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				});
 				turkeySeq.start();
 				return true;
@@ -261,13 +261,13 @@ public class Emotes {
 				soaSeq.connect(2, () -> {
 					int random = (int) (Math.random() * (2 + 1));
 					player.setNextAnimation(new Animation(15106));
-					player.getAppearence().transformIntoNPC(random == 0 ? 13255 : (random == 1 ? 13256 : 13257));
+					player.getAppearance().transformIntoNPC(random == 0 ? 13255 : (random == 1 ? 13256 : 13257));
 				});
 				soaSeq.connect(3, () -> player.setNextAnimation(new Animation(15108)));
 				soaSeq.connect(4, () -> {
 					player.setNextAnimation(new Animation(15105));
 					player.setNextGraphics(new Graphics(1287));
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				});
 				soaSeq.start();
 				return true;
@@ -496,9 +496,9 @@ public class Emotes {
 				seq.connect(1, () -> {
 					player.setNextAnimation(new Animation(((rand > 0 ? 13192 : (rand == 2 ? 13193 : 13194)))));
 				}).connect(2, () -> {
-					player.getAppearence().transformIntoNPC((rand == 0 ? 11229 : (rand == 2 ? 11228 : 11227)));
+					player.getAppearance().transformIntoNPC((rand == 0 ? 11229 : (rand == 2 ? 11228 : 11227)));
 				}).connect(3, () -> {
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				}).start();
 				break;
 			case 19709:
@@ -628,14 +628,14 @@ public class Emotes {
 					player.setNextGraphics(new Graphics(307));
 				});
 				compCapeSeq.connect(2, () -> {
-					player.getAppearence().transformIntoNPC(capeId == 20769 ? 1830 : 3372);
+					player.getAppearance().transformIntoNPC(capeId == 20769 ? 1830 : 3372);
 					player.setNextAnimation(new Animation(1174));
 					player.setNextGraphics(new Graphics(1443));
 				});
 				compCapeSeq.connect(4, () -> player.getPackets().sendCameraShake(3, 25, 50, 25, 50));
 				compCapeSeq.connect(5, () -> player.getPackets().sendStopCameraShake());
 				compCapeSeq.connect(6, () -> {
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 					player.setNextAnimation(new Animation(1175));
 				});
 				compCapeSeq.start();

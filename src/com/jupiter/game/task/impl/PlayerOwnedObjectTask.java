@@ -15,7 +15,7 @@ public final class PlayerOwnedObjectTask extends Task {
 	
 	@Override
 	public void execute() {
-		World.players().filter(p -> !p.getOwnedObjectManagerKeys().isEmpty()).forEach(p -> OwnedObjectManager.processAll());
+		World.players().filter(p -> !p.getPlayerDetails().getOwnedObjectsManagerKeys().isEmpty()).forEach(p -> OwnedObjectManager.processAll());
 	}
 	
 	@Override

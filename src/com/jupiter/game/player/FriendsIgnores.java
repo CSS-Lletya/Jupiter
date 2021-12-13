@@ -43,7 +43,7 @@ public class FriendsIgnores {
 	}
 
 	public boolean canTalk(Player player) {
-		return getRank(player.getUsername()) >= whoCanTalkOnChat;
+		return getRank(player.getPlayerDetails().getUsername()) >= whoCanTalkOnChat;
 	}
 
 	public int getRank(String username) {
@@ -99,11 +99,11 @@ public class FriendsIgnores {
 	}
 
 	public void changeFriendStatus(Player p2, boolean online) {
-		if (!friends.contains(p2.getUsername()))
+		if (!friends.contains(p2.getPlayerDetails().getUsername()))
 			return;
 		if (online && !isOnline(p2))
 			online = false;
-		player.getPackets().sendFriend(Utility.formatPlayerNameForDisplay(p2.getUsername()), p2.getDisplayName(), 1,
+		player.getPackets().sendFriend(Utility.formatPlayerNameForDisplay(p2.getPlayerDetails().getUsername()), p2.getDisplayName(), 1,
 				online, true);
 	}
 
@@ -118,13 +118,13 @@ public class FriendsIgnores {
 			player.getPackets().sendPrivateGameBarStage();
 		}
 		player.getPackets().sendPrivateMessage(p2.getDisplayName(), message);
-		p2.getPackets().receivePrivateMessage(Utility.formatPlayerNameForDisplay(player.getUsername()),
+		p2.getPackets().receivePrivateMessage(Utility.formatPlayerNameForDisplay(player.getPlayerDetails().getUsername()),
 				player.getDisplayName(), player.getMessageIcon(), message);
 	}
 
 //	public void sendQuickChatMessage(Player p2, QuickChatMessage quickChatMessage) {
 //		player.getPackets().sendPrivateQuickMessageMessage(p2.getDisplayName(), quickChatMessage);
-//		p2.getPackets().receivePrivateChatQuickMessage(Utils.formatPlayerNameForDisplay(player.getUsername()),
+//		p2.getPackets().receivePrivateChatQuickMessage(Utils.formatPlayerNameForDisplay(player.getPlayerDetails().getUsername()),
 //				player.getDisplayName(), player.getMessageIcon(), quickChatMessage);
 //
 //	}
@@ -375,16 +375,16 @@ public class FriendsIgnores {
 			player.getPackets().sendGameMessage("Your ignores list is full.");
 			return;
 		}
-		if (username.equals(player.getUsername())) {
+		if (username.equals(player.getPlayerDetails().getUsername())) {
 			player.getPackets().sendGameMessage("You can't add yourself.");
 			return;
 		}
-		if (friends.contains(player.getUsername())) {
+		if (friends.contains(player.getPlayerDetails().getUsername())) {
 			player.getPackets().sendGameMessage("Please remove " + username + " from your friends list first.");
 			return;
 		}
 		Player p2 = World.getPlayerByDisplayName(username);
-		String formatedUsername = p2 != null ? p2.getUsername() : Utility.formatPlayerNameForProtocol(username);
+		String formatedUsername = p2 != null ? p2.getPlayerDetails().getUsername() : Utility.formatPlayerNameForProtocol(username);
 		if (ignores.contains(formatedUsername) || tillLogoutIgnores.contains(formatedUsername)) {
 			player.getPackets().sendGameMessage(formatedUsername + " is already on your ignores list.");
 			return;
@@ -393,7 +393,7 @@ public class FriendsIgnores {
 			tillLogoutIgnores.add(formatedUsername);
 		else
 			ignores.add(formatedUsername);
-		player.getPackets().sendIgnore(Utility.formatPlayerNameForDisplay(p2 != null ? p2.getUsername() : username),
+		player.getPackets().sendIgnore(Utility.formatPlayerNameForDisplay(p2 != null ? p2.getPlayerDetails().getUsername() : username),
 				p2 != null ? p2.getDisplayName() : Utility.formatPlayerNameForDisplay(username), false);
 	}
 
@@ -403,8 +403,8 @@ public class FriendsIgnores {
 		if (!ignores.remove(formatedUsername) && !tillLogoutIgnores.remove(formatedUsername)) {
 			if (p2 == null)
 				return;
-			if (!ignores.remove(p2.getUsername()))
-				tillLogoutIgnores.remove(p2.getUsername());
+			if (!ignores.remove(p2.getPlayerDetails().getUsername()))
+				tillLogoutIgnores.remove(p2.getPlayerDetails().getUsername());
 		}
 	}
 
@@ -413,11 +413,11 @@ public class FriendsIgnores {
 			player.getPackets().sendGameMessage("Your friends list is full.");
 			return;
 		}
-		if (username.equals(player.getUsername())) {
+		if (username.equals(player.getPlayerDetails().getUsername())) {
 			player.getPackets().sendGameMessage("You can't add yourself.");
 			return;
 		}
-		if (ignores.contains(player.getUsername()) || tillLogoutIgnores.contains(player.getUsername())) {
+		if (ignores.contains(player.getPlayerDetails().getUsername()) || tillLogoutIgnores.contains(player.getPlayerDetails().getUsername())) {
 			player.getPackets().sendGameMessage("Please remove " + username + " from your ignore list first.");
 			return;
 		}
@@ -447,8 +447,8 @@ public class FriendsIgnores {
 		if (!friends.remove(formatedUsername)) {
 			if (p2 == null)
 				return;
-			friends.remove(p2.getUsername());
-			getFriendsChatRanks().remove(p2.getUsername());
+			friends.remove(p2.getPlayerDetails().getUsername());
+			getFriendsChatRanks().remove(p2.getPlayerDetails().getUsername());
 			FriendChatsManager.refreshChat(player);
 		} else {
 			getFriendsChatRanks().remove(formatedUsername);
@@ -461,7 +461,7 @@ public class FriendsIgnores {
 	public boolean isOnline(Player p2) {
 		if (p2.getFriendsIgnores().privateStatus == 2)
 			return false;
-		if (p2.getFriendsIgnores().privateStatus == 1 && !p2.getFriendsIgnores().friends.contains(player.getUsername()))
+		if (p2.getFriendsIgnores().privateStatus == 1 && !p2.getFriendsIgnores().friends.contains(player.getPlayerDetails().getUsername()))
 			return false;
 		return true;
 	}

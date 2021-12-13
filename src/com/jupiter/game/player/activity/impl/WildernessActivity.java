@@ -138,7 +138,7 @@ public class WildernessActivity extends Activity {
 			showingSkull = true;
 			player.setCanPvp(true);
 			showSkull(player);
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		} else if (showingSkull && (isAtWildSafe || !isAtWild)) {
 			removeIcon(player);
 		} else if (!isAtWildSafe && !isAtWild) {
@@ -222,7 +222,7 @@ public class WildernessActivity extends Activity {
 			showingSkull = false;
 			player.setCanPvp(false);
 			player.setCurrentActivity(Optional.empty());
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getEquipment().refresh(null);
 		}
 	}
@@ -233,5 +233,13 @@ public class WildernessActivity extends Activity {
 
 	public static boolean isDitch(int id) {
 		return id >= 1440 && id <= 1444 || id >= 65076 && id <= 65087;
+	}
+	
+	
+	public void setCanPvp(Player player, boolean canPvp) {
+		player.setCanPvp(canPvp);
+		player.getAppearance().getAppeareanceBlocks();
+		player.getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
+		player.getPackets().sendPlayerUnderNPCPriority(canPvp);
 	}
 }

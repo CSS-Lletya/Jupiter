@@ -3,6 +3,7 @@ package com.jupiter.game.player;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -26,7 +27,6 @@ import com.jupiter.network.encoders.other.LocalPlayerUpdate;
 import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.PrayerManager;
-import com.jupiter.utility.Utility;
 
 import lombok.Data;
 
@@ -46,24 +46,24 @@ public class AccountCreation {
 	}
 	
 	public static void login(Player player, Session session, String username, byte displayMode, short screenWidth, short screenHeight, IsaacKeyPair isaacKeyPair) {
-		player.session = session;
-		player.username = username;
-		player.displayMode = displayMode;
-		player.screenWidth = screenWidth;
-		player.screenHeight = screenHeight;
-		player.isaacKeyPair = isaacKeyPair;
-		if (player.getAttributes() == null)
+		player.setSession(session);
+		player.getPlayerDetails().setUsername(username);
+		player.setDisplayMode(displayMode);
+		player.setScreenWidth(screenWidth);
+		player.setScreenHeight(screenHeight);
+		player.setIsaacKeyPair(isaacKeyPair);
+		if (player.attributes == null)
 			player.attributes = new AttributeMap<>(Attribute.class);
-		if (player.appearence == null)
-			player.appearence = new Appearance();
-		if (player.inventory == null)
-			player.inventory = new Inventory();
-		if (player.equipment == null)
-			player.equipment = new Equipment();
-		if (player.skills == null)
-			player.skills = new Skills();
-		if (player.combatDefinitions == null)
-			player.combatDefinitions = new CombatDefinitions();
+		if (player.getAppearance() == null)
+			player.setAppearance(new Appearance());
+		if (player.getInventory() == null)
+			player.setInventory(new Inventory());
+		if (player.getEquipment() == null)
+			player.setEquipment(new Equipment());
+		if (player.getSkills() == null)
+			player.setSkills(new Skills());
+		if (player.getCombatDefinitions() == null)
+			player.setCombatDefinitions(new CombatDefinitions());
 		if (player.prayer == null)
 			player.prayer = new PrayerManager();
 		if (player.bank == null)
@@ -82,35 +82,36 @@ public class AccountCreation {
 			player.getPlayerDetails().setActivatedLodestones(new boolean[16]);
 		if (player.getCurrentActivity() == null)
 			player.setCurrentActivity(Optional.empty());
+		if (player.getPlayerDetails().getOwnedObjectsManagerKeys() == null) // temporary
+			player.getPlayerDetails().setOwnedObjectsManagerKeys(new LinkedList<String>());
 		if (player.varsManager == null)
 			player.varsManager = new VarManager(player);
-		player.interfaceManager = new InterfaceManager(player);
-		player.hintIconsManager = new HintIconsManager(player);
-		player.priceCheckManager = new PriceCheckManager(player);
+		player.setInterfaceManager(new InterfaceManager(player));
+		player.setHintIconsManager(new HintIconsManager(player));
+		player.setPriceCheckManager(new PriceCheckManager(player));
 		player.localPlayerUpdate = new LocalPlayerUpdate(player);
 		player.localNPCUpdate = new LocalNPCUpdate(player);
-		player.actionManager = new ActionManager(player);
-		player.trade = new Trade(player);
+		player.setActionManager(new ActionManager(player));
+		player.setTrade(new Trade(player));
 		
 		// loads player on saved instances
 		player.lodeStone.setPlayer(player);
-		player.appearence.setPlayer(player);
-		player.inventory.setPlayer(player);
-		player.equipment.setPlayer(player);
-		player.skills.setPlayer(player);
+		player.getAppearance().setPlayer(player);
+		player.getInventory().setPlayer(player);
+		player.getEquipment().setPlayer(player);
+		player.getSkills().setPlayer(player);
 		player.toolbelt.setPlayer(player);
-		player.combatDefinitions.setPlayer(player);
+		player.getCombatDefinitions().setPlayer(player);
 		player.prayer.setPlayer(player);
 		player.bank.setPlayer(player);
 		player.musicsManager.setPlayer(player);
 		player.friendsIgnores.setPlayer(player);
 		player.auraManager.setPlayer(player);
-		player.temporaryMovementType = -1;
+		player.setTemporaryMovementType((byte) -1);
 		player.logicPackets = new ConcurrentLinkedQueue<LogicPacket>();
-		player.switchItemCache = Collections.synchronizedList(new ArrayList<Byte>());
+		player.setSwitchItemCache(Collections.synchronizedList(new ArrayList<Byte>()));
 		
 		player.initEntity();
-		player.packetsDecoderPing = Utility.currentTimeMillis();
 		World.addPlayer(player);
 		player.updateEntityRegion(player);
 

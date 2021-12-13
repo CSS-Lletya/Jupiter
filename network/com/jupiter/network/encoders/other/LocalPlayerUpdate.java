@@ -149,7 +149,7 @@ public final class LocalPlayerUpdate {
 				}
 				stream.writeBits(6, p.getXInRegion());
 				stream.writeBits(6, p.getYInRegion());
-				boolean needAppearenceUpdate = needAppearenceUpdate((byte) p.getIndex(), p.getAppearence().getMD5AppeareanceDataHash());
+				boolean needAppearenceUpdate = needAppearenceUpdate((byte) p.getIndex(), p.getAppearance().getMD5AppeareanceDataHash());
 				appendUpdateBlock(p, updateBlockData, needAppearenceUpdate, true);
 				stream.writeBits(1, 1);
 				localAddedPlayers++;
@@ -208,7 +208,7 @@ public final class LocalPlayerUpdate {
 				}
 				localPlayers[playerIndex] = null;
 			} else {
-				boolean needAppearenceUpdate = needAppearenceUpdate((byte) p.getIndex(), p.getAppearence().getMD5AppeareanceDataHash());
+				boolean needAppearenceUpdate = needAppearenceUpdate((byte) p.getIndex(), p.getAppearance().getMD5AppeareanceDataHash());
 				boolean needUpdate = p.needMasksUpdate() || needAppearenceUpdate;
 				if (needUpdate)
 					appendUpdateBlock(p, updateBlockData, needAppearenceUpdate, false);
@@ -271,7 +271,7 @@ public final class LocalPlayerUpdate {
 						if (nsn0 ? (0x1 & slotFlags[p2Index]) != 0 : (0x1 & slotFlags[p2Index]) == 0)
 							continue;
 						Player p2 = localPlayers[p2Index];
-						if (needsRemove(p2) || p2.hasTeleported() || p2.getNextWalkDirection() != null || (p2.needMasksUpdate() || needAppearenceUpdate((byte) p2.getIndex(), p2.getAppearence().getMD5AppeareanceDataHash())))
+						if (needsRemove(p2) || p2.hasTeleported() || p2.getNextWalkDirection() != null || (p2.needMasksUpdate() || needAppearenceUpdate((byte) p2.getIndex(), p2.getAppearance().getMD5AppeareanceDataHash())))
 							break;
 						skip++;
 					}
@@ -453,9 +453,9 @@ public final class LocalPlayerUpdate {
 	}
 
 	private void applyAppearanceMask(Player p, OutputStream data) {
-		byte[] renderData = p.getAppearence().getAppeareanceBlocks();
+		byte[] renderData = p.getAppearance().getAppeareanceBlocks();
 		totalRenderDataSentLength += renderData.length;
-		cachedAppearencesHashes[p.getIndex()] = p.getAppearence().getMD5AppeareanceDataHash();
+		cachedAppearencesHashes[p.getIndex()] = p.getAppearance().getMD5AppeareanceDataHash();
 		data.writeByteC(renderData.length);
 		data.writeBytes(renderData);
 

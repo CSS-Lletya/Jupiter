@@ -476,7 +476,7 @@ public class Foods {
 			public void effect(Object object) {
 				Player player = (Player) object;
 				player.getPackets()
-						.sendGameMessage("It hurts to see a grown " + player.getAppearence().isMale() != null ? "male"
+						.sendGameMessage("It hurts to see a grown " + player.getAppearance().isMale() != null ? "male"
 								: "female" + "cry.");
 			}
 		},
@@ -508,7 +508,7 @@ public class Foods {
 		player.getActionManager().setActionDelay((int) foodDelay / 1000);
 		player.getActionManager().setActionDelay(player.getActionManager().getActionDelay() + 2);
 		player.getInventory().getItems().set(slot, food.getNewId() == 0 ? null : new Item(food.getNewId(), 1));
-//		player.getInventory().refresh(slot);
+		player.getInventory().refresh(slot);
 		int hp = player.getHitpoints();
 		player.heal(food.getHeal() * 10, food.getExtraHP() * 10);
 		if (player.getHitpoints() > hp)

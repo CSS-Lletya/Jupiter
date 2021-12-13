@@ -1369,7 +1369,7 @@ public class PlayerCombat extends Action {
 						player.setNextGraphics(new Graphics(2140));
 						player.getEquipment().getItems().set(3, null);
 						player.getEquipment().refresh((byte) 3);
-						player.getAppearence().generateAppearenceData();
+						player.getAppearance().generateAppearenceData();
 						player.applyHit(new Hit(player, RandomUtility.getRandom(150) + 10, HitLook.REGULAR_DAMAGE));
 						player.setNextAnimation(new Animation(12175));
 						return combatDelay;

@@ -25,8 +25,7 @@ public class ActivityHandler {
 	 * @param action the backed activity action to execute.
 	 */
 	public static void executeVoid(Player player, Consumer<Activity> action) {
-		if (ACTIVITIES.contains(player.getCurrentActivity().get()))
-			action.accept(player.getCurrentActivity().get());
+		player.getCurrentActivity().ifPresent(action::accept);
 	}
 	
 	/**
@@ -37,7 +36,7 @@ public class ActivityHandler {
 	 * @param function the function to execute that returns a result.
 	 */
 	public static boolean execute(Player player, Function<Activity, Boolean> function) {
-		return ACTIVITIES.contains(player.getCurrentActivity().get()) ? function.apply(player.getCurrentActivity().get()) : false;
+		return player.getCurrentActivity().isPresent() && ACTIVITIES.contains(player.getCurrentActivity().get()) ? function.apply(player.getCurrentActivity().get()) : false;
 	}
 	
 	/**

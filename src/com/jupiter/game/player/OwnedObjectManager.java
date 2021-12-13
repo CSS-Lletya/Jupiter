@@ -30,7 +30,7 @@ public class OwnedObjectManager {
 	}
 
 	public static boolean isPlayerObject(Player player, WorldObject object) {
-		for (Iterator<String> it = player.getOwnedObjectManagerKeys().iterator(); it.hasNext();) {
+		for (Iterator<String> it = player.getPlayerDetails().getOwnedObjectsManagerKeys().iterator(); it.hasNext();) {
 			OwnedObjectManager manager = ownedObjects.get(it.next());
 			if (manager == null) {
 				it.remove();
@@ -66,7 +66,7 @@ public class OwnedObjectManager {
 	}
 
 	public static boolean removeObject(Player player, WorldObject object) {
-		for (Iterator<String> it = player.getOwnedObjectManagerKeys().iterator(); it.hasNext();) {
+		for (Iterator<String> it = player.getPlayerDetails().getOwnedObjectsManagerKeys().iterator(); it.hasNext();) {
 			final OwnedObjectManager manager = ownedObjects.get(it.next());
 			if (manager == null) {
 				it.remove();
@@ -89,7 +89,7 @@ public class OwnedObjectManager {
 	}
 
 	public static void linkKeys(Player player) {
-		for (Iterator<String> it = player.getOwnedObjectManagerKeys().iterator(); it.hasNext();) {
+		for (Iterator<String> it = player.getPlayerDetails().getOwnedObjectsManagerKeys().iterator(); it.hasNext();) {
 			OwnedObjectManager manager = ownedObjects.get(it.next());
 			if (manager == null) {
 				it.remove();
@@ -104,18 +104,18 @@ public class OwnedObjectManager {
 	}
 
 	private OwnedObjectManager(Player player, WorldObject[] objects, long cycleTime) {
-		managerKey = player.getUsername() + "_" + keyMaker.getAndIncrement();
+		managerKey = player.getPlayerDetails().getUsername() + "_" + keyMaker.getAndIncrement();
 		this.cycleTime = cycleTime;
 		this.objects = objects;
 		this.player = player;
 		spawnObject();
-		player.getOwnedObjectManagerKeys().add(managerKey);
+		player.getPlayerDetails().getOwnedObjectsManagerKeys().add(managerKey);
 		ownedObjects.put(managerKey, this);
 	}
 
 	public static int getObjectsforValue(Player player, int objectId) {
 		int count = 0;
-		for (Iterator<String> it = player.getOwnedObjectManagerKeys().iterator(); it.hasNext();) {
+		for (Iterator<String> it = player.getPlayerDetails().getOwnedObjectsManagerKeys().iterator(); it.hasNext();) {
 			OwnedObjectManager manager = ownedObjects.get(it.next());
 			if (manager == null) {
 				it.remove();
@@ -162,7 +162,7 @@ public class OwnedObjectManager {
 	private void remove() {
 		ownedObjects.remove(managerKey);
 		if (player != null)
-			player.getOwnedObjectManagerKeys().remove(managerKey);
+			player.getPlayerDetails().getOwnedObjectsManagerKeys().remove(managerKey);
 	}
 
 	public void delete() {

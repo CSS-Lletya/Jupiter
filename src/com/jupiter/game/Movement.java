@@ -103,6 +103,10 @@ public class Movement {
 		});
 	}
 	
+	public void drainRunEnergy(double amount) {
+		setRunEnergy(entity.toPlayer().getPlayerDetails().getRunEnergy() - amount);
+	}
+	
 	public void drainRunEnergy() {
 		setRunEnergy(entity.toPlayer().getPlayerDetails().getRunEnergy() - 1);
 	}

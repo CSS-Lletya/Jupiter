@@ -46,7 +46,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		if (!item.getDefinitions().containsOption("Wield")) {
 			return false;
 		}
-		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearence().isMale())) {
+		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearance().isMale())) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return true;
 		}
@@ -133,7 +133,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 		player.getPackets().sendSound(2240, 0, 1);
 		return true;
 	}
@@ -155,7 +155,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 			return true;
 		}
 		if (item.getDefinitions().isNoted()
-				|| !item.getDefinitions().isWearItem(player.getAppearence().isMale()) && itemId != 4084) {
+				|| !item.getDefinitions().isWearItem(player.getAppearance().isMale()) && itemId != 4084) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return false;
 		}
@@ -256,7 +256,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		player.getInventory().refreshItems(copy);
 		if (worn) {
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getPackets().sendSound(2240, 0, 1);
 		}
 	}

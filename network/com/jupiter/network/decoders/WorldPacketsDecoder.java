@@ -936,7 +936,6 @@ public final class WorldPacketsDecoder extends Decoder {
 	}
 
 	public void processPackets(final int packetId, InputStream stream, int length) {
-		player.setPacketsDecoderPing(Utility.currentTimeMillis());
 //		System.out.println(packetId);
 		if (packetId == PING_PACKET) {
 			// kk we ping :)
