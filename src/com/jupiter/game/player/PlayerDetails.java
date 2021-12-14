@@ -10,22 +10,21 @@ import com.jupiter.utility.Utility;
 import lombok.Data;
 
 /**
- * All personal variables of the Player shall be stored here for easier access.
- * 
+ * A more refined list of Player's personal data (usually primitive objects, no direct classes)
  * @author Dennis
- *
  */
 @Data
 public final class PlayerDetails {
 
 	/**
-	 * Constructs a new Player's details
+	 * Constructs a new Player's personal details
 	 */
 	public PlayerDetails() {
 		pouches = new byte[4];
 		maxedCapeCustomized = new int[4];
 		completionistCapeCustomized = new int[4];
 		varBitList = new ConcurrentHashMap<Integer, Integer>();
+		temporaryVarBits = new ConcurrentHashMap<>();
 		rights = Rights.PLAYER;
 		ownedObjectsManagerKeys = new LinkedList<String>();
 		passwordList = new ArrayList<String>();
@@ -40,6 +39,7 @@ public final class PlayerDetails {
 	 * The players raw Username (non-formatted)
 	 */
 	private transient String username;
+	
 	/**
 	 * The players personal password for login
 	 */
@@ -50,25 +50,79 @@ public final class PlayerDetails {
 	 */
 	private Rights rights = Rights.PLAYER;
 	
-	// game bar status
+	/**
+	 * Represents the Public status
+	 */
 	private byte publicStatus;
+	
+	/**
+	 * Represents the Clan status
+	 */
 	private byte clanStatus;
-	private byte tradeStatus;
+	
+	/**
+	 * Represents the Trade status within an active Trade
+	 */
+	private transient byte tradeStatus;
+	
+	/**
+	 * A list of activated Lodestones within the world Lodestone Network
+	 * (Quick teleporting, requires activation to quickly teleport back there)
+	 */
 	private boolean[] activatedLodestones;
 	
+	/**
+	 * Represents the Run energy the player can use
+	 * to Run. Can manipulated in many ways optionally as well
+	 */
 	private double runEnergy;
+	
+	/**
+	 * Should the Player use Chat effects for overhead text
+	 */
 	private boolean allowChatEffects;
+	
+	/**
+	 * Should the Player play with 2 mouse button mode
+	 */
 	private boolean mouseButtons;
+	
+	/**
+	 * Represents the Private Chat setup
+	 */
 	private byte privateChatSetup;
+	
+	/**
+	 * Represents the Friends Chat setup
+	 */
 	private byte friendChatSetup;
 
-	// Used for storing recent ips and password
+	/**
+	 * A list of Passwords from the Player. Passwords are currently hashed
+	 * so no real point in storing. However it's here anyways Also good for
+	 * finding duplicate account users.
+	 */
 	private ArrayList<String> passwordList = new ArrayList<String>();
+	
+	/**
+	 * A list of IP's logged from the player, useful for keeping track
+	 * of any abuse-based players making it easier to track their accounts, etc...
+	 */
 	private ArrayList<String> ipList = new ArrayList<String>();
 
-
+	/**
+	 * Represents the currently Friends Chat to join
+	 */
 	private String currentFriendChatOwner;
+	
+	/**
+	 * The quick-selected option id for the summoning orb.
+	 */
 	private byte summoningLeftClickOption;
+	
+	/**
+	 * A list of Player owned objects (like Hunter box traps, Dwarf Multi cannon, etc..)
+	 */
 	private List<String> ownedObjectsManagerKeys;
 	
 	/**
@@ -76,9 +130,19 @@ public final class PlayerDetails {
 	 */
 	private byte[] pouches;
 
-
+	/**
+	 * Represents the total play time of a Player since account creation
+	 */
 	private long displayTime;
 
+	/**
+	 * Adds Players display time
+	 * @param time
+	 */
+	public void addDisplayTime(long time) {
+		this.displayTime = time + Utility.currentTimeMillis();
+	}
+	
 	/**
 	 * The length of a Player being Muted (Unable to chat)
 	 */
@@ -90,15 +154,6 @@ public final class PlayerDetails {
 	private long jailed;
 
 	/**
-	 * Adds Players display time
-	 * 
-	 * @param i
-	 */
-	public void addDisplayTime(long i) {
-		this.displayTime = i + Utility.currentTimeMillis();
-	}
-
-	/**
 	 * Represents the last known IP from the Player
 	 */
 	private String lastIP;
@@ -107,6 +162,7 @@ public final class PlayerDetails {
 	 * Represents if a Player is filtering out their chatbox messages
 	 */
 	private boolean filterGame;
+	
 	/**
 	 * Represents if the Player has their experience locked
 	 */
@@ -116,6 +172,7 @@ public final class PlayerDetails {
 	 * An array of possible changes to the Max Cape customization
 	 */
 	private int[] maxedCapeCustomized;
+	
 	/**
 	 * An array of possible changes to the Completionist Cape customization
 	 */
@@ -124,19 +181,28 @@ public final class PlayerDetails {
 	/**
 	 * Represents if the Player should be using older item models to display
 	 */
-	public boolean oldItemsLook;
+	private boolean oldItemsLook;
 	
 	/**
 	 * Represents the default Yell color for a Player
 	 */
-	public String yellColor = "ff0000";
-
-	public int skullId;
+	private String yellColor = "ff0000";
 
 	/**
-	 * @varpbit
+	 * Represents the Skull (over head) type (colors)
 	 */
+	private int skullId;
 
-	public ConcurrentHashMap<Integer, Integer> varBitList = new ConcurrentHashMap<>();
-	public transient ConcurrentHashMap<Integer, Integer> temporaryVarBits = new ConcurrentHashMap<>();
+	/**
+	 * A list of VarBits (Object transformation) ID & their values.
+	 * You can right click any object to see if a varbit isn't equal to -1,
+	 * if the object has a key value greater than -1 then use 0-5 to debug
+	 * transformation types. (Usually 0-3 in most cases)
+	 */
+	private ConcurrentHashMap<Integer, Integer> varBitList = new ConcurrentHashMap<>();
+	
+	/**
+	 * A list of temporary VarBits that ARE NOT meant to be saved to a player but simply used on demand
+	 */
+	private transient ConcurrentHashMap<Integer, Integer> temporaryVarBits = new ConcurrentHashMap<>();
 }
