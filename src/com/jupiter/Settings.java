@@ -11,7 +11,6 @@ import com.jupiter.game.player.Rights;
 
 /**
  * Server Settings
- * 
  * @author Dennis
  *
  */
@@ -33,17 +32,20 @@ public final class Settings {
 	public static final String LASTEST_UPDATE = "<col=7E2217>We're proud to be open sourced! Join the Discord & Development.";
 	
 	/**
-	 * The size limit of the recieved data payload
+	 * The size limit of the received data payload
 	 */
 	public static final int RECEIVE_DATA_LIMIT = 7500;
+	
 	/**
 	 * The size limit of the Packet payload
 	 */
 	public static final int PACKET_SIZE_LIMIT = 7500;
+	
 	/**
 	 * The client's revision
 	 */
 	public static final short CLIENT_BUILD = 727;
+	
 	/**
 	 * The clients custom build number (this usually never changes)
 	 */
@@ -87,7 +89,7 @@ public final class Settings {
 	public static final int MIN_FREE_MEM_ALLOWED = 30000000; // 30mb
 
 	/**
-	 * Game constants
+	 * Map Sizes
 	 */
 	public static final short[] MAP_SIZES = { 104, 120, 136, 168, 72 };
 
@@ -131,10 +133,12 @@ public final class Settings {
 	 * An immutable map of Staff members
 	 */
 	public static final ImmutableMap<String, Rights> STAFF = ImmutableMap.of(
-			"Zed", Rights.ADMINISTRATOR,
-			"Jawarrior1", Rights.ADMINISTRATOR
+			"Zed", Rights.ADMINISTRATOR
 	);
 
+	/**
+	 * An immutable list of Items to give to a Player (Typically on new account creation)
+	 */
 	public static ImmutableSet<Item> STATER_KIT = ImmutableSet.of(new Item(995, 5000000),
 			new Item(4069, 1), new Item(4070, 1), new Item(4071, 1), new Item(4068, 1), new Item(4072, 1),
 			new Item(1063, 1), new Item(1095, 1), new Item(1129, 1), new Item(577, 1), new Item(1011, 1),

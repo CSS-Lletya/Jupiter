@@ -161,72 +161,72 @@ public class Player extends Entity {
 	/**
 	 * Represents an instance of a conversation for the target Player
 	 */
-	protected transient Conversation conversation;
+	private transient Conversation conversation;
 	
 	/**
 	 * Represents a Player's Vars management system
 	 */
-	protected transient VarManager varsManager;
+	private transient VarManager varsManager;
 	
 	/**
 	 * Represents a Player's queue logic packets listing
 	 */
-	protected transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
+	private transient ConcurrentLinkedQueue<LogicPacket> logicPackets;
 	
 	/**
 	 * Represents the Player updating masks
 	 */
-	protected transient LocalPlayerUpdate localPlayerUpdate;
+	private transient LocalPlayerUpdate localPlayerUpdate;
 	
 	/**
 	 * Represents the NPC updating masks
 	 */
-	protected transient LocalNPCUpdate localNPCUpdate;
+	private transient LocalNPCUpdate localNPCUpdate;
 	
 	/**
 	 * Personal details & information stored for a Player
 	 */
-	protected PlayerDetails playerDetails = new PlayerDetails();
+	private PlayerDetails playerDetails = new PlayerDetails();
 	
 	/**
 	 * Represents the type-safe attributes of a Player
 	 */
-	protected AttributeMap<Attribute> attributes = new AttributeMap<>(Attribute.class);
+	private AttributeMap<Attribute> attributes = new AttributeMap<>(Attribute.class);
 	
 	/**
 	 * Represents a Player's Prayer management system
 	 */
-	protected PrayerManager prayer;
+	private PrayerManager prayer;
 	
 	/**
 	 * Represents a Player's Bank management system
 	 */
-	protected Bank bank;
+	private Bank bank;
 	
 	/**
 	 * Represents a Player's Music management system
 	 */
-	protected MusicsManager musicsManager;
+	private MusicsManager musicsManager;
 	
 	/**
 	 * Represents a Player's Friends Ignore management system
 	 */
-	protected FriendsIgnores friendsIgnores;
+	private FriendsIgnores friendsIgnores;
 	
 	/**
 	 * Represents a Player's Aura handler
 	 */
-	protected AuraManager auraManager;
+	private AuraManager auraManager;
 	
 	/**
 	 * Represents a Player's Lodestone network
 	 */
-	protected LodeStone lodeStone;
+	private LodeStone lodeStone;
 	
 	/**
 	 * Represents a Player's toolbelt (Items stored in a hidden backpack-like system)
 	 */
-	protected Toolbelt toolbelt;
+	private Toolbelt toolbelt;
 	
 	/**
 	 * The current activity this Player is in.
@@ -695,8 +695,12 @@ public class Player extends Entity {
 		tab.getAction().accept(this);
 	}
 
-	public int getWeight() {
-		// TODO Auto-generated method stub
-		return 0;
+	/**
+	 * Gets the Weight of the total weight of the Player
+	 * (Inventory & Equipment calculated together)
+	 * @return total weight
+	 */
+	public double getWeight() {
+		return getInventory().getInventoryWeight() + getEquipment().getEquipmentWeight();
 	}
 }

@@ -19,6 +19,7 @@ import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.ItemWeights;
 import com.jupiter.utility.LogUtility;
 import com.jupiter.utility.MapArchiveKeys;
 import com.jupiter.utility.NPCBonuses;
@@ -28,15 +29,30 @@ import com.jupiter.utility.LogUtility.Type;
 import io.vavr.control.Try;
 import lombok.Getter;
 
+/**
+ * Handles the game data being built for the server
+ * (Server startups are sent here to be built on startup)
+ * @author Dennis
+ *
+ */
 public class GameLoader {
 
+	/**
+	 * Represents the Game Loader with the {@link #load()} method attached
+	 */
 	public GameLoader() {
 		load();
 	}
 
+	/**
+	 * Defines the executor service.
+	 */
 	@Getter
 	private final BlockingExecutorService backgroundLoader = new BlockingExecutorService(Executors.newCachedThreadPool());
 
+	/**
+	 * Handles the data being loaded for startup
+	 */
 	public void load() {
 		LogUtility.log(Type.INFO, "Game Loader", "Initializing Cache & Game Network...");
 		Try.run(() -> Cache.init());
@@ -47,8 +63,6 @@ public class GameLoader {
 			Huffman.init();
 			MapArchiveKeys.init();
 			NPCCombatDefinitionsL.init();
-		});
-		getBackgroundLoader().submit(() -> {
 			NPCBonuses.init();
 			ItemExamines.init();
 		});
@@ -62,6 +76,7 @@ public class GameLoader {
 			RSInterfaceDispatcher.load();
 			NPCCombatDispatcher.load();
 			WeaponSpecialDispatcher.load();
+			ItemWeights.init();
 		});
 		getBackgroundLoader().submit(() -> {
 			HostManager.deserialize(HostListType.STARTER_RECEIVED);
@@ -71,6 +86,9 @@ public class GameLoader {
 		ServerChannelHandler.init();
 	}
 	
+	/**
+	 * Represents an instance of the {@link #GameLoader()} class
+	 */
 	@Getter
 	private static final GameLoader gameLoader = new GameLoader();
 }

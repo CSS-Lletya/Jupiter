@@ -17,16 +17,28 @@ import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 
+/**
+ * Builds & Runs the Server itself 
+ * @author Dennis
+ *
+ */
 public final class Launcher {
 
+	/**
+	 * Main method lads, this is it.
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		long currentTime = Utility.currentTimeMillis();
 		GameLoader.getGameLoader().getBackgroundLoader().waitForPendingTasks().shutdown();
-		LogUtility.log(Type.INFO, "Launcher",
-				"Server took " + (Utility.currentTimeMillis() - currentTime) + " milli seconds to launch.");
+		LogUtility.log(Type.INFO, "Launcher", "Server took " + (Utility.currentTimeMillis() - currentTime) + " milli seconds to launch.");
 		addCleanMemoryTask();
 	}
 
+	/**
+	 * A Memory cleaning task ran at a interval time 
+	 */
 	private static void addCleanMemoryTask() {
 		CoresManager.schedule(() -> {
 			cleanMemory(Runtime.getRuntime().freeMemory() < Settings.MIN_FREE_MEM_ALLOWED);

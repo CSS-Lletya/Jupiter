@@ -7,6 +7,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.skills.Skills;
 import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.ItemWeights;
 
 public final class Equipment {
 
@@ -39,6 +40,14 @@ public final class Equipment {
 			player.getPackets().sendUpdateItems(94, items, slots);
 			player.getCombatDefinitions().checkAttackStyle();
 		}
+		double w = 0;
+		for (Item item : items.getItems()) {
+			if (item == null)
+				continue;
+			w += ItemWeights.getWeight(item, true);
+		}
+		equipmentWeight = w;
+		player.getPackets().refreshWeight(player.getInventory().getInventoryWeight() + equipmentWeight);
 		player.getCombatDefinitions().refreshBonuses();
 		refreshConfigs(slots == null);
 	}
@@ -369,5 +378,11 @@ public final class Equipment {
 		if (item == null)
 			return "";
 		return item.getDefinitions().getName();
+	}
+
+	private transient double equipmentWeight;
+	
+	public double getEquipmentWeight() {
+		return equipmentWeight;
 	}
 }

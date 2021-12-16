@@ -333,6 +333,13 @@ public class WorldPacketsEncoder extends Encoder {
 		session.write(stream);
 	}
 
+	public void refreshWeight(double weight) {
+		final OutputStream stream = new OutputStream();
+		stream.writePacket(player, 14);
+		stream.writeShort((short) weight);
+		session.write(stream);
+	}
+	
 	public void sendIComponentText(int interfaceId, int componentId, String text) {
 		OutputStream stream = new OutputStream();
 		stream.writePacketVarShort(player, 124);

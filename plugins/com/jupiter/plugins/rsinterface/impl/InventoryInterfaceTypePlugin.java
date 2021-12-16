@@ -85,7 +85,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
+		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);

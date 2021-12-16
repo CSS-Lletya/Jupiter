@@ -8,6 +8,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.item.ItemsContainer;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.ItemWeights;
 
 import io.vavr.collection.Array;
 import lombok.Getter;
@@ -44,12 +45,20 @@ public final class Inventory {
 	}
 
 	public void refresh(byte... slots) {
+		double w = 0;
+		for (Item item : items.getItems()) {
+			if (item == null)
+				continue;
+			w += ItemWeights.getWeight(item, false);
+		}
+		inventoryWeight = w;
+		player.getPackets().refreshWeight(player.getEquipment().getEquipmentWeight() + inventoryWeight);
 		player.getPackets().sendUpdateItems(93, items, slots);
 	}
 
 	public boolean addItem(int itemId, int amount) {
 		if (itemId < 0 || amount < 0 || !CacheUtility.itemExists(itemId)
-				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, itemId, amount)))
+				)
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();
 		if (!items.add(new Item(itemId, amount))) {
@@ -239,5 +248,11 @@ public final class Inventory {
 				neededSlots++;
 		}
 		return freeSlots >= neededSlots;
+	}
+
+	private transient double inventoryWeight;
+	
+	public double getInventoryWeight() {
+		return inventoryWeight;
 	}
 }
