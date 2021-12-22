@@ -1,18 +1,47 @@
 package com.jupiter.network.encoders.other;
 
+import lombok.Getter;
+
+/**
+ * Represents a Graphic in the Game world
+ * @author Dennis
+ */
+@Getter
 public final class Graphics {
 
+	/**
+	 * The Id of the graphic
+	 * The Height of the Graphic
+	 * The Speed of the Graphic
+	 * The Rotation of the Graphic
+	 */
 	private int id, height, speed, rotation;
 
+	/**
+	 * Constructs a new Graphic
+	 * @param id
+	 */
 	public Graphics(int id) {
 		this(id, 0, 0, 0);
-
 	}
 
+	/**
+	 * Constructs a new Graphic
+	 * @param id
+	 * @param speed
+	 * @param height
+	 */
 	public Graphics(int id, int speed, int height) {
 		this(id, speed, height, 0);
 	}
 
+	/**
+	 * Constructs a new Graphic
+	 * @param id
+	 * @param speed
+	 * @param height
+	 * @param rotation
+	 */
 	public Graphics(int id, int speed, int height, int rotation) {
 		this.id = id;
 		this.speed = speed;
@@ -20,6 +49,9 @@ public final class Graphics {
 		this.rotation = rotation;
 	}
 
+	/**
+	 * Represents the Hash Code id for the Graphic (Ignore)
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -31,6 +63,9 @@ public final class Graphics {
 		return result;
 	}
 
+	/**
+	 * Checks value of the Graphic (Ignore)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -51,27 +86,20 @@ public final class Graphics {
 		return true;
 	}
 
-	public int getId() {
-		return id;
-	}
-
+	/**
+	 * Gets the Settings Hash mask for the Graphic
+	 * @return hash
+	 */
 	public int getSettingsHash() {
 		return (speed & 0xffff) | (height << 16);
 	}
 
+	/**
+	 * Gets the Settings Hash mask for the Graphic
+	 * @return hash
+	 */
 	public int getSettings2Hash() {
 		int hash = 0;
-		hash |= rotation & 0x7;
-		// hash |= value << 3;
-		// hash |= 1 << 7; boolean
-		return hash;
-	}
-
-	public int getSpeed() {
-		return speed;
-	}
-
-	public int getHeight() {
-		return height;
+		return hash |= rotation & 0x7;
 	}
 }

@@ -73,7 +73,7 @@ public final class Inventory {
 
 	public boolean addItem(Item item) {
 		if (item.getId() < 0 || item.getAmount() < 0 || !CacheUtility.itemExists(item.getId())
-				|| !ActivityHandler.execute(player, activity -> activity.canAddInventoryItem(player, item.getId(), item.getAmount())))
+				|| ActivityHandler.execute(player, activity -> !activity.canAddInventoryItem(player, item.getId(), item.getAmount())))
 			return false;
 		Item[] itemsBefore = items.getItemsCopy();
 		if (!items.add(item)) {
@@ -87,7 +87,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(int slot, Item item) {
-		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
+		if (ActivityHandler.execute(player, activity -> !activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(slot, item);
@@ -99,7 +99,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(int itemId, int amount) {
-		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, itemId, amount)))
+		if (ActivityHandler.execute(player, activity -> !activity.canDeleteInventoryItem(player, itemId, amount)))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(new Item(itemId, amount));
@@ -107,7 +107,7 @@ public final class Inventory {
 	}
 
 	public void deleteItem(Item item) {
-		if (!ActivityHandler.execute(player, activity -> activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
+		if (ActivityHandler.execute(player, activity -> !activity.canDeleteInventoryItem(player, item.getId(), item.getAmount())))
 			return;
 		Item[] itemsBefore = items.getItemsCopy();
 		items.remove(item);

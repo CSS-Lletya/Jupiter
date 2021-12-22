@@ -566,7 +566,7 @@ public abstract class Entity extends WorldTile {
 		if (!force && check && !TileAttributes.checkWalkStep(getPlane(), lastX, lastY, dir, getSize(), getClipType()))// double
 			return false;
 		ifPlayer(player -> {
-			if (!ActivityHandler.execute((Player) this, activity -> activity.checkWalkStep((Player) this, lastX, lastY, nextX, nextY)))
+			if (ActivityHandler.execute((Player) this, activity -> !activity.checkWalkStep((Player) this, lastX, lastY, nextX, nextY)))
 				return;
 		});
 		getMovement().getWalkSteps().add(new WalkStep(dir, nextX, nextY, check));
@@ -641,7 +641,7 @@ public abstract class Entity extends WorldTile {
 							|| (nextWalkDirection == null && nextFaceWorldTile != null) || !nextHits.isEmpty()
 							|| nextForceMovement != null || nextForceTalk != null;
 		if (isNPC())
-			return (toNPC().getNextTransformation() != null)|| nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+			return nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
 					|| nextGraphics3 != null || nextGraphics4 != null
 					|| (nextWalkDirection == null && nextFaceWorldTile != null) || !nextHits.isEmpty()
 					|| nextForceMovement != null || nextForceTalk != null;
@@ -692,7 +692,6 @@ public abstract class Entity extends WorldTile {
 			}
 		});
 		ifNpc(npc -> {
-			npc.setNextTransformation(null);
 			npc.setChangedCombatLevel(false);
 			npc.setChangedName(false);
 		});

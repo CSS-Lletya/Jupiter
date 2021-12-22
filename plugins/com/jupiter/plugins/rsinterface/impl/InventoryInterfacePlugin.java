@@ -50,8 +50,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
-				if (player.isDisableEquip())
-					return;
+//				if (player.isDisableEquip())
+//					return;
 				long passedTime = Utility.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
 					
@@ -67,11 +67,33 @@ public class InventoryInterfacePlugin implements RSInterface {
 						this.cancel();
 					}
 				});
+				
+				if (player.getSwitchItemCache().isEmpty()) {
+					player.getSwitchItemCache().add(slotId);
+					World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
+						
+						@Override
+						protected void execute() {
+							List<Byte> slots = player.getSwitchItemCache();
+							int[] slot = new int[slots.size()];
+							for (int i = 0; i < slot.length; i++)
+								slot[i] = slots.get(i);
+							player.getSwitchItemCache().clear();
+							InventoryInterfaceTypePlugin.sendWear(player, slot);
+							player.getAttributes().stopAll(player, false, true, false);
+							this.cancel();
+						}
+					});
+				} else if (!player.getSwitchItemCache().contains(slotId)) {
+					player.getSwitchItemCache().add(slotId);
+				}
+				
 				if (player.getSwitchItemCache().contains(slotId))
 					return;
 				player.getSwitchItemCache().add(slotId);
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(1))))
 					return;
+				
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON3_PACKET:
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(2))))
@@ -93,7 +115,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 				long dropTime = Utility.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
-				if (!ActivityHandler.execute(player, activity -> activity.canDropItem(player, item)))
+				if (ActivityHandler.execute(player, activity -> !activity.canDropItem(player, item)))
 					return;
 				player.getAttributes().stopAll(player, false);
 				

@@ -85,7 +85,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
@@ -147,9 +147,6 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;
-		if (!item.getDefinitions().containsOption("Wield")) {
-			return false;
-		}
 		if ((itemId == 4565 || itemId == 4084) && !player.getPlayerDetails().getRights().equal(Rights.ADMINISTRATOR)) {
 			player.getPackets().sendGameMessage("You've to be a administrator to wear this item.");
 			return true;
@@ -196,9 +193,10 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId))) {
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, finalSlot, itemId))) {
 			return false;
 		}
+		System.out.println(itemId);
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {
 			if (isTwoHandedWeapon && player.getEquipment().getItem(5) != null) {
@@ -243,8 +241,8 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 	}
 
 	public static void sendWear(Player player, int[] slotIds) {
-		if (player.hasFinished() || player.isDead())
-			return;
+//		if (player.hasFinished() || player.isDead())
+//			return;
 		boolean worn = false;
 		Item[] copy = player.getInventory().getItems().getItemsCopy();
 		for (int slotId : slotIds) {

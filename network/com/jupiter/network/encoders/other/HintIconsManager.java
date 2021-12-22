@@ -3,13 +3,28 @@ package com.jupiter.network.encoders.other;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
 
+/**
+ * Manages the Hint Icon system
+ * @author Dennis
+ */
 public class HintIconsManager {
 
+	/**
+	 * Represents the Player
+	 */
 	private transient Player player;
+	
+	/**
+	 * Represents a list of Hint Icons
+	 */
 	private HintIcon[] loadedIcons;
 
-	public HintIconsManager(Player p) {
-		this.player = p;
+	/**
+	 * Constructs a new Hint Icon Manager
+	 * @param player
+	 */
+	public HintIconsManager(Player player) {
+		this.player = player;
 		loadedIcons = new HintIcon[7];
 	}
 
@@ -25,8 +40,9 @@ public class HintIconsManager {
 		return index;
 	}
 
-	/*
-	 * dirs 2 - center 3 - west 4 - east 5 - south 6 - north
+	/**
+	 * Adds a Hint Icon to target parameters.
+	 * Note: dirs 2 - center 3 - west 4 - east 5 - south 6 - north
 	 */
 	public int addHintIcon(int coordX, int coordY, int height, int distanceFromFloor, int direction, int arrowType,
 			int modelId, boolean saveIcon) {
@@ -43,6 +59,12 @@ public class HintIconsManager {
 		return index;
 	}
 
+	/**
+	 * Adds & sends a model-based hint icon with option to save
+	 * @param modelId
+	 * @param saveIcon
+	 * @return
+	 */
 	public int addHintIcon(int modelId, boolean saveIcon) {
 		int index = saveIcon ? getFreeIndex() : 7;
 		if (index != -1) {
@@ -54,10 +76,18 @@ public class HintIconsManager {
 		return index;
 	}
 
+	/**
+	 * Removes any unsaved Hint Icons
+	 */
 	public void removeUnsavedHintIcon() {
 		player.getPackets().sendHintIcon(new HintIcon());
 	}
 
+	/**
+	 * Reloads Hint Icon based on its Index
+	 * @param index
+	 * @return
+	 */
 	public boolean reloadHintIcon(int index) {
 		if (index >= loadedIcons.length)
 			return false;
@@ -67,6 +97,11 @@ public class HintIconsManager {
 		return true;
 	}
 
+	/**
+	 * Removes the Hint Icon based on its Index
+	 * @param index
+	 * @return
+	 */
 	public boolean removeHintIcon(int index) {
 		if (index == 7) {
 			removeUnsavedHintIcon();
@@ -82,6 +117,9 @@ public class HintIconsManager {
 		return true;
 	}
 
+	/**
+	 * Removes all Hint Icons from the Player's manager
+	 */
 	public void removeAll() {
 		for (int index = 0; index < loadedIcons.length; index++) {
 			if (loadedIcons[index] != null) {
@@ -92,6 +130,10 @@ public class HintIconsManager {
 		}
 	}
 
+	/**
+	 * Checks if the Hint Icons manager is Empty
+	 * @return state
+	 */
 	public boolean isEmpty() {
 		for (int index = 0; index < loadedIcons.length; index++)
 			if (loadedIcons[index] != null)
@@ -99,6 +141,10 @@ public class HintIconsManager {
 		return true;
 	}
 
+	/**
+	 * Gets the free index of a Hint Icon slot
+	 * @return
+	 */
 	private int getFreeIndex() {
 		for (int index = 0; index < loadedIcons.length; index++)
 			if (loadedIcons[index] == null)

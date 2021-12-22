@@ -1,14 +1,11 @@
 package com.jupiter.combat.npc;
 
-public final class Transformation {
+import lombok.Data;
+import lombok.Getter;
 
-	private int toNPCId;
+@Data
+@Getter
+public class Transformation {
 
-	public Transformation(int toNPCId) {
-		this.toNPCId = toNPCId;
-	}
-
-	public int getToNPCId() {
-		return toNPCId;
-	}
+	private final int toNPCId;
 }

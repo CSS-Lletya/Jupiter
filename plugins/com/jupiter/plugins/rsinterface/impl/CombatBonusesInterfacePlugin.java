@@ -173,7 +173,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
@@ -280,7 +280,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, finalSlot, itemId)))
 			return false;
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {

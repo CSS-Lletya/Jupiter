@@ -3,34 +3,46 @@ package com.jupiter.network.encoders.other;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.utility.Utility;
 
+import lombok.Data;
+import lombok.Getter;
+
+/**
+ * Represents a Forced Movement event for an Entity (Typically the Player)
+ * @author Dennis
+ */
+@Getter
+@Data
 public class ForceMovement {
 
+	/**
+	 * The Directions of the movements
+	 */
 	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 
-	private WorldTile toFirstTile;
-	private WorldTile toSecondTile;
-	private int firstTileTicketDelay;
-	private int secondTileTicketDelay;
-	protected int direction;
-
-	/*
-	 * USE: moves to firsttile firstTileTicketDelay: the delay in game tickets between your tile and first tile the direction
+	/**
+	 * The First tile for the event
 	 */
-	public ForceMovement(WorldTile toFirstTile, int firstTileTicketDelay, int direction) {
-		this(toFirstTile, firstTileTicketDelay, null, 0, direction);
-	}
-
-	/*
-	 * USE: moves to firsttile and from first tile to second tile firstTileTicketDelay: the delay in game tickets between your tile and first tile secondTileTicketDelay: the delay in game tickets between first tile and second tile the direction
+	private final WorldTile toFirstTile;
+	
+	/**
+	 * The First tile delay for the event
 	 */
-	public ForceMovement(WorldTile toFirstTile, int firstTileTicketDelay, WorldTile toSecondTile,
-			int secondTileTicketDelay, int direction) {
-		this.toFirstTile = toFirstTile;
-		this.firstTileTicketDelay = firstTileTicketDelay;
-		this.toSecondTile = toSecondTile;
-		this.secondTileTicketDelay = secondTileTicketDelay;
-		this.direction = direction;
-	}
+	private final int firstTileTicketDelay;
+	
+	/**
+	 * The Second tile for the event
+	 */
+	private final WorldTile toSecondTile;
+	
+	/**
+	 * The First tile delay for the event
+	 */
+	private final int secondTileTicketDelay;
+	
+	/**
+	 * An undefined direction value for the event
+	 */
+	private final int direction;
 
 	public int getDirection() {
 		switch (direction) {
@@ -45,21 +57,4 @@ public class ForceMovement {
 			return Utility.getFaceDirection(-1, 0);
 		}
 	}
-
-	public WorldTile getToFirstTile() {
-		return toFirstTile;
-	}
-
-	public WorldTile getToSecondTile() {
-		return toSecondTile;
-	}
-
-	public int getFirstTileTicketDelay() {
-		return firstTileTicketDelay;
-	}
-
-	public int getSecondTileTicketDelay() {
-		return secondTileTicketDelay;
-	}
-
 }

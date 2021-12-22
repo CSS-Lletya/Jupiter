@@ -3,21 +3,18 @@ package com.jupiter.network.encoders.other;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 public final class Hit {
 
-	public static enum HitLook {
+	@AllArgsConstructor
+	public enum HitLook {
 
         MISSED(8), REGULAR_DAMAGE(3), MELEE_DAMAGE(0), RANGE_DAMAGE(1), MAGIC_DAMAGE(2), REFLECTED_DAMAGE(4), ABSORB_DAMAGE(5), POISON_DAMAGE(6), DESEASE_DAMAGE(7), HEALED_DAMAGE(9), CRITICAL_DAMAGE(11), CANNON_DAMAGE(13);
 
+		@Getter
 		private int mark;
-
-		private HitLook(int mark) {
-			this.mark = mark;
-		}
-
-		public int getMark() {
-			return mark;
-		}
 	}
 
 	private Entity source;

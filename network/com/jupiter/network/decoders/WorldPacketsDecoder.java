@@ -509,7 +509,7 @@ public final class WorldPacketsDecoder extends Decoder {
 			if (targetPlayer == null || targetPlayer.isDead() || targetPlayer.hasFinished() || !player.getMapRegionsIds().contains(targetPlayer.getRegionId()))
 				return;
 			
-			if (player.getMovement().getLockDelay() > Utility.currentTimeMillis() || !ActivityHandler.execute(player, activity -> activity.canPlayerOption1(player, targetPlayer)))
+			if (player.getMovement().getLockDelay() > Utility.currentTimeMillis() || ActivityHandler.execute(player, activity -> !activity.canPlayerOption1(player, targetPlayer)))
 				return;
 			if (!player.isCanPvp())
 				return;

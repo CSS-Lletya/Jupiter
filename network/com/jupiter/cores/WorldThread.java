@@ -35,6 +35,8 @@ public final class WorldThread extends Thread {
 		WORLD_CYCLE++;
 		Try.run(() -> {
 
+			World.get().getTask().sequence();
+			
 			World.players().forEach(player -> player.processEntity());
 			World.npcs().forEach(npc -> npc.processEntity());
 
@@ -43,9 +45,8 @@ public final class WorldThread extends Thread {
 				player.getPackets().sendLocalNPCsUpdate();
 			});
 			
-			World.entities().parallel().forEach((e) -> e.resetMasks());
+			World.entities().parallel().forEach(e -> e.resetMasks());
 
-			World.get().taskManager.sequence();
 			World.get().dequeueLogout();
 		}).onFailure(fail -> LogUtility.log(Type.ERROR, "World Thread", fail.getMessage()));
 	}

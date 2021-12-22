@@ -30,12 +30,8 @@ public final class CoresManager {
 			Future<?> future = worldExemptExecutor.submit(new CatchExceptionRunnable(command));
 			PENDING_FUTURES.add(future);
 			List<Future<?>> finished = new ArrayList<>();
-			for (Future<?> f : PENDING_FUTURES) {
-				if (f.isDone())
-					finished.add(f);
-			}
-			for (Future<?> f : finished)
-				PENDING_FUTURES.remove(f);
+			PENDING_FUTURES.parallelStream().filter(f -> f.isDone()).forEach(pending -> finished.add(pending));
+			finished.forEach(done -> PENDING_FUTURES.remove(done));
 		}
 	}
 	

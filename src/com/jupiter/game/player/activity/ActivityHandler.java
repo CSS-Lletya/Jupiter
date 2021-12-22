@@ -36,7 +36,7 @@ public class ActivityHandler {
 	 * @param function the function to execute that returns a result.
 	 */
 	public static boolean execute(Player player, Function<Activity, Boolean> function) {
-		return player.getCurrentActivity().isPresent() && ACTIVITIES.contains(player.getCurrentActivity().get()) ? function.apply(player.getCurrentActivity().get()) : true;
+		return player.getCurrentActivity().isPresent() && ACTIVITIES.contains(player.getCurrentActivity().get()) ? function.apply(player.getCurrentActivity().get()) : false;
 	}
 	
 	/**

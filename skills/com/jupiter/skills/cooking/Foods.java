@@ -499,7 +499,7 @@ public class Foods {
 		Food food = Food.forId(item.getId());
 		if (food == null)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEat(player, food)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEat(player, food)))
 			return false;
 		String name = ItemDefinitions.getItemDefinitions(food.getId()).getName().toLowerCase();
 		player.getPackets().sendGameMessage("You eat the " + name + ".");

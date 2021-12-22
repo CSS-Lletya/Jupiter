@@ -14,20 +14,34 @@ import com.jupiter.network.host.HostManager;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
 
+/**
+ * Represents the Player's Death event
+ * @author Dennis
+ */
 public class PlayerDeath extends ActorDeathTask<Player> {
 
+	/**
+	 * Constructs a Players death
+	 * @param actor
+	 */
 	public PlayerDeath(Player actor) {
 		super(actor);
 	}
 
+	/**
+	 * Handles pre death conditions
+	 */
 	@Override
 	public void preDeath() {
-		if (!ActivityHandler.execute(getActor(), activity -> activity.sendDeath(getActor())))
+		if (ActivityHandler.execute(getActor(), activity -> !activity.sendDeath(getActor())))
 			return;
 		getActor().getMovement().lock();
 		getActor().setNextAnimation(new Animation(836));
 	}
 
+	/**
+	 * Handles death conditions
+	 */
 	@Override
 	public void death() {
 		if (getActor().getPoisonDamage().get() > 0) {
@@ -39,6 +53,9 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 		getActor().getAttributes().stopAll(getActor());
 	}
 
+	/**
+	 * Handles post death conditions
+	 */
 	@Override
 	public void postDeath() {
 		getActor().getPackets().sendMusicEffect(90);
@@ -69,6 +86,12 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 		}
 	}
 	
+	/**
+	 * Handles the Items kept on death and lost during PVP or applicable activities.
+	 * Note: This should be improved upon, but is functional.
+	 * @param player
+	 * @param killer
+	 */
 	public void sendItemsOnDeath(Player player, Player killer) {
 //		if (getRights().isStaff())
 //			return;

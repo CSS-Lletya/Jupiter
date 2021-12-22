@@ -32,7 +32,7 @@ public class HomeTeleport extends Action {
 
 	@Override
 	public boolean start(final Player player) {
-		if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processMagicTeleport(player, tile)))
 			return false;
 		return process(player);
 	}

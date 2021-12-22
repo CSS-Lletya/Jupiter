@@ -84,7 +84,7 @@ public class PlayerCombat extends Action {
 		if (distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
 				|| distanceY < -1 - maxDistance)
 			return 0;
-		if (!ActivityHandler.execute(player, activity -> activity.keepCombating(player, target)))
+		if (ActivityHandler.execute(player, activity -> !activity.keepCombating(player, target)))
 			return -1;
 		addAttackedByDelay(player);
 		if (spellId > 0) {
@@ -171,7 +171,7 @@ public class PlayerCombat extends Action {
 						Player p2 = World.getPlayers().get(playerIndex);
 						if (p2 == null || p2 == player || p2 == target || p2.isDead() || !p2.isStarted()
 								|| p2.hasFinished() || !p2.isCanPvp() || !p2.isAtMultiArea()
-								|| !p2.withinDistance(target, maxDistance) || !ActivityHandler.execute(player, activity -> activity.canHit(player, p2)))
+								|| !p2.withinDistance(target, maxDistance) || ActivityHandler.execute(player, activity -> !activity.canHit(player, p2)))
 							continue;
 						possibleTargets.add(p2);
 						if (possibleTargets.size() == maxAmtTargets)
@@ -185,7 +185,7 @@ public class PlayerCombat extends Action {
 						NPC n = World.getNPCs().get(npcIndex);
 						if (n == null || n == target || n.isDead() || n.hasFinished()
 								|| !n.isAtMultiArea() || !n.withinDistance(target, maxDistance)
-								|| !n.getDefinitions().hasAttackOption() || !ActivityHandler.execute(player, activity -> activity.canHit(player, n)))
+								|| !n.getDefinitions().hasAttackOption() || ActivityHandler.execute(player, activity -> !activity.canHit(player, n)))
 							continue;
 						possibleTargets.add(n);
 						if (possibleTargets.size() == maxAmtTargets)

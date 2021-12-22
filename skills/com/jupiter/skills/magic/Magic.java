@@ -557,7 +557,7 @@ public class Magic {
 	}
 
 	public static void pushLeverTeleport(final Player player, final WorldTile tile) {
-		if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processObjectTeleport(player, tile)))
 			return;
 		player.setNextAnimation(new Animation(2140));
 		player.getMovement().lock();
@@ -592,13 +592,13 @@ public class Magic {
 		if (!checkRunes(player, false, runes))
 			return false;
 		if (teleType == MAGIC_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processMagicTeleport(player, tile)))
 				return false;
 		} else if (teleType == ITEM_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processItemTeleport(player, tile)))
 				return false;
 		} else if (teleType == OBJECT_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processObjectTeleport(player, tile)))
 				return false;
 		}
 		checkRunes(player, true, runes);
@@ -664,7 +664,7 @@ public class Magic {
 	}
 
 	public static boolean useTeleTab(final Player player, final WorldTile tile) {
-		if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processItemTeleport(player, tile)))
 			return false;
 		player.getMovement().lock();
 		player.setNextAnimation(new Animation(9597));
