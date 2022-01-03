@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.jupiter.Settings;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.utility.CatchExceptionRunnable;
 
 public final class CoresManager {
@@ -23,6 +24,7 @@ public final class CoresManager {
 		worldExemptExecutor = Executors.newSingleThreadScheduledExecutor(new SlowThreadFactory());
 		worldExecutor = Executors.newSingleThreadScheduledExecutor(new WorldThreadFactory());
 		fastExecutor = new Timer("Fast Executor");
+		WorldPacketsDecoder.loadPacketSizes();
 	}
 	
 	public static void execute(Runnable command) {

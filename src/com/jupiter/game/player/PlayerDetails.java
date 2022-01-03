@@ -205,4 +205,6 @@ public final class PlayerDetails {
 	 * A list of temporary VarBits that ARE NOT meant to be saved to a player but simply used on demand
 	 */
 	private transient ConcurrentHashMap<Integer, Integer> temporaryVarBits = new ConcurrentHashMap<>();
+	
+	private transient int chatType = 0;
 }

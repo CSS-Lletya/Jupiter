@@ -46,7 +46,7 @@ public final class Utility {
 	 */
 	public static ObjectList<Object> getClassesInDirectory(String directory) {
 		ObjectList<Object> classes = new ObjectArrayList<>();
-		for(File file : new File("./bin/" + directory.replace(".", "/")).listFiles()) {
+		for(File file : new File("./bin/main/" + directory.replace(".", "/")).listFiles()) {
 			if(file.getName().contains("$")) {
 				continue;
 			}

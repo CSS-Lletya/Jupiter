@@ -14,6 +14,7 @@ import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.network.ServerChannelHandler;
 import com.jupiter.network.host.HostListType;
 import com.jupiter.network.host.HostManager;
+import com.jupiter.network.packets.outgoing.OutgoingPacketDispatcher;
 import com.jupiter.network.utility.Huffman;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugins.commands.CommandDispatcher;
@@ -21,10 +22,10 @@ import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
 import com.jupiter.utility.ItemExamines;
 import com.jupiter.utility.ItemWeights;
 import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 import com.jupiter.utility.MapArchiveKeys;
 import com.jupiter.utility.NPCBonuses;
 import com.jupiter.utility.NPCCombatDefinitionsL;
-import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 import lombok.Getter;
@@ -76,6 +77,7 @@ public class GameLoader {
 			RSInterfaceDispatcher.load();
 			NPCCombatDispatcher.load();
 			WeaponSpecialDispatcher.load();
+			OutgoingPacketDispatcher.load();
 			ItemWeights.init();
 		});
 		getBackgroundLoader().submit(() -> {

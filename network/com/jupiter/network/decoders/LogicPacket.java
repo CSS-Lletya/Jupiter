@@ -4,11 +4,11 @@ import com.jupiter.cache.io.InputStream;
 
 public class LogicPacket {
 
-	private byte id;
+	private int id;
 	byte[] data;
 
-	public LogicPacket(byte id, int size, InputStream stream) {
-		this.id = id;
+	public LogicPacket(int packetId, int size, InputStream stream) {
+		this.id = packetId;
 		data = new byte[size];
 		stream.getBytes(data, 0, size);
 	}
