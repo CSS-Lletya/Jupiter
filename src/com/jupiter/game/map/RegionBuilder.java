@@ -9,6 +9,9 @@ import com.jupiter.game.player.Player;
 
 public final class RegionBuilder {
 
+	
+	public static final int[] FORCE_LOAD_REGIONS = { 7503, 7759 };
+	
 	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 
 	/*

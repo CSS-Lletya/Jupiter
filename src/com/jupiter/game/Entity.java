@@ -38,17 +38,18 @@ import com.jupiter.game.route.strategy.DumbRouteFinder;
 import com.jupiter.game.route.strategy.EntityStrategy;
 import com.jupiter.game.route.strategy.FixedTileStrategy;
 import com.jupiter.game.route.strategy.ObjectStrategy;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceMovement;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceMovement;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.MutableNumber;
-import com.jupiter.utils.NPCBonuses;
-import com.jupiter.utils.Utils;
+import com.jupiter.skills.prayer.Prayer;
+import com.jupiter.utility.MutableNumber;
+import com.jupiter.utility.NPCBonuses;
+import com.jupiter.utility.Utility;
 
 import lombok.Getter;
 
@@ -109,6 +110,7 @@ public abstract class Entity extends WorldTile {
 	private transient Movement movement;
 
 	public transient int direction;
+	private transient long tickCounter = 0;
 	
 	// saving stuff
 	private int hitpoints;
@@ -165,7 +167,7 @@ public abstract class Entity extends WorldTile {
 			toPlayer().getPoisonDamage().set(0);
 			toPlayer().setCastedVeng(false);
 			toPlayer().getPlayerDetails().setRunEnergy(100);
-			toPlayer().getAppearence().getAppeareanceBlocks();
+			toPlayer().getAppearance().getAppeareanceBlocks();
 		}
 		
 	}
@@ -188,8 +190,8 @@ public abstract class Entity extends WorldTile {
 
 	public void processReceivedHits() {
 		ifPlayer(p -> {
-			if (p.getMovement().getLockDelay() > Utils.currentTimeMillis() ||
-				p.getNextEmoteEnd() >= Utils.currentTimeMillis())
+			if (p.getMovement().getLockDelay() > Utility.currentTimeMillis() ||
+				p.getNextEmoteEnd() >= Utility.currentTimeMillis())
 				return;
 		});
 		Hit hit;
@@ -239,11 +241,11 @@ public abstract class Entity extends WorldTile {
 					hit.getSource().applyHit(new Hit(player, (int) (hit.getDamage() * 0.1), HitLook.REFLECTED_DAMAGE));
 			}
 			if (player.getPrayer().hasPrayersOn()) {
-				if ((hitpoints < player.getMaxHitpoints() * 0.1) && player.getPrayer().usingPrayer(0, 23)) {
+				if ((hitpoints < player.getMaxHitpoints() * 0.1) && player.getPrayer().active(Prayer.REDEMPTION)) {
 					setNextGraphics(new Graphics(436));
 					setHitpoints((int) (hitpoints + player.getSkills().getLevelForXp(Skills.PRAYER) * 2.5));
 					player.getSkills().set(Skills.PRAYER, 0);
-					player.getPrayer().setPrayerpoints((byte) 0);
+					player.getPrayer().setPoints(0);
 				} else if (player.getEquipment().getAmuletId() != 11090 && player.getEquipment().getRingId() == 11090 && player.getHitpoints() <= player.getMaxHitpoints() * 0.1) {
 					Magic.sendNormalTeleportSpell(player, 1, 0, Settings.RESPAWN_PLAYER_LOCATION);
 					player.getEquipment().deleteItem(11090, 1);
@@ -396,10 +398,17 @@ public abstract class Entity extends WorldTile {
 				WalkStep previewStep = previewNextWalkStep();
 				if (previewStep == null)
 					break;
-				if (Utils.getPlayerRunningDirection(nextStep.getDir().getDx() + previewStep.getDir().getDx(), nextStep.getDir().getDy() + previewStep.getDir().getDy()) == -1)
+				if (Utility.getPlayerRunningDirection(nextStep.getDir().getDx() + previewStep.getDir().getDx(), nextStep.getDir().getDy() + previewStep.getDir().getDy()) == -1)
 					break;
 			}
 		}
+		ifPlayer(p -> {
+			if (nextRunDirection != null) {
+				player.getMovement().drainRunEnergy((Math.min(p.getWeight(), 64) / 100.0) + 0.64);
+				if (p.getPlayerDetails().getRunEnergy() == 0.0)
+					p.setRun(false);
+			}
+		});
 		updateEntityRegion(this);
 		if (needMapUpdate())
 			loadMapRegions();
@@ -415,7 +424,7 @@ public abstract class Entity extends WorldTile {
 	@Override
 	public void moveLocation(int xOffset, int yOffset, int planeOffset) {
 		super.moveLocation(xOffset, yOffset, planeOffset);
-		direction = Utils.getFaceDirection(xOffset, yOffset);
+		direction = Utility.getFaceDirection(xOffset, yOffset);
 	}
 
 	private boolean needMapUpdate() {
@@ -471,7 +480,7 @@ public abstract class Entity extends WorldTile {
 				myY++;
 			else if (myY > destY)
 				myY--;
-			int dir = Utils.getMoveDirection(myX - lastTileX, myY - lastTileY);
+			int dir = Utility.getMoveDirection(myX - lastTileX, myY - lastTileY);
 			if (dir == -1)
 				return false;
 			if (checkClose) {
@@ -557,7 +566,7 @@ public abstract class Entity extends WorldTile {
 		if (!force && check && !TileAttributes.checkWalkStep(getPlane(), lastX, lastY, dir, getSize(), getClipType()))// double
 			return false;
 		ifPlayer(player -> {
-			if (!ActivityHandler.execute((Player) this, activity -> activity.checkWalkStep((Player) this, lastX, lastY, nextX, nextY)))
+			if (ActivityHandler.execute((Player) this, activity -> !activity.checkWalkStep((Player) this, lastX, lastY, nextX, nextY)))
 				return;
 		});
 		getMovement().getWalkSteps().add(new WalkStep(dir, nextX, nextY, check));
@@ -611,28 +620,19 @@ public abstract class Entity extends WorldTile {
 	public boolean restoreHitPoints() {
 		int maxHp = getMaxHitpoints();
 		if (hitpoints > maxHp) {
-			if (this instanceof Player) {
-				Player player = (Player) this;
-				if (player.getPrayer().usingPrayer(1, 5) && Utils.getRandom(100) <= 15)
-					return false;
-			}
 			setHitpoints(hitpoints - 1);
 			return true;
 		} else if (hitpoints < maxHp) {
 			setHitpoints(hitpoints + 1);
-			if (this instanceof Player) {
-				Player player = (Player) this;
-				if (player.getPrayer().usingPrayer(0, 9) && hitpoints < maxHp)
-					setHitpoints(hitpoints + 1);
-				else if (player.getPrayer().usingPrayer(0, 26) && hitpoints < maxHp)
-					setHitpoints(hitpoints + (hitpoints + 4 > maxHp ? maxHp - hitpoints : 4));
-
-			}
 			return true;
 		}
 		return false;
 	}
 
+	public long getTickCounter() {
+		return tickCounter;
+	}
+	
 	public boolean needMasksUpdate() {
 		if (isPlayer())
 			return (toPlayer().getTemporaryMovementType() != -1)
@@ -641,7 +641,7 @@ public abstract class Entity extends WorldTile {
 							|| (nextWalkDirection == null && nextFaceWorldTile != null) || !nextHits.isEmpty()
 							|| nextForceMovement != null || nextForceTalk != null;
 		if (isNPC())
-			return (toNPC().getNextTransformation() != null)|| nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
+			return nextFaceEntity != -2 || nextAnimation != null || nextGraphics1 != null || nextGraphics2 != null
 					|| nextGraphics3 != null || nextGraphics4 != null
 					|| (nextWalkDirection == null && nextFaceWorldTile != null) || !nextHits.isEmpty()
 					|| nextForceMovement != null || nextForceTalk != null;
@@ -692,7 +692,6 @@ public abstract class Entity extends WorldTile {
 			}
 		});
 		ifNpc(npc -> {
-			npc.setNextTransformation(null);
 			npc.setChangedCombatLevel(false);
 			npc.setChangedName(false);
 		});
@@ -705,6 +704,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void processEntity() {
+		tickCounter++;
 		processMovement();
 		processReceivedHits();
 		processReceivedDamage();
@@ -712,6 +712,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void loadMapRegions() {
+		boolean wasAtDynamicRegion = isAtDynamicRegion();
 		mapRegionsIds.clear();
 		isAtDynamicRegion = false;
 		int chunkX = getChunkX();
@@ -726,8 +727,20 @@ public abstract class Entity extends WorldTile {
 					isAtDynamicRegion = true;
 				mapRegionsIds.add(regionId);
 			}
-		lastLoadedMapRegionTile = new WorldTile(this); // creates a immutable
-														// copy of this
+		lastLoadedMapRegionTile = new WorldTile(this);
+		ifPlayer(p -> {
+			p.setClientLoadedMapRegion(false);
+			if (p.isAtDynamicRegion()) {
+				p.getPackets().sendDynamicMapRegion(!p.isStarted());
+				if (!wasAtDynamicRegion)
+					p.getLocalNPCUpdate().reset();
+			} else {
+				p.getPackets().sendMapRegion(!p.isStarted());
+				if (wasAtDynamicRegion)
+					p.getLocalNPCUpdate().reset();
+			}
+			p.setForceNextMapLoadRefresh(false);
+		});
 	}
 
 	public void setIndex(int index) {
@@ -769,12 +782,12 @@ public abstract class Entity extends WorldTile {
 
 	public void setNextAnimation(Animation nextAnimation) {
 		if (nextAnimation != null && nextAnimation.getIds()[0] >= 0)
-			lastAnimationEnd = Utils.currentTimeMillis() + AnimationDefinitions.getAnimationDefinitions(nextAnimation.getIds()[0]).getEmoteTime();
+			lastAnimationEnd = Utility.currentTimeMillis() + AnimationDefinitions.getAnimationDefinitions(nextAnimation.getIds()[0]).getEmoteTime();
 		this.nextAnimation = nextAnimation;
 	}
 
 	public void setNextAnimationNoPriority(Animation nextAnimation) {
-		if (lastAnimationEnd > Utils.currentTimeMillis())
+		if (lastAnimationEnd > Utility.currentTimeMillis())
 			return;
 		setNextAnimation(nextAnimation);
 	}
@@ -879,13 +892,13 @@ public abstract class Entity extends WorldTile {
 			return;
 		this.nextFaceWorldTile = nextFaceWorldTile;
 		if (nextWorldTile != null)
-			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - nextWorldTile.getX(), nextFaceWorldTile.getY() - nextWorldTile.getY());
+			direction = Utility.getFaceDirection(nextFaceWorldTile.getX() - nextWorldTile.getX(), nextFaceWorldTile.getY() - nextWorldTile.getY());
 		else
-			direction = Utils.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
+			direction = Utility.getFaceDirection(nextFaceWorldTile.getX() - getX(), nextFaceWorldTile.getY() - getY());
 	}
 
 	public int getSize() {
-		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearence().getSize();
+		return isNPC() ? toNPC().getDefinitions().size : toPlayer().getAppearance().getSize();
 	}
 
 	public void cancelFaceEntityNoCheck() {
@@ -928,7 +941,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void addFrozenBlockedDelay(int time) {
-		frozenBlocked = time + Utils.currentTimeMillis();
+		frozenBlocked = time + Utility.currentTimeMillis();
 	}
 
 	public void addFreezeDelay(long time) {
@@ -936,7 +949,7 @@ public abstract class Entity extends WorldTile {
 	}
 
 	public void addFreezeDelay(long time, boolean entangleMessage) {
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (currentTime > freezeDelay) {
 			resetWalkSteps();
 			freezeDelay = time + currentTime;

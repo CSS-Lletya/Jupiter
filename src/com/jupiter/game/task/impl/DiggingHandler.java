@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Animation;
 
 /**
  * Handles Player digging Task handling

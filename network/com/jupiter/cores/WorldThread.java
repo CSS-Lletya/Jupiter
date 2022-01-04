@@ -4,7 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.jupiter.Settings;
 import com.jupiter.game.map.World;
-import com.jupiter.utils.Logger;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 import lombok.SneakyThrows;
@@ -18,7 +19,7 @@ public final class WorldThread extends Thread {
 		setName("World Thread");
 		this.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread th, Throwable ex) {
-				Logger.handle(ex);
+				LogUtility.log(Type.ERROR, "World Thread", ex.getMessage());
 			}
 		});
 	}
@@ -34,6 +35,8 @@ public final class WorldThread extends Thread {
 		WORLD_CYCLE++;
 		Try.run(() -> {
 
+			World.get().getTask().sequence();
+			
 			World.players().forEach(player -> player.processEntity());
 			World.npcs().forEach(npc -> npc.processEntity());
 
@@ -42,10 +45,9 @@ public final class WorldThread extends Thread {
 				player.getPackets().sendLocalNPCsUpdate();
 			});
 			
-			World.entities().parallel().forEach((e) -> e.resetMasks());
+			World.entities().parallel().forEach(e -> e.resetMasks());
 
-			World.get().taskManager.sequence();
 			World.get().dequeueLogout();
-		}).onFailure(fail -> fail.printStackTrace());
+		}).onFailure(fail -> LogUtility.log(Type.ERROR, "World Thread", fail.getMessage()));
 	}
 }

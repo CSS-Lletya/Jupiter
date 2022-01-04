@@ -5,9 +5,9 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Ork legion"})
 public class OrkLegionCombat extends MobCombatInterface {
@@ -18,8 +18,8 @@ public class OrkLegionCombat extends MobCombatInterface {
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
 		npc.setNextAnimation(new Animation(defs.getAttackEmote()));
-		if (Utils.getRandom(3) == 0)
-			npc.setNextForceTalk(new ForceTalk(messages[Utils.getRandom(messages.length > 3 ? 3 : 0)]));
+		if (RandomUtility.getRandom(3) == 0)
+			npc.setNextForceTalk(new ForceTalk(messages[RandomUtility.getRandom(messages.length > 3 ? 3 : 0)]));
 		delayHit(npc, 0, target, getMeleeHit(npc, defs.getMaxHit()));
 		return defs.getAttackDelay();
 	}

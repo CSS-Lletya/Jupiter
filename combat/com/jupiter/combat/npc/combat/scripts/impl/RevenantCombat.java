@@ -7,9 +7,9 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = { 13465, 13466, 13467, 13468, 13469, 13470, 13471, 13472, 13473, 13474, 13475, 13476, 13477,
 		13478, 13479, 13480, 13481 }, mobName = {})
@@ -92,16 +92,16 @@ public class RevenantCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		if (npc.getHitpoints() < npc.getMaxHitpoints() / 2 && Utils.random(5) == 0) // if lower than 50% hp, 1/5 prob of healing 10%
+		if (npc.getHitpoints() < npc.getMaxHitpoints() / 2 && RandomUtility.random(5) == 0) // if lower than 50% hp, 1/5 prob of healing 10%
 			npc.heal(100);
 
-		int attackStyle = Utils.random(3);
+		int attackStyle = RandomUtility.random(3);
 		if (attackStyle == 2) { // checks if can melee
 			int distanceX = target.getX() - npc.getX();
 			int distanceY = target.getY() - npc.getY();
 			int size = npc.getSize();
 			if ((distanceX > size || distanceX < -1 || distanceY > size || distanceY < -1))
-				attackStyle = Utils.random(2);
+				attackStyle = RandomUtility.random(2);
 		}
 		if (attackStyle != 2 && target instanceof Player) {
 			Player targetPlayer = (Player) target;
@@ -117,7 +117,7 @@ public class RevenantCombat extends MobCombatInterface {
 					@Override
 					protected void execute() {
 						target.setNextGraphics(new Graphics(1277, 0, 100));
-						if (Utils.random(5) == 0) { // 1/5 prob freezing while maging
+						if (RandomUtility.random(5) == 0) { // 1/5 prob freezing while maging
 							target.setNextGraphics(new Graphics(363));
 							target.addFreezeDelay(30000);
 						}

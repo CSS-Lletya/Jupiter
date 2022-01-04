@@ -4,7 +4,7 @@ import com.jupiter.Settings;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.plugins.rsinterface.impl.CombatBonusesInterfacePlugin;
-import com.jupiter.utils.ItemExamines;
+import com.jupiter.utility.ItemExamines;
 
 public class Bank {
 
@@ -118,7 +118,7 @@ public class Bank {
 			for (int i = 0; i < space; i++)
 				player.getEquipment().getItems().set(i, null);
 			player.getEquipment().init();
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		}
 		if (space < player.getEquipment().getItems().getSize()) {
 			player.getPackets().sendGameMessage("Not enough space in your bank.");

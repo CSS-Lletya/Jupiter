@@ -8,10 +8,10 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 public abstract class MobCombatInterface {
 	
@@ -49,7 +49,7 @@ public abstract class MobCombatInterface {
 			probability = 0.05;
 		if (probability < Math.random())
 			return 0;
-		return Utils.getRandom(maxHit);
+		return RandomUtility.random(maxHit);
 	}
 	
 	public static Hit getRangeHit(NPC npc, int damage) {

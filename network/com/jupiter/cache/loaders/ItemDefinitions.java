@@ -8,15 +8,15 @@ import java.util.List;
 import com.alex.utils.Constants;
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
+import com.jupiter.cache.utility.CacheUtility;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
 
 @SuppressWarnings("unused")
 public final class ItemDefinitions {
 	
-	public static final ItemDefinitions[] itemsDefinitions = new ItemDefinitions[Utils.getItemDefinitionsSize()];
+	public static final ItemDefinitions[] itemsDefinitions = new ItemDefinitions[CacheUtility.getItemDefinitionsSize()];
 	private static final HashMap<Integer, Integer> EQUIP_IDS = new HashMap<Integer, Integer>();
 
 	public int id;
@@ -137,7 +137,7 @@ public final class ItemDefinitions {
 	
 	public static void mapEquipIds() {
 		int equipId = 0;
-		for (int itemId = 0; itemId < Utils.getItemDefinitionsSize(); itemId++) {
+		for (int itemId = 0; itemId < CacheUtility.getItemDefinitionsSize(); itemId++) {
 			ItemDefinitions def = ItemDefinitions.getItemDefinitions(itemId);
 			if (def.getMaleWornModelId1() >= 0 || def.getFemaleWornModelId1() >= 0) {
 				EQUIP_IDS.put(itemId, equipId++);

@@ -8,9 +8,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -101,7 +100,7 @@ public final class CommandDispatcher {
 	 */
 	public static void load() {
 		
-		List<Command> commands = Utils.getClassesInDirectory("com.jupiter.plugins.commands.impl").stream().map(clazz -> (Command) clazz).collect(Collectors.toList());
+		List<Command> commands = Utility.getClassesInDirectory("com.jupiter.plugins.commands.impl").stream().map(clazz -> (Command) clazz).collect(Collectors.toList());
 		
 		for(Command command : commands) {
 			if(command.getClass().getAnnotation(CommandSignature.class) == null) {
@@ -121,27 +120,4 @@ public final class CommandDispatcher {
 		COMMANDS.clear();
 		load();
 	}
-
-	public static boolean processCommand(Player player, String command, boolean console, boolean clientCommand) {
-		if (command.length() == 0)
-			return false;
-		String[] cmd = command.toLowerCase().split(" ");
-		if (cmd.length == 0)
-			return false;
-		if (clientCommand) {
-			switch (cmd[0]) {
-			//NOTE: There's a bug where in World Map if you shift click it crashes client, idk why.
-			case "tele":
-				cmd = cmd[1].split(",");
-				int plane = Integer.valueOf(cmd[0]);
-				int x = Integer.valueOf(cmd[1]) << 6 | Integer.valueOf(cmd[3]);
-				int y = Integer.valueOf(cmd[2]) << 6 | Integer.valueOf(cmd[4]);
-				player.setNextWorldTile(new WorldTile(x, y, plane));
-				return true;
-			}
-		}
-		CommandDispatcher.execute(player, cmd, command);
-		return false;
-	}
-	
 }

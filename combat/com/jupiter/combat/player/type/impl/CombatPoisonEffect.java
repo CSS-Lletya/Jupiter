@@ -8,8 +8,8 @@ import com.jupiter.combat.player.type.PoisonType;
 import com.jupiter.game.Entity;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 

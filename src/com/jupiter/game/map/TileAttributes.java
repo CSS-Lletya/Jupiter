@@ -5,7 +5,7 @@ import com.jupiter.game.route.ClipFlag;
 import com.jupiter.game.route.ClipType;
 import com.jupiter.game.route.Direction;
 import com.jupiter.game.route.Flags;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 /**
  * Defines specific attributes that a tile may contain.
@@ -102,10 +102,10 @@ public class TileAttributes {
 	}
 	
 	public static final boolean checkProjectileStep(int plane, int x, int y, int dir, int size) {
-		int xOffset = Utils.DIRECTION_DELTA_X[dir];
-		int yOffset = Utils.DIRECTION_DELTA_Y[dir];
+		int xOffset = Utility.DIRECTION_DELTA_X[dir];
+		int yOffset = Utility.DIRECTION_DELTA_Y[dir];
 		if (size == 1) {
-			int mask = getClipedOnlyMask(plane, x + Utils.DIRECTION_DELTA_X[dir], y + Utils.DIRECTION_DELTA_Y[dir]);
+			int mask = getClipedOnlyMask(plane, x + Utility.DIRECTION_DELTA_X[dir], y + Utility.DIRECTION_DELTA_Y[dir]);
 			if (xOffset == -1 && yOffset == 0)
 				return (mask & 0x42240000) == 0;
 			if (xOffset == 1 && yOffset == 0)
@@ -309,7 +309,7 @@ public class TileAttributes {
 				for (int y1 = 0; y1 < sizeFrom; y1++) {
 					for (int x2 = 0; x2 < sizeTo; x2++) {
 						for (int y2 = 0; y2 < sizeTo; y2++) {
-							double dist = Utils.getDistance(from.transform(x1, y1), to.transform(x2, y2));
+							double dist = Utility.getDistance(from.transform(x1, y1), to.transform(x2, y2));
 							if (dist < shortest) {
 								closestFrom = from.transform(x1, y1);
 								closestTo = to.transform(x2, y2);

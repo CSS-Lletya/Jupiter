@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
-import com.jupiter.utils.Utils;
+import com.jupiter.cache.utility.CacheUtility;
 
 public final class ClientScriptMap {
 
@@ -111,9 +111,9 @@ public final class ClientScriptMap {
 
 	private void readValues(InputStream stream, int opcode) {
 		if (opcode == 1)
-			aChar6337 = Utils.method2782((byte) stream.readByte());
+			aChar6337 = CacheUtility.method2782((byte) stream.readByte());
 		else if (opcode == 2)
-			aChar6345 = Utils.method2782((byte) stream.readByte());
+			aChar6345 = CacheUtility.method2782((byte) stream.readByte());
 		else if (opcode == 3)
 			defaultStringValue = stream.readString();
 		else if (opcode == 4)
@@ -121,7 +121,7 @@ public final class ClientScriptMap {
 		else if (opcode == 5 || opcode == 6 || opcode == 7 || opcode == 8) {
 			int count = stream.readUnsignedShort();
 			int loop = opcode == 7 || opcode == 8 ? stream.readUnsignedShort() : count;
-			values = new HashMap<Long, Object>(Utils.getHashMapSize(count));
+			values = new HashMap<Long, Object>(CacheUtility.getHashMapSize(count));
 			for (int i = 0; i < loop; i++) {
 				int key = opcode == 7 || opcode == 8 ? stream.readUnsignedShort() : stream.readInt();
 				Object value = opcode == 5 || opcode == 7 ? stream.readString() : stream.readInt();

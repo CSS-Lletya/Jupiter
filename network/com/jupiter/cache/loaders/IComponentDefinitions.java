@@ -4,12 +4,12 @@ import java.util.Hashtable;
 
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
-import com.jupiter.utils.Utils;
+import com.jupiter.cache.utility.CacheUtility;
 
 @SuppressWarnings("unused")
 public class IComponentDefinitions {
 
-	private static IComponentDefinitions[][] icomponentsdefs = new IComponentDefinitions[Utils
+	private static IComponentDefinitions[][] icomponentsdefs = new IComponentDefinitions[CacheUtility
 			.getInterfaceDefinitionsSize()][];
 	private static IComponentSettings GLOBAL_SETTINGS = new IComponentSettings(0, -1);
 
@@ -184,7 +184,7 @@ public class IComponentDefinitions {
 		if (id >= icomponentsdefs.length)
 			return null;
 		if (icomponentsdefs[id] == null) {
-			icomponentsdefs[id] = new IComponentDefinitions[Utils.getInterfaceDefinitionsComponentsSize(id)];
+			icomponentsdefs[id] = new IComponentDefinitions[CacheUtility.getInterfaceDefinitionsComponentsSize(id)];
 			for (int i = 0; i < icomponentsdefs[id].length; i++) {
 				byte[] data = Cache.STORE.getIndexes()[3].getFile(id, i);
 				if (data != null) {

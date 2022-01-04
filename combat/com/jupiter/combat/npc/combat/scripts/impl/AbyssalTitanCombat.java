@@ -5,8 +5,8 @@ import com.jupiter.combat.npc.combat.NPCCombatDefinitions;
 import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 
 @MobCombatSignature(mobId = {}, mobName = {"Abbysal Titan"})
 public class AbyssalTitanCombat extends MobCombatInterface {
@@ -21,7 +21,7 @@ public class AbyssalTitanCombat extends MobCombatInterface {
 
 		if (target instanceof Player) { // cjay failed dragonkk saved the day
 			Player player = (Player) target;
-			if (damage > 0 && player.getPrayer().getPrayerpoints() > 0)
+			if (damage > 0 && player.getPrayer().getPoints() > 0)
 				player.getPrayer().drainPrayer(damage / 2);
 		}
 		delayHit(npc, 0, target, getMeleeHit(npc, damage));

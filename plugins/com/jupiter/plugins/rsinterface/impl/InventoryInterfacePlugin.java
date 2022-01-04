@@ -2,7 +2,6 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import java.util.List;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.cores.WorldThread;
@@ -15,7 +14,7 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.CoordsEvent;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ItemClickEvent;
 import com.jupiter.plugin.events.ItemOnItemEvent;
@@ -23,8 +22,9 @@ import com.jupiter.plugin.events.ItemOnNPCEvent;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.cooking.Foods;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
+import com.jupiter.utility.Utility;
 
 @RSInterfaceSignature(interfaceId = {679})
 public class InventoryInterfacePlugin implements RSInterface {
@@ -40,7 +40,7 @@ public class InventoryInterfacePlugin implements RSInterface {
 			
 			switch(packetId) {
 			case WorldPacketsDecoder.ACTION_BUTTON1_PACKET:
-				long time = Utils.currentTimeMillis();
+				long time = Utility.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= time || player.getNextEmoteEnd() >= time)
 					return;
 				player.getAttributes().stopAll(player, false);
@@ -50,9 +50,9 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON2_PACKET:
-				if (player.isDisableEquip())
-					return;
-				long passedTime = Utils.currentTimeMillis() - WorldThread.WORLD_CYCLE;
+//				if (player.isDisableEquip())
+//					return;
+				long passedTime = Utility.currentTimeMillis() - WorldThread.WORLD_CYCLE;
 				World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
 					
 					@Override
@@ -67,11 +67,33 @@ public class InventoryInterfacePlugin implements RSInterface {
 						this.cancel();
 					}
 				});
+				
+				if (player.getSwitchItemCache().isEmpty()) {
+					player.getSwitchItemCache().add(slotId);
+					World.get().submit(new Task(passedTime >= 600 ? 0 : passedTime > 330 ? 1 : 0) {
+						
+						@Override
+						protected void execute() {
+							List<Byte> slots = player.getSwitchItemCache();
+							int[] slot = new int[slots.size()];
+							for (int i = 0; i < slot.length; i++)
+								slot[i] = slots.get(i);
+							player.getSwitchItemCache().clear();
+							InventoryInterfaceTypePlugin.sendWear(player, slot);
+							player.getAttributes().stopAll(player, false, true, false);
+							this.cancel();
+						}
+					});
+				} else if (!player.getSwitchItemCache().contains(slotId)) {
+					player.getSwitchItemCache().add(slotId);
+				}
+				
 				if (player.getSwitchItemCache().contains(slotId))
 					return;
 				player.getSwitchItemCache().add(slotId);
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(1))))
 					return;
+				
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON3_PACKET:
 				if (PluginManager.handle(new ItemClickEvent(player, item, slotId, item.getDefinitions().getInventoryOption(2))))
@@ -90,10 +112,10 @@ public class InventoryInterfacePlugin implements RSInterface {
 					return;
 				break;
 			case WorldPacketsDecoder.ACTION_BUTTON8_PACKET:
-				long dropTime = Utils.currentTimeMillis();
+				long dropTime = Utility.currentTimeMillis();
 				if (player.getMovement().getLockDelay() >= dropTime || player.getNextEmoteEnd() >= dropTime)
 					return;
-				if (!ActivityHandler.execute(player, activity -> activity.canDropItem(player, item)))
+				if (ActivityHandler.execute(player, activity -> !activity.canDropItem(player, item)))
 					return;
 				player.getAttributes().stopAll(player, false);
 				
@@ -126,8 +148,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 		int interfaceId = stream.readIntV2() >> 16;
 		int itemUsedId = stream.readShortLE();
 		
-		if (Settings.DEBUG)
-			System.out.println(String.format("fromInter: %s, toInter: %s, fromSlot: %s, toSlot %s, item1: %s, item2: %s", interfaceId, interfaceId2, fromSlot, toSlot, itemUsedId, itemUsedWithId));
+		
+		LogUtility.log(Type.INFO, "Inventory Interface Plugin", String.format("fromInter: %s, toInter: %s, fromSlot: %s, toSlot %s, item1: %s, item2: %s", interfaceId, interfaceId2, fromSlot, toSlot, itemUsedId, itemUsedWithId));
 		
 		//fromInter: 44498944, toInter: 44498944, fromSlot: 11694, toSlot 0, item1: 14484, item2: 8
 
@@ -142,8 +164,8 @@ public class InventoryInterfacePlugin implements RSInterface {
 				return;
 			player.getAttributes().stopAll(player);
 			PluginManager.handle(new ItemOnItemEvent(player, itemUsed, usedWith));
-			if (Settings.DEBUG)
-				Logger.log("ItemHandler", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());
+			
+				LogUtility.log(Type.INFO, "Inventory Interface Plugin", "Used:" + itemUsed.getId() + ", With:" + usedWith.getId());
 		}
 	}
 

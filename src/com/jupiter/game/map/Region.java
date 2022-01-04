@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ClientScriptMap;
@@ -13,9 +12,10 @@ import com.jupiter.cores.CoresManager;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.player.Player;
 import com.jupiter.json.impl.NPCSpawns;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.MapArchiveKeys;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.MapArchiveKeys;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class Region {
 	private int regionId;
@@ -581,7 +581,7 @@ public class Region {
 							setLoadedNPCSpawns(true);
 						}
 					} catch (Throwable e) {
-						Logger.handle(e);
+						LogUtility.log(Type.INFO, "Region", e.getMessage());
 					}
 				}
 			});
@@ -671,8 +671,8 @@ public class Region {
 				}
 			}
 		}
-		if (Settings.DEBUG && landContainerData == null && landArchiveId != -1 && MapArchiveKeys.getMapKeys(regionId) != null)
-			Logger.log(this, "Missing xteas for region " + regionId + ".");
+		if (landContainerData == null && landArchiveId != -1 && MapArchiveKeys.getMapKeys(regionId) != null)
+			LogUtility.log(Type.INFO, "Region", "Missing xteas for region " + regionId + ".");
 	}
 
 	public void addObject(WorldObject object, int plane, int localX, int localY) {
@@ -986,7 +986,7 @@ public class Region {
 			return -1;
 		if (musicIds.length == 1)
 			return musicIds[0];
-		return musicIds[Utils.getRandom(musicIds.length - 1)];
+		return musicIds[RandomUtility.getRandom(musicIds.length - 1)];
 	}
 
 	public int getLoadMapStage() {
@@ -1011,5 +1011,18 @@ public class Region {
 
 	public void setLoadedNPCSpawns(boolean loadedNPCSpawns) {
 		this.loadedNPCSpawns = loadedNPCSpawns;
+	}
+
+		/**
+	 * Unload's map from memory.
+	 */
+	public void unloadMap() {
+		if (getLoadMapStage() == 2
+				&& (playersIndexes == null || playersIndexes.isEmpty())
+				&& (npcsIndexes == null || npcsIndexes.isEmpty())) {
+			objects = null;
+			map = null;
+			setLoadMapStage(0);
+		}
 	}
 }

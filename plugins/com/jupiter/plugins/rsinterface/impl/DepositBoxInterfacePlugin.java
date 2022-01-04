@@ -2,7 +2,7 @@ package com.jupiter.plugins.rsinterface.impl;
 
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 
@@ -32,7 +32,7 @@ public class DepositBoxInterfacePlugin implements RSInterface {
             Item[] items = player.getEquipment().getItems().getItemsCopy();
             player.getBank().addItems(items, true);
             player.getEquipment().removeAllEquipment();
-            player.getAppearence().generateAppearenceData();
+            player.getAppearance().generateAppearenceData();
         }
         else if (componentId == 24)
             player.getBank().depositAllBob(false);

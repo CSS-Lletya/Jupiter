@@ -26,10 +26,11 @@ import com.jupiter.game.task.impl.RestoreHitpointsTask;
 import com.jupiter.game.task.impl.RestoreRunEnergyTask;
 import com.jupiter.game.task.impl.RestoreSkillsTask;
 import com.jupiter.game.task.impl.RestoreSpecialTask;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.AntiFlood;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.utility.AntiFlood;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -110,15 +111,15 @@ public final class World {
 	}
 	
 	public static final Optional<Player> containsPlayer(String username) {
-		return players().filter(p -> p.getUsername().equalsIgnoreCase(username)).findFirst();
+		return players().filter(p -> p.getPlayerDetails().getUsername().equalsIgnoreCase(username)).findFirst();
 	}
 
 	public static final Player getPlayerByDisplayName(String username) {
-		String formatedUsername = Utils.formatPlayerNameForDisplay(username);
+		String formatedUsername = Utility.formatPlayerNameForDisplay(username);
 		for (Player player : getPlayers()) {
 			if (player == null)
 				continue;
-			if (player.getUsername().equalsIgnoreCase(formatedUsername)
+			if (player.getPlayerDetails().getUsername().equalsIgnoreCase(formatedUsername)
 					|| player.getDisplayName().equalsIgnoreCase(formatedUsername))
 				return player;
 		}
@@ -136,7 +137,7 @@ public final class World {
 	public final void safeShutdown(final boolean restart, int delay) {
 		if (exiting_start != 0)
 			return;
-		exiting_start = Utils.currentTimeMillis();
+		exiting_start = Utility.currentTimeMillis();
 		exiting_delay = delay;
 		players().forEach(p -> p.getPackets().sendSystemUpdate(delay));
 		CoresManager.schedule(new Runnable() {
@@ -146,7 +147,7 @@ public final class World {
 					players().forEach(p -> p.realFinish());
 					Launcher.shutdown();
 				} catch (Throwable e) {
-					Logger.handle(e);
+					LogUtility.log(Type.ERROR, "World", e.getMessage());
 				}
 			}
 		}, delay);
@@ -312,7 +313,7 @@ public final class World {
 	public void queueLogout(Player player) {
 		if (!player.isActive())
 			return;
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (player.getAttackedByDelay() + 10000 > currentTime) {
 			player.getPackets().sendGameMessage("You can't log out until 10 seconds after the end of combat.");
 			return;

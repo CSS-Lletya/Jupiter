@@ -17,7 +17,7 @@ public final class DrainSkillsTask extends Task {
 	public void execute() {
 		World.players().forEach(p -> {
 			p.getPrayer();
-			boolean usingBerserk = Prayer.usingBerserker(p);
+			boolean usingBerserk = p.getPrayer().active(Prayer.BERSERKER);
 			setDelay(!usingBerserk ? 70 : 96);
 			p.getSkills().updateSkills(true);
 		});

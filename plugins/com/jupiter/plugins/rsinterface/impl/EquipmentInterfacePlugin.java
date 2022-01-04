@@ -4,7 +4,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.content.SkillCapeCustomizer;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 
@@ -105,7 +105,7 @@ public class EquipmentInterfacePlugin implements RSInterface {
 			return;
 		player.getEquipment().getItems().set(slotId, null);
 		player.getEquipment().refresh(slotId);
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 //		if (Runecrafting.isTiara(item.getId()))
 //			player.getPackets().sendConfig(491, 0);
 		if (slotId == 3)

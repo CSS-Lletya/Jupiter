@@ -1,30 +1,44 @@
 package com.jupiter;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import com.jupiter.cache.Cache;
 import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.cache.loaders.NPCDefinitions;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.cores.CoresManager;
-import com.jupiter.net.ServerChannelHandler;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+import com.jupiter.game.map.RegionBuilder;
+import com.jupiter.game.map.World;
+import com.jupiter.network.ServerChannelHandler;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 import io.vavr.control.Try;
 
+/**
+ * Builds & Runs the Server itself 
+ * @author Dennis
+ *
+ */
 public final class Launcher {
 
+	/**
+	 * Main method lads, this is it.
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
-		long currentTime = Utils.currentTimeMillis();
-
+		long currentTime = Utility.currentTimeMillis();
 		GameLoader.getGameLoader().getBackgroundLoader().waitForPendingTasks().shutdown();
-
-		Logger.log("Launcher",
-				"Server took " + (Utils.currentTimeMillis() - currentTime) + " milli seconds to launch.");
+		LogUtility.log(Type.INFO, "Launcher", "Server took " + (Utility.currentTimeMillis() - currentTime) + " milli seconds to launch.");
 		addCleanMemoryTask();
 	}
 
+	/**
+	 * A Memory cleaning task ran at a interval time 
+	 */
 	private static void addCleanMemoryTask() {
 		CoresManager.schedule(() -> {
 			cleanMemory(Runtime.getRuntime().freeMemory() < Settings.MIN_FREE_MEM_ALLOWED);
@@ -32,7 +46,9 @@ public final class Launcher {
 	}
 
 	/**
-	 * The memory cleaning event contents. Here you can see what's being done specifically.
+	 * The memory cleaning event contents. Here you can see what's being done
+	 * specifically.
+	 * 
 	 * @param force
 	 */
 	public static void cleanMemory(boolean force) {
@@ -40,13 +56,17 @@ public final class Launcher {
 			ItemDefinitions.clearItemsDefinitions();
 			NPCDefinitions.clearNPCDefinitions();
 			ObjectDefinitions.clearObjectDefinitions();
+			World.getRegions().values().forEach(region -> IntStream.of(RegionBuilder.FORCE_LOAD_REGIONS)
+					.filter(regionId -> regionId == region.getRegionId()).forEach(r -> region.unloadMap()));
 		}
-		Arrays.stream(Cache.STORE.getIndexes()).filter(index -> index != null).forEach(index -> index.resetCachedFiles());
+		Arrays.stream(Cache.STORE.getIndexes()).filter(index -> index != null)
+				.forEach(index -> index.resetCachedFiles());
 		System.gc();
 	}
 
 	/**
-	 * The shutdown hook fore the Network, then finally terminating the Application itself.
+	 * The shutdown hook fore the Network, then finally terminating the Application
+	 * itself.
 	 */
 	public static void shutdown() {
 		Try.runRunnable(() -> {

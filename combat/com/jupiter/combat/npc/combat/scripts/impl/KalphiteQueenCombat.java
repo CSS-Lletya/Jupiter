@@ -14,9 +14,10 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 @MobCombatSignature(mobId = {}, mobName = {"Kalphite Queen"})
 public class KalphiteQueenCombat extends MobCombatInterface {
@@ -24,13 +25,13 @@ public class KalphiteQueenCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		int attackStyle = Utils.random(3);
+		int attackStyle = RandomUtility.random(3);
 		if (attackStyle == 0) {
 			int distanceX = target.getX() - npc.getX();
 			int distanceY = target.getY() - npc.getY();
 			int size = npc.getSize();
 			if (distanceX > size || distanceX < -1 || distanceY > size || distanceY < -1)
-				attackStyle = Utils.random(2); // set mage
+				attackStyle = RandomUtility.random(2); // set mage
 			else {
 				npc.setNextAnimation(new Animation(defs.getAttackEmote()));
 				delayHit(npc, 0, target,
@@ -104,9 +105,9 @@ public class KalphiteQueenCombat extends MobCombatInterface {
 					return 1;
 				if (o2 == null)
 					return -1;
-				if (Utils.getDistance(o1, fromEntity) > Utils.getDistance(o2, fromEntity))
+				if (Utility.getDistance(o1, fromEntity) > Utility.getDistance(o2, fromEntity))
 					return 1;
-				else if (Utils.getDistance(o1, fromEntity) < Utils.getDistance(o2, fromEntity))
+				else if (Utility.getDistance(o1, fromEntity) < Utility.getDistance(o2, fromEntity))
 					return -1;
 				else
 					return 0;

@@ -10,7 +10,7 @@ import com.jupiter.game.dialogue.type.SimpleStatement;
 import com.jupiter.game.dialogue.type.Statement;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class Dialogue {
     private Dialogue prev;
@@ -133,7 +133,7 @@ public class Dialogue {
 			for (int i = 0;i < ops.length;i++) {
 				currPage.addNext(options.getOptions().get(ops[i]));
 				if (i >= 3 && ((i+1) % 4) == 0) {
-					String[] nextOps = new String[Utils.clampI(ops.length-i, 0, 5)];
+					String[] nextOps = new String[Utility.clampI(ops.length-i, 0, 5)];
 					for (int j = 1;j < 5;j++) {
 						if (i+j >= ops.length)
 							continue;

@@ -9,8 +9,6 @@ import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.impl.TestActivity;
 import com.jupiter.game.player.activity.impl.WildernessActivity;
 
-import lombok.Setter;
-
 /**
  * TODO: Item on object, process npc death
  * @author Dennis
@@ -19,7 +17,6 @@ import lombok.Setter;
  */
 public class ActivityHandler {
 
-	@Setter
 	private static ImmutableSet<Activity> ACTIVITIES = ImmutableSet.of(new TestActivity(), new WildernessActivity());
 	
 	/**
@@ -39,7 +36,7 @@ public class ActivityHandler {
 	 * @param function the function to execute that returns a result.
 	 */
 	public static boolean execute(Player player, Function<Activity, Boolean> function) {
-		return !player.getCurrentActivity().isPresent() ? true : function.apply(player.getCurrentActivity().get());
+		return player.getCurrentActivity().isPresent() && ACTIVITIES.contains(player.getCurrentActivity().get()) ? function.apply(player.getCurrentActivity().get()) : false;
 	}
 	
 	/**

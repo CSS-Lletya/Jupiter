@@ -24,7 +24,7 @@ public final class SkillCapeCustomizer {
 		for (int i = 0; i < 4; i++)
 			player.getPackets().sendConfigByFile(9254 + i, skillCape[i]);
 		player.getPackets().sendIComponentModel(20, 55,
-				player.getAppearence().isMale() ? ItemDefinitions.getItemDefinitions(itemId).getMaleWornModelId1()
+				player.getAppearance().isMale() ? ItemDefinitions.getItemDefinitions(itemId).getMaleWornModelId1()
 						: ItemDefinitions.getItemDefinitions(itemId).getFemaleWornModelId1());
 	}
 
@@ -79,7 +79,7 @@ public final class SkillCapeCustomizer {
 			player.getInterfaceManager().sendInterface(19);
 			player.getPackets().sendConfig(2174, skillCape[3]);
 		} else if (buttonId == 114 || buttonId == 142) { // done / close
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getInterfaceManager().closeInterfaces();
 		}
 	}

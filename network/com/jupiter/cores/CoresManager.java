@@ -9,7 +9,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.jupiter.Settings;
-import com.jupiter.utils.CatchExceptionRunnable;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
+import com.jupiter.utility.CatchExceptionRunnable;
 
 public final class CoresManager {
 
@@ -23,6 +24,7 @@ public final class CoresManager {
 		worldExemptExecutor = Executors.newSingleThreadScheduledExecutor(new SlowThreadFactory());
 		worldExecutor = Executors.newSingleThreadScheduledExecutor(new WorldThreadFactory());
 		fastExecutor = new Timer("Fast Executor");
+		WorldPacketsDecoder.loadPacketSizes();
 	}
 	
 	public static void execute(Runnable command) {
@@ -30,12 +32,8 @@ public final class CoresManager {
 			Future<?> future = worldExemptExecutor.submit(new CatchExceptionRunnable(command));
 			PENDING_FUTURES.add(future);
 			List<Future<?>> finished = new ArrayList<>();
-			for (Future<?> f : PENDING_FUTURES) {
-				if (f.isDone())
-					finished.add(f);
-			}
-			for (Future<?> f : finished)
-				PENDING_FUTURES.remove(f);
+			PENDING_FUTURES.parallelStream().filter(f -> f.isDone()).forEach(pending -> finished.add(pending));
+			finished.forEach(done -> PENDING_FUTURES.remove(done));
 		}
 	}
 	

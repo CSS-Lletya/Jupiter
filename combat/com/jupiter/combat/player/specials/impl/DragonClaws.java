@@ -9,9 +9,9 @@ import com.jupiter.game.Entity;
 import com.jupiter.game.item.ItemNames;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 
 @WeaponSpecialSignature(weapons = { ItemNames.DRAGON_CLAW }, specAmount = 50)
@@ -53,7 +53,7 @@ public class DragonClaws implements WeaponSpecials {
 					if (hit1 > 0) {
 						hits1 = new int[] {0, 0, 0, (int) (hit1 * 1.5)};
 					} else {
-						hits1 = new int[] {0, 0, 0, Utils.getRandom(7)};
+						hits1 = new int[] {0, 0, 0, RandomUtility.getRandom(7)};
 					}
 				}
 			}

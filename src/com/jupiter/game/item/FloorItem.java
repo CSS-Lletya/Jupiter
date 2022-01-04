@@ -7,7 +7,8 @@ import com.jupiter.game.map.Region;
 import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Logger;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -99,7 +100,7 @@ public class FloorItem extends Item {
 						}
 						removeGroundItem(floorItem, publicTime);
 					} catch (Throwable e) {
-						Logger.handle(e);
+						LogUtility.log(Type.ERROR, "Floor Item", e.getMessage());
 					}
 				}
 			}, (int) hiddenTime);
@@ -142,7 +143,7 @@ public class FloorItem extends Item {
 					World.players().filter(p -> p.getPlane() != floorItem.getTile().getPlane() || !p.getMapRegionsIds().contains(regionId)) .forEach(p -> p.getPackets().sendRemoveGroundItem(floorItem));
 					
 				} catch (Throwable e) {
-					Logger.handle(e);
+					LogUtility.log(Type.ERROR, "Floor Item", e.getMessage());
 				}
 			}
 		}, (int) publicTime);

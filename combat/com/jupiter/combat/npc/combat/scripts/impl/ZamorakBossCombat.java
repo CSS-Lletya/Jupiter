@@ -8,10 +8,11 @@ import com.jupiter.combat.player.type.PoisonType;
 import com.jupiter.game.Entity;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.skills.prayer.Prayer;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {6203}, mobName = {})
 public class ZamorakBossCombat extends MobCombatInterface {
@@ -19,8 +20,8 @@ public class ZamorakBossCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		if (Utils.getRandom(4) == 0) {
-			switch (Utils.getRandom(8)) {
+		if (RandomUtility.random(4) == 0) {
+			switch (RandomUtility.random(8)) {
 			case 0:
 				npc.setNextForceTalk(new ForceTalk("Attack them, you dogs!"));
 				break;
@@ -51,7 +52,7 @@ public class ZamorakBossCombat extends MobCombatInterface {
 				break;
 			}
 		}
-		int attackStyle = Utils.getRandom(2);
+		int attackStyle = RandomUtility.random(2);
 		switch (attackStyle) {
 		case 0:// magic flame attack
 			npc.setNextAnimation(new Animation(14962));
@@ -59,7 +60,7 @@ public class ZamorakBossCombat extends MobCombatInterface {
 			for (Entity t : npc.getPossibleTargets()) {
 				delayHit(npc, 1, t, getMagicHit(npc, getRandomMaxHit(npc, 300, NPCCombatDefinitions.MAGE, t)));
 				World.sendProjectile(npc, t, 1211, 41, 16, 41, 35, 16, 0);
-				if (Utils.getRandom(4) == 0)
+				if (RandomUtility.random(4) == 0)
 					t.poison(PoisonType.SUPER_MELEE);
 			}
 			break;
@@ -67,13 +68,13 @@ public class ZamorakBossCombat extends MobCombatInterface {
 		case 2:// melee attack
 			int damage = 463;// normal
 			for (Entity e : npc.getPossibleTargets()) {
-				if (e instanceof Player && (((Player) e).getPrayer().usingPrayer(0, 19)
-						|| ((Player) e).getPrayer().usingPrayer(1, 9))) {
+				if (e instanceof Player && (((Player) e).getPrayer().active(Prayer.PROTECT_MELEE)
+						|| ((Player) e).getPrayer().active(Prayer.DEFLECT_MELEE))) {
 					Player player = (Player) e;
 					damage = 497;
 					npc.setNextForceTalk(new ForceTalk("YARRRRRRR!"));
 					player.getPrayer().drainPrayer((Math.round(damage / 20)));
-					player.setPrayerDelay(Utils.getRandom(5) + 5);
+					player.setPrayerDelay(RandomUtility.random(5) + 5);
 					player.getPackets().sendGameMessage(
 							"K'ril Tsutsaroth slams through your protection prayer, leaving you feeling drained.");
 				}

@@ -6,10 +6,10 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatInterface;
 import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {6247}, mobName = {})
 public class CommanderZillyCombat extends MobCombatInterface {
@@ -19,8 +19,8 @@ public class CommanderZillyCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		if (Utils.getRandom(4) == 0) {
-			switch (Utils.getRandom(9)) {
+		if (RandomUtility.getRandom(4) == 0) {
+			switch (RandomUtility.getRandom(9)) {
 			case 0:
 				npc.setNextForceTalk(new ForceTalk("Death to the enemies of the light!"));
 				npc.playSound(3247, 2);
@@ -63,7 +63,7 @@ public class CommanderZillyCombat extends MobCombatInterface {
 				break;
 			}
 		}
-		if (Utils.getRandom(1) == 0) { // mage magical attack
+		if (RandomUtility.getRandom(1) == 0) { // mage magical attack
 			npc.setNextAnimation(new Animation(6967));
 			for (Entity t : npc.getPossibleTargets()) {
 				if (!t.withinDistance(npc, 3))

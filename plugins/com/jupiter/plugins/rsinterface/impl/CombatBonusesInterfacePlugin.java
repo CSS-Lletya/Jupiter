@@ -9,13 +9,13 @@ import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.ChatColors;
-import com.jupiter.utils.ItemExamines;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.ChatColors;
+import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.Utility;
 
 @RSInterfaceSignature(interfaceId = { 667, 670 })
 public class CombatBonusesInterfacePlugin implements RSInterface {
@@ -40,10 +40,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				}
 			}
 
@@ -60,10 +60,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				} else if (packetId == 216) {
 					player.getEquipment().sendRemoveEquipment(slotId);
 					refreshEquipBonuses(player);
@@ -83,10 +83,10 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 					if (item.getDefinitions().getValue() <= 1) {
 						return;
 					}
-					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utils.format(item.getAmount()) + " "
+					player.getPackets().sendGameMessage(ChatColors.blue + "x" + Utility.format(item.getAmount()) + " "
 							+ item.getName() + " value: "
-							+ Utils.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
-							+ Utils.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
+							+ Utility.format(item.getDefinitions().getValue() * item.getAmount()) + "gp (HA:"
+							+ Utility.format(item.getDefinitions().getHighAlchPrice() * item.getAmount()) + "gp)");
 				}
 //				if (packetId == 22) {
 //					sendItemStats(player, item);
@@ -134,7 +134,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		String itemName = item.getDefinitions() == null ? "" : item.getDefinitions().getName().toLowerCase();
 		if (item == null || item.getId() != itemId)
 			return false;
-		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearence().isMale())) {
+		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearance().isMale())) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return true;
 		}
@@ -173,7 +173,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
@@ -221,7 +221,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 		player.getPackets().sendSound(2240, 0, 1);
 		return true;
 	}
@@ -239,7 +239,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 			return true;
 		}
 		if (item.getDefinitions().isNoted()
-				|| !item.getDefinitions().isWearItem(player.getAppearence().isMale()) && itemId != 4084) {
+				|| !item.getDefinitions().isWearItem(player.getAppearance().isMale()) && itemId != 4084) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return false;
 		}
@@ -280,7 +280,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, finalSlot, itemId)))
 			return false;
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {
@@ -339,7 +339,7 @@ public class CombatBonusesInterfacePlugin implements RSInterface {
 		}
 		player.getInventory().refreshItems(copy);
 		if (worn) {
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getPackets().sendSound(2240, 0, 1);
 		}
 	}

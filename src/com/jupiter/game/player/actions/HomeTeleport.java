@@ -5,10 +5,10 @@ import java.util.Optional;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class HomeTeleport extends Action {
 
@@ -32,7 +32,7 @@ public class HomeTeleport extends Action {
 
 	@Override
 	public boolean start(final Player player) {
-		if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processMagicTeleport(player, tile)))
 			return false;
 		return process(player);
 	}
@@ -63,7 +63,7 @@ public class HomeTeleport extends Action {
 
 	@Override
 	public boolean process(Player player) {
-		if (player.getAttackedByDelay() + 10000 > Utils.currentTimeMillis()) {
+		if (player.getAttackedByDelay() + 10000 > Utility.currentTimeMillis()) {
 			player.getPackets().sendGameMessage("You can't home teleport until 10 seconds after the end of combat.");
 			return false;
 		}

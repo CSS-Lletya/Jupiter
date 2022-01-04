@@ -7,9 +7,9 @@ import com.jupiter.combat.npc.combat.scripts.MobCombatSignature;
 import com.jupiter.game.Entity;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = {}, mobName = {"General Graardor"})
 public class GeneralGraardorCombat extends MobCombatInterface {
@@ -17,8 +17,8 @@ public class GeneralGraardorCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		if (Utils.getRandom(4) == 0) {
-			switch (Utils.getRandom(10)) {
+		if (RandomUtility.getRandom(4) == 0) {
+			switch (RandomUtility.getRandom(10)) {
 			case 0:
 				npc.setNextForceTalk(new ForceTalk("Death to our enemies!"));
 				npc.playSound(3219, 2);
@@ -62,7 +62,7 @@ public class GeneralGraardorCombat extends MobCombatInterface {
 				break;
 			}
 		}
-		if (Utils.getRandom(2) == 0) { // range magical attack
+		if (RandomUtility.getRandom(2) == 0) { // range magical attack
 			npc.setNextAnimation(new Animation(7063));
 			for (Entity t : npc.getPossibleTargets()) {
 				delayHit(npc, 1, t, getRangeHit(npc, getRandomMaxHit(npc, 355, NPCCombatDefinitions.RANGE, t)));

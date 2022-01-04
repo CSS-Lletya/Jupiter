@@ -11,33 +11,52 @@ import com.jupiter.cores.WorldThread;
 import com.jupiter.game.map.RegionBuilder;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.content.FriendChatsManager;
-import com.jupiter.net.ServerChannelHandler;
-import com.jupiter.net.host.HostListType;
-import com.jupiter.net.host.HostManager;
+import com.jupiter.network.ServerChannelHandler;
+import com.jupiter.network.host.HostListType;
+import com.jupiter.network.host.HostManager;
+import com.jupiter.network.packets.logic.LogicPacketDispatcher;
+import com.jupiter.network.packets.outgoing.OutgoingPacketDispatcher;
+import com.jupiter.network.utility.Huffman;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugins.commands.CommandDispatcher;
 import com.jupiter.plugins.rsinterface.RSInterfaceDispatcher;
-import com.jupiter.utils.Huffman;
-import com.jupiter.utils.ItemExamines;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.MapArchiveKeys;
-import com.jupiter.utils.NPCBonuses;
-import com.jupiter.utils.NPCCombatDefinitionsL;
+import com.jupiter.utility.ItemExamines;
+import com.jupiter.utility.ItemWeights;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
+import com.jupiter.utility.MapArchiveKeys;
+import com.jupiter.utility.NPCBonuses;
+import com.jupiter.utility.NPCCombatDefinitionsL;
 
 import io.vavr.control.Try;
 import lombok.Getter;
 
+/**
+ * Handles the game data being built for the server
+ * (Server startups are sent here to be built on startup)
+ * @author Dennis
+ *
+ */
 public class GameLoader {
 
+	/**
+	 * Represents the Game Loader with the {@link #load()} method attached
+	 */
 	public GameLoader() {
 		load();
 	}
 
+	/**
+	 * Defines the executor service.
+	 */
 	@Getter
 	private final BlockingExecutorService backgroundLoader = new BlockingExecutorService(Executors.newCachedThreadPool());
 
+	/**
+	 * Handles the data being loaded for startup
+	 */
 	public void load() {
-		Logger.log("Launcher", "Initializing Cache & Game Network...");
+		LogUtility.log(Type.INFO, "Game Loader", "Initializing Cache & Game Network...");
 		Try.run(() -> Cache.init());
 		CoresManager.startThreads();
 		World.get().init();
@@ -46,8 +65,6 @@ public class GameLoader {
 			Huffman.init();
 			MapArchiveKeys.init();
 			NPCCombatDefinitionsL.init();
-		});
-		getBackgroundLoader().submit(() -> {
 			NPCBonuses.init();
 			ItemExamines.init();
 		});
@@ -61,6 +78,9 @@ public class GameLoader {
 			RSInterfaceDispatcher.load();
 			NPCCombatDispatcher.load();
 			WeaponSpecialDispatcher.load();
+			OutgoingPacketDispatcher.load();
+			LogicPacketDispatcher.load();
+			ItemWeights.init();
 		});
 		getBackgroundLoader().submit(() -> {
 			HostManager.deserialize(HostListType.STARTER_RECEIVED);
@@ -70,6 +90,9 @@ public class GameLoader {
 		ServerChannelHandler.init();
 	}
 	
+	/**
+	 * Represents an instance of the {@link #GameLoader()} class
+	 */
 	@Getter
 	private static final GameLoader gameLoader = new GameLoader();
 }

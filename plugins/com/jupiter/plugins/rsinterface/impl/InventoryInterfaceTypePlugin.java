@@ -8,7 +8,7 @@ import com.jupiter.game.player.Equipment;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.Rights;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.net.decoders.WorldPacketsDecoder;
+import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.plugins.rsinterface.RSInterface;
 import com.jupiter.plugins.rsinterface.RSInterfaceSignature;
 import com.jupiter.skills.Skills;
@@ -46,7 +46,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		if (!item.getDefinitions().containsOption("Wield")) {
 			return false;
 		}
-		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearence().isMale())) {
+		if (item.getDefinitions().isNoted() || !item.getDefinitions().isWearItem(player.getAppearance().isMale())) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return true;
 		}
@@ -85,7 +85,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return true;
-		if (ActivityHandler.execute(player, activity -> activity.canEquip(player, targetSlot, itemId)))
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, targetSlot, itemId)))
 			return false;
 		player.getAttributes().stopAll(player, false, false);
 		player.getInventory().deleteItem(slotId, item);
@@ -133,7 +133,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item2 = new Item(itemId, oldAmt + item.getAmount());
 		player.getEquipment().getItems().set(targetSlot, item2);
 		player.getEquipment().refresh(targetSlot, targetSlot == 3 ? (byte) 5 : targetSlot == 3 ? (byte) 0 : (byte) 3);
-		player.getAppearence().generateAppearenceData();
+		player.getAppearance().generateAppearenceData();
 		player.getPackets().sendSound(2240, 0, 1);
 		return true;
 	}
@@ -147,15 +147,12 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		Item item = player.getInventory().getItem(slotId);
 		if (item == null || item.getId() != itemId)
 			return false;
-		if (!item.getDefinitions().containsOption("Wield")) {
-			return false;
-		}
 		if ((itemId == 4565 || itemId == 4084) && !player.getPlayerDetails().getRights().equal(Rights.ADMINISTRATOR)) {
 			player.getPackets().sendGameMessage("You've to be a administrator to wear this item.");
 			return true;
 		}
 		if (item.getDefinitions().isNoted()
-				|| !item.getDefinitions().isWearItem(player.getAppearence().isMale()) && itemId != 4084) {
+				|| !item.getDefinitions().isWearItem(player.getAppearance().isMale()) && itemId != 4084) {
 			player.getPackets().sendGameMessage("You can't wear that.");
 			return false;
 		}
@@ -196,9 +193,10 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		if (!hasRequiriments)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEquip(player, finalSlot, itemId))) {
+		if (ActivityHandler.execute(player, activity -> !activity.canEquip(player, finalSlot, itemId))) {
 			return false;
 		}
+		System.out.println(itemId);
 		player.getInventory().getItems().remove(slotId, item);
 		if (targetSlot == 3) {
 			if (isTwoHandedWeapon && player.getEquipment().getItem(5) != null) {
@@ -243,8 +241,8 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 	}
 
 	public static void sendWear(Player player, int[] slotIds) {
-		if (player.hasFinished() || player.isDead())
-			return;
+//		if (player.hasFinished() || player.isDead())
+//			return;
 		boolean worn = false;
 		Item[] copy = player.getInventory().getItems().getItemsCopy();
 		for (int slotId : slotIds) {
@@ -256,7 +254,7 @@ public class InventoryInterfaceTypePlugin implements RSInterface {
 		}
 		player.getInventory().refreshItems(copy);
 		if (worn) {
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getPackets().sendSound(2240, 0, 1);
 		}
 	}

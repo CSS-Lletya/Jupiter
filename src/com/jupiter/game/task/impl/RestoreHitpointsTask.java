@@ -16,8 +16,8 @@ public final class RestoreHitpointsTask extends Task {
 	@Override
 	public void execute() {
 		World.players().forEach(p -> {
-			boolean usingRenewal = Prayer.usingRapidRenewal(p);
-			boolean usingRapidHeal = Prayer.usingRapidHeal(p);
+			boolean usingRenewal = p.getPrayer().active(Prayer.RAPID_RENEWAL);
+			boolean usingRapidHeal = p.getPrayer().active(Prayer.RAPID_HEAL);
 			setDelay((usingRenewal ? 15 : p.isResting() ? 10 : usingRapidHeal ? 15 : 30));
 			p.restoreHitPoints();
 		});

@@ -8,11 +8,12 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
+import com.jupiter.cache.utility.CacheUtility;
 import com.jupiter.game.player.Player;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
+import com.jupiter.utility.Utility;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -71,7 +72,7 @@ public final class RSInterfaceDispatcher {
 	 * <b>Method should only be called once on start-up.</b>
 	 */
 	public static void load() {
-		List<RSInterface> interfaces = Utils.getClassesInDirectory("com.jupiter.plugins.rsinterface.impl").stream().map(clazz -> (RSInterface) clazz).collect(Collectors.toList());
+		List<RSInterface> interfaces = Utility.getClassesInDirectory("com.jupiter.plugins.rsinterface.impl").stream().map(clazz -> (RSInterface) clazz).collect(Collectors.toList());
 		
 		for(RSInterface rsInterface : interfaces) {
 			if(rsInterface.getClass().getAnnotation(RSInterfaceSignature.class) == null) {
@@ -96,7 +97,7 @@ public final class RSInterfaceDispatcher {
 	public static void handleButtons(final Player player, InputStream stream, int packetId) {
 		int interfaceHash = stream.readIntLE();
 		int interfaceId = interfaceHash >> 16;
-		if (Utils.getInterfaceDefinitionsSize() <= interfaceId) {
+		if (CacheUtility.getInterfaceDefinitionsSize() <= interfaceId) {
 			// hack, or server error or client error
 			// player.getSession().getChannel().close();
 			return;
@@ -108,7 +109,7 @@ public final class RSInterfaceDispatcher {
 			return;
 		}
 		final int componentId = interfaceHash - (interfaceId << 16);
-		if (componentId != 65535 && Utils.getInterfaceDefinitionsComponentsSize(interfaceId) <= componentId) {
+		if (componentId != 65535 && CacheUtility.getInterfaceDefinitionsComponentsSize(interfaceId) <= componentId) {
 			// hack, or server error or client error
 			// player.getSession().getChannel().close();
 			return;
@@ -117,8 +118,6 @@ public final class RSInterfaceDispatcher {
 		final byte slotId = (byte) stream.readUnsignedShort128();
 		final int itemId = stream.readUnsignedShortLE128();
 		RSInterfaceDispatcher.execute(player, interfaceId, componentId, packetId, slotId, slotId2);
-		
-		if (Settings.DEBUG)
-			Logger.log("ButtonHandler", "Interface ID: " + interfaceId + " - Comonent: " + componentId + " - PacketId: " + packetId);
+		LogUtility.log(Type.INFO, "RS Interface Dispatcher", "Interface ID: " + interfaceId + " - Comonent: " + componentId + " - PacketId: " + packetId);
 	}
 }

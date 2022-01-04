@@ -11,10 +11,11 @@ import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.LinkedTaskSequence;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 /*
  * content package used for static stuff
@@ -335,7 +336,7 @@ public class Magic {
 				return;
 			}
 			Long lastVeng = (Long) player.getTemporaryAttributtes().get("LAST_VENG");
-			if (lastVeng != null && lastVeng + 30000 > Utils.currentTimeMillis()) {
+			if (lastVeng != null && lastVeng + 30000 > Utility.currentTimeMillis()) {
 				player.getPackets().sendGameMessage("Players may only cast vengeance once every 30 seconds.");
 				return;
 			}
@@ -344,7 +345,7 @@ public class Magic {
 			player.setNextGraphics(new Graphics(726, 0, 100));
 			player.setNextAnimation(new Animation(4410));
 			player.setCastedVeng(true);
-			player.getTemporaryAttributtes().put("LAST_VENG", Utils.currentTimeMillis());
+			player.getTemporaryAttributtes().put("LAST_VENG", Utility.currentTimeMillis());
 			player.getPackets().sendGameMessage("You cast a vengeance.");
 			break;
 		case 39:
@@ -517,7 +518,7 @@ public class Magic {
 			int ammount = runes[runesCount++];
 			if (hasInfiniteRunes(runeId, weaponId, shieldId))
 				continue;
-			if (hasStaffOfLight(weaponId) && Utils.getRandom(8) == 0 && runeId != 21773)// 1 in eight chance of keeping runes
+			if (hasStaffOfLight(weaponId) && RandomUtility.getRandom(8) == 0 && runeId != 21773)// 1 in eight chance of keeping runes
 				continue;
 			if (!player.getInventory().containsItem(runeId, ammount)) {
 				player.getPackets()
@@ -556,7 +557,7 @@ public class Magic {
 	}
 
 	public static void pushLeverTeleport(final Player player, final WorldTile tile) {
-		if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processObjectTeleport(player, tile)))
 			return;
 		player.setNextAnimation(new Animation(2140));
 		player.getMovement().lock();
@@ -581,7 +582,7 @@ public class Magic {
 	public static final boolean sendTeleportSpell(final Player player, int upEmoteId, final int downEmoteId,
 			int upGraphicId, final int downGraphicId, int level, final double xp, final WorldTile tile, int delay,
 			final boolean randomize, final int teleType, int... runes) {
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (player.getMovement().getLockDelay() > currentTime)
 			return false;
 		if (player.getSkills().getLevel(Skills.MAGIC) < level) {
@@ -591,13 +592,13 @@ public class Magic {
 		if (!checkRunes(player, false, runes))
 			return false;
 		if (teleType == MAGIC_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processMagicTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processMagicTeleport(player, tile)))
 				return false;
 		} else if (teleType == ITEM_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processItemTeleport(player, tile)))
 				return false;
 		} else if (teleType == OBJECT_TELEPORT) {
-			if (!ActivityHandler.execute(player, activity -> activity.processObjectTeleport(player, tile)))
+			if (ActivityHandler.execute(player, activity -> !activity.processObjectTeleport(player, tile)))
 				return false;
 		}
 		checkRunes(player, true, runes);
@@ -663,7 +664,7 @@ public class Magic {
 	}
 
 	public static boolean useTeleTab(final Player player, final WorldTile tile) {
-		if (!ActivityHandler.execute(player, activity -> activity.processItemTeleport(player, tile)))
+		if (ActivityHandler.execute(player, activity -> !activity.processItemTeleport(player, tile)))
 			return false;
 		player.getMovement().lock();
 		player.setNextAnimation(new Animation(9597));

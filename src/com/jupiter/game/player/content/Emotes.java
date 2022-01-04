@@ -9,10 +9,11 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.LinkedTaskSequence;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -205,11 +206,11 @@ public class Emotes {
 		}
 
 		public void setNextEmoteEnd(Player player, long delay) {
-			player.setNextEmoteEnd(Utils.currentTimeMillis() + delay);
+			player.setNextEmoteEnd(Utility.currentTimeMillis() + delay);
 		}
 
 		public static boolean isDoingEmote(Player player) {
-			return player.getNextEmoteEnd() >= Utils.currentTimeMillis();
+			return player.getNextEmoteEnd() >= Utility.currentTimeMillis();
 		}
 	}
 
@@ -238,12 +239,12 @@ public class Emotes {
 				});
 				turkeySeq.connect(2, () -> {
 					player.setNextAnimation(new Animation(10996));
-					player.getAppearence().transformIntoNPC(8499);
+					player.getAppearance().transformIntoNPC(8499);
 				});
 				turkeySeq.connect(6, () -> {
 					player.setNextAnimation(new Animation(10995));
 					player.setNextGraphics(new Graphics(86));
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				});
 				turkeySeq.start();
 				return true;
@@ -260,13 +261,13 @@ public class Emotes {
 				soaSeq.connect(2, () -> {
 					int random = (int) (Math.random() * (2 + 1));
 					player.setNextAnimation(new Animation(15106));
-					player.getAppearence().transformIntoNPC(random == 0 ? 13255 : (random == 1 ? 13256 : 13257));
+					player.getAppearance().transformIntoNPC(random == 0 ? 13255 : (random == 1 ? 13256 : 13257));
 				});
 				soaSeq.connect(3, () -> player.setNextAnimation(new Animation(15108)));
 				soaSeq.connect(4, () -> {
 					player.setNextAnimation(new Animation(15105));
 					player.setNextGraphics(new Graphics(1287));
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				});
 				soaSeq.start();
 				return true;
@@ -495,9 +496,9 @@ public class Emotes {
 				seq.connect(1, () -> {
 					player.setNextAnimation(new Animation(((rand > 0 ? 13192 : (rand == 2 ? 13193 : 13194)))));
 				}).connect(2, () -> {
-					player.getAppearence().transformIntoNPC((rand == 0 ? 11229 : (rand == 2 ? 11228 : 11227)));
+					player.getAppearance().transformIntoNPC((rand == 0 ? 11229 : (rand == 2 ? 11228 : 11227)));
 				}).connect(3, () -> {
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 				}).start();
 				break;
 			case 19709:
@@ -541,7 +542,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("You cannot do this here!");
 					return;
 				}
-				int random = Utils.getRandom(2);
+				int random = RandomUtility.getRandom(2);
 				player.setNextAnimation(new Animation(122));
 				player.setNextGraphics(new Graphics(random == 0 ? 1471 : 1466));
 				break;
@@ -555,7 +556,7 @@ public class Emotes {
 				WorldTile spawnTile = new WorldTile(new WorldTile(player.getX() + 1, player.getY(), player.getPlane()));
 				if (!TileAttributes.floorAndWallsFree(spawnTile, player.getSize())) {
 					spawnTile = null;
-					int[][] dirs = Utils.getCoordOffsetsNear(size);
+					int[][] dirs = Utility.getCoordOffsetsNear(size);
 					for (int dir = 0; dir < dirs[0].length; dir++) {
 						final WorldTile tile = new WorldTile(new WorldTile(player.getX() + dirs[0][dir],
 								player.getY() + dirs[1][dir], player.getPlane()));
@@ -569,7 +570,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("Need more space to perform this skillcape emote.");
 					return;
 				}
-				player.setNextEmoteEnd(Utils.currentTimeMillis() + (25 * 600));
+				player.setNextEmoteEnd(Utility.currentTimeMillis() + (25 * 600));
 				final WorldTile npcTile = spawnTile;
 				LinkedTaskSequence maxCapeSeq = new LinkedTaskSequence();
 				npc = new NPC(1224, npcTile, false);
@@ -618,7 +619,7 @@ public class Emotes {
 					player.getPackets().sendGameMessage("You can't do this here.");
 					return;
 				}
-				player.setNextEmoteEnd(Utils.currentTimeMillis() + (20 * 600));
+				player.setNextEmoteEnd(Utility.currentTimeMillis() + (20 * 600));
 
 				LinkedTaskSequence compCapeSeq = new LinkedTaskSequence();
 
@@ -627,14 +628,14 @@ public class Emotes {
 					player.setNextGraphics(new Graphics(307));
 				});
 				compCapeSeq.connect(2, () -> {
-					player.getAppearence().transformIntoNPC(capeId == 20769 ? 1830 : 3372);
+					player.getAppearance().transformIntoNPC(capeId == 20769 ? 1830 : 3372);
 					player.setNextAnimation(new Animation(1174));
 					player.setNextGraphics(new Graphics(1443));
 				});
 				compCapeSeq.connect(4, () -> player.getPackets().sendCameraShake(3, 25, 50, 25, 50));
 				compCapeSeq.connect(5, () -> player.getPackets().sendStopCameraShake());
 				compCapeSeq.connect(6, () -> {
-					player.getAppearence().transformIntoNPC(-1);
+					player.getAppearance().transformIntoNPC(-1);
 					player.setNextAnimation(new Animation(1175));
 				});
 				compCapeSeq.start();

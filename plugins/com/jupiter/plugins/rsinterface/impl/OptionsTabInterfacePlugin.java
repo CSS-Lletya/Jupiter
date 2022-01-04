@@ -19,13 +19,15 @@ public class OptionsTabInterfacePlugin implements RSInterface {
 			}
 			player.getAttributes().stopAll(player);
 			player.getInterfaceManager().sendInterface(742);
-		} else if (componentId == 12)
-			player.switchAllowChatEffects();
-		else if (componentId == 13) { // chat setup
+		} else if (componentId == 12) {
+			player.getPlayerDetails().setAllowChatEffects(player.getPlayerDetails().isAllowChatEffects());
+			player.getPackets().sendConfig(171, player.getPlayerDetails().isAllowChatEffects() ? 0 : 1);
+		} else if (componentId == 13) { // chat setup
 			player.getInterfaceManager().sendSettings(982);
-		} else if (componentId == 14)
-			player.switchMouseButtons();
-		else if (componentId == 24) // audio options
+		} else if (componentId == 14) {
+			player.getPlayerDetails().setMouseButtons(player.getPlayerDetails().isMouseButtons());
+			player.getPackets().sendConfig(170, player.getPlayerDetails().isMouseButtons() ? 0 : 1);
+		} else if (componentId == 24) // audio options
 			player.getInterfaceManager().sendSettings(429);
 		else if (componentId == 26)
 			System.out.println("dead content");

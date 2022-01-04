@@ -8,11 +8,11 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
+import com.jupiter.utility.RandomUtility;
 
 @MobCombatSignature(mobId = { 9463, 9465, 9467 }, mobName = {})
 public class StrykewwyrmCombat extends MobCombatInterface {
@@ -20,7 +20,7 @@ public class StrykewwyrmCombat extends MobCombatInterface {
 	@Override
 	public int execute(Player target, NPC npc) throws Exception {
 		final NPCCombatDefinitions defs = npc.getCombatDefinitions();
-		int attackStyle = Utils.getRandom(10);
+		int attackStyle = RandomUtility.getRandom(10);
 		if (attackStyle <= 7) { // melee
 			int size = npc.getSize();
 			int distanceX = target.getX() - npc.getX();
@@ -43,7 +43,7 @@ public class StrykewwyrmCombat extends MobCombatInterface {
 				World.get().submit(new Task(1) {
 					@Override
 					protected void execute() {
-						if (Utils.getRandom(10) == 0 && target.getFreezeDelay() < System.currentTimeMillis()) {
+						if (RandomUtility.getRandom(10) == 0 && target.getFreezeDelay() < System.currentTimeMillis()) {
 							target.addFreezeDelay(3000);
 							target.setNextGraphics(new Graphics(369));
 							if (target instanceof Player) {

@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.route.WalkStep;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.utility.Utility;
 
 import lombok.Data;
 
@@ -42,7 +42,7 @@ public class Movement {
 	 * @return
 	 */
 	public boolean isLocked() {
-		return lockDelay >= Utils.currentTimeMillis();
+		return lockDelay >= Utility.currentTimeMillis();
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class Movement {
 	 * @param time
 	 */
 	public void lock(long time) {
-		lockDelay = Utils.currentTimeMillis() + (time * 600);
+		lockDelay = Utility.currentTimeMillis() + (time * 600);
 	}
 
 	/**
@@ -101,6 +101,10 @@ public class Movement {
 				message.ifPresent(event.getPackets()::sendGameMessage);
 			});
 		});
+	}
+	
+	public void drainRunEnergy(double amount) {
+		setRunEnergy(entity.toPlayer().getPlayerDetails().getRunEnergy() - amount);
 	}
 	
 	public void drainRunEnergy() {

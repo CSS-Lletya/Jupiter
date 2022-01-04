@@ -7,7 +7,7 @@ import com.jupiter.game.item.Item;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.task.Task;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 /**
  * The skill action that represents an action where items are periodically added
@@ -63,7 +63,7 @@ public abstract class HarvestingSkillAction extends SkillHandler {
 		Preconditions.checkState(SUCCESS_FACTOR >= 0 && SUCCESS_FACTOR <= 99, "Invalid success factor for harvesting!");
 		int factor = (getPlayer().getSkills().getLevel(getSkillId()) / SUCCESS_FACTOR);
 		double boost = (factor * 0.01);
-		if(Utils.success((successFactor() + boost))) {
+		if(RandomUtility.success((successFactor() + boost))) {
 			Optional<Item[]> removeItems = removeItems();
 			Item[] harvestItems = harvestItems();
 			

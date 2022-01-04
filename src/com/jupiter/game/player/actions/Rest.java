@@ -2,8 +2,9 @@ package com.jupiter.game.player.actions;
 
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.content.Emotes;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.utils.Utils;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 public class Rest extends Action {
 
@@ -17,10 +18,10 @@ public class Rest extends Action {
 	public boolean start(Player player) {
 		if (!process(player))
 			return false;
-		index = Utils.random(REST_DEFS.length);
+		index = RandomUtility.random(REST_DEFS.length);
 		player.setResting(true);
 		player.setNextAnimation(new Animation(REST_DEFS[index][0]));
-		player.getAppearence().setRenderEmote((short) REST_DEFS[index][1]);
+		player.getAppearance().setRenderEmote((short) REST_DEFS[index][1]);
 		return true;
 	}
 
@@ -30,7 +31,7 @@ public class Rest extends Action {
 			player.getPackets().sendGameMessage("You can't rest while you're poisoned.");
 			return false;
 		}
-		if (player.getAttackedByDelay() + 10000 > Utils.currentTimeMillis()) {
+		if (player.getAttackedByDelay() + 10000 > Utility.currentTimeMillis()) {
 			player.getPackets().sendGameMessage("You can't rest until 10 seconds after the end of combat.");
 			return false;
 		}
@@ -47,7 +48,7 @@ public class Rest extends Action {
 		player.setResting(false);
 		player.setNextAnimation(new Animation(REST_DEFS[index][2]));
 		Emotes.setNextEmoteEnd(player);
-		player.getAppearence().setRenderEmote((short) -1);
+		player.getAppearance().setRenderEmote((short) -1);
 	}
 
 }

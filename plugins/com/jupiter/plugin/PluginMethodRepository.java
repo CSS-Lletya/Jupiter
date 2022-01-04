@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.jupiter.plugin.events.PluginEvent;
 import com.jupiter.plugin.handlers.PluginHandler;
-import com.jupiter.utils.Logger;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.LogUtility.Type;
 
 public class PluginMethodRepository {
 
@@ -26,7 +27,7 @@ public class PluginMethodRepository {
 				method.handle(event);
 				return true;
 			} catch (Exception e) {
-				Logger.log("Plugin Method Repository", e);
+				LogUtility.log(Type.ERROR, "Plugin Method Repository", e.getMessage());
 				return false;
 			}
 		} else {
@@ -38,7 +39,7 @@ public class PluginMethodRepository {
 					PluginHandler<PluginEvent> pHandle = (PluginHandler<PluginEvent>) m;
 					pHandle.handle(event);
 				} catch (Exception e) {
-					Logger.log("Plugin Method Repository", e);
+					LogUtility.log(Type.ERROR, "Plugin Method Repository", e.getMessage());
 					return false;
 				}
 			}
@@ -56,7 +57,7 @@ public class PluginMethodRepository {
 				if (obj != null)
 					return obj;
 			} catch (Exception e) {
-				Logger.log("Plugin Method Repository", e);
+				LogUtility.log(Type.ERROR, "Plugin Method Repository", e.getMessage());
 				return null;
 			}
 		} else {
@@ -68,7 +69,7 @@ public class PluginMethodRepository {
 					PluginHandler<PluginEvent> pHandle = (PluginHandler<PluginEvent>) m;
 					obj = pHandle.getObj(event);
 				} catch (Exception e) {
-					Logger.log("Plugin Method Repository", e);
+					LogUtility.log(Type.ERROR, "Plugin Method Repository", e.getMessage());
 					return null;
 				}
 			}

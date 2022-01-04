@@ -25,7 +25,7 @@ import com.google.gson.stream.JsonWriter;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.json.impl.NPCSpawns;
-import com.jupiter.utils.Logger;
+import com.jupiter.utility.LogUtility;
 
 import io.vavr.control.Try;
 
@@ -60,7 +60,7 @@ public class GsonLoader {
 			return GSON.fromJson(reader, type);
 		} catch (IOException e) {
 			e.printStackTrace();
-			Logger.log("Load", e);
+			LogUtility.log(LogUtility.Type.ERROR, "Gson Loader", e.getMessage());
 		}
 		return null;
 	}

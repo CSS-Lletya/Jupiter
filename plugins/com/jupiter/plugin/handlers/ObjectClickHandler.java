@@ -1,6 +1,5 @@
 package com.jupiter.plugin.handlers;
 
-import com.jupiter.Settings;
 import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.game.item.Item;
@@ -10,14 +9,15 @@ import com.jupiter.game.map.World;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.route.strategy.RouteEvent;
+import com.jupiter.game.route.RouteEvent;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.ObjectClickEvent;
-import com.jupiter.utils.Logger;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.LogUtility;
+import com.jupiter.utility.Utility;
+import com.jupiter.utility.LogUtility.Type;
 
 public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent> {
-	
+
 	private WorldTile[] tiles;
 	private boolean checkDistance = true;
 	private ObjectType type;
@@ -27,7 +27,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 		this.tiles = tiles;
 		this.checkDistance = checkDistance;
 	}
-	
+
 	public ObjectClickHandler(Object[] namesOrIds, WorldTile... tiles) {
 		this(true, namesOrIds, tiles);
 	}
@@ -35,7 +35,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 	public ObjectClickHandler(Object[] namesOrIds) {
 		this(true, namesOrIds);
 	}
-	
+
 	public ObjectClickHandler(Object[] namesOrIds, ObjectType type) {
 		this(true, namesOrIds);
 		this.type = type;
@@ -52,11 +52,11 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 	public ObjectType getType() {
 		return type;
 	}
-	
+
 	public static void handleOption(final Player player, InputStream stream, int option) {
 		if (!player.isStarted() || !player.isClientLoadedMapRegion() || player.isDead())
 			return;
-		long currentTime = Utils.currentTimeMillis();
+		long currentTime = Utility.currentTimeMillis();
 		if (player.getMovement().getLockDelay() >= currentTime || player.getNextEmoteEnd() >= currentTime)
 			return;
 
@@ -65,12 +65,11 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 		int y = stream.readUnsignedShort();
 		int x = stream.readUnsignedShort();
 		boolean forceRun = stream.readUnsignedShort() == 1;
-		if(id == -1)
+		if (id == -1)
 			id = stream.readUnsignedShort();
 
-		if (Settings.DEBUG)
-			System.out.println(x+", "+ y +", "+id +", "+forceRun);
-		
+		LogUtility.log(Type.INFO, "Object Click Handler", x + ", " + y + ", " + id + ", " + forceRun);
+
 		int rotation = 0;
 		if (player.isAtDynamicRegion()) {
 			rotation = TileAttributes.getRotation(player.getPlane(), x, y);
@@ -109,7 +108,7 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 		player.getAttributes().stopAll(player, false);
 		if (forceRun)
 			player.setRun(forceRun);
-		
+
 		if (option == -1) {
 			handleOptionExamine(player, object);
 			return;
@@ -131,28 +130,25 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 			stream2 = (InputStream) stream.clone();
 			stream2.readInt();
 			return stream2.readInt();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			return -1;
 		}
 	}
 
 	private static void handleOptionExamine(final Player player, final WorldObject object) {
-		if (Settings.DEBUG) {
-			int offsetX = object.getX() - player.getX();
-			int offsetY = object.getY() - player.getY();
-			System.out.println("Offsets" + offsetX + " , " + offsetY);
-		}
-		player.getPackets().sendGameMessage("It's an " + object.getDefinitions().name + ".");
-		if (Settings.DEBUG)
-			if (Settings.DEBUG)
+		int offsetX = object.getX() - player.getX();
+		int offsetY = object.getY() - player.getY();
+		LogUtility.log(Type.INFO, "Object Click Handler", "Offsets" + offsetX + " , " + offsetY);
 
-				Logger.log("ObjectHandler",
-						"examined object id : " + object.getId() + ", " + object.getX() + ", " + object.getY() + ", "
-								+ object.getPlane() + ", " + object.getType() + ", " + object.getRotation() + ", "
-								+ object.getDefinitions().name + ", varbit: " + object.getConfigByFile() + ", var: "
-								+ object.getConfig());
+		player.getPackets().sendGameMessage("It's an " + object.getDefinitions().name + ".");
+
+		LogUtility.log(Type.INFO, "Object Click Handler",
+				"examined object id : " + object.getId() + ", " + object.getX() + ", " + object.getY() + ", "
+						+ object.getPlane() + ", " + object.getType() + ", " + object.getRotation() + ", "
+						+ object.getDefinitions().name + ", varbit: " + object.getConfigByFile() + ", var: "
+						+ object.getConfig());
 	}
-	
+
 	@SuppressWarnings("unused")
 	public static void handleItemOnObject(final Player player, final WorldObject object, final int interfaceId,
 			final Item item) {
@@ -162,11 +158,10 @@ public abstract class ObjectClickHandler extends PluginHandler<ObjectClickEvent>
 			@Override
 			public void run() {
 				player.faceObject(object);
-				
-					if (Settings.DEBUG)
-						System.out.println("Item on object: " + object.getId());
-				}
-			
+
+				LogUtility.log(Type.INFO, "Object Click Handler", "Item on object: " + object.getId());
+			}
+
 		}, false));
 	}
 }

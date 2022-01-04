@@ -11,7 +11,7 @@ import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.Activity;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.Utility;
 
 public class WildernessActivity extends Activity {
 
@@ -21,11 +21,9 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public void start(Player player) {
-		System.out.println("Started");
 		checkBoosts(player);
 		sendInterfaces(player);
 		moved(player);
-		System.out.println("back in action");
 	}
 
 	@Override
@@ -35,7 +33,6 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public void login(Player player) {
-		System.out.println("back in action");
 		moved(player);
 	}
 
@@ -48,7 +45,7 @@ public class WildernessActivity extends Activity {
 		if (target.getAttackedBy() != player && player.getAttackedBy() != target)
 			Combat.effect(player, CombatEffectType.SKULL);
 		if (player.getCombatDefinitions().getSpellId() <= 0
-				&& Utils.inCircle(new WorldTile(3105, 3933, 0), target, 24)) {
+				&& Utility.inCircle(new WorldTile(3105, 3933, 0), target, 24)) {
 			player.getPackets().sendGameMessage("You can only use magic in the arena.");
 			return false;
 		}
@@ -82,11 +79,7 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public boolean processMagicTeleport(Player player, WorldTile toTile) {
-		if (getWildLevel(player) > 20) {
-			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
-			return false;
-		}
-		if (player.getTeleBlockDelay() > 0) {
+		if (getWildLevel(player) > 20 || player.getTeleBlockDelay() > 0) {
 			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
 			return false;
 		}
@@ -96,11 +89,7 @@ public class WildernessActivity extends Activity {
 
 	@Override
 	public boolean processItemTeleport(Player player, WorldTile toTile) {
-		if (getWildLevel(player) > 30) {
-			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
-			return false;
-		}
-		if (player.getTeleBlockDelay() > 0) {
+		if (getWildLevel(player) > 30 || player.getTeleBlockDelay() > 0) {
 			player.getPackets().sendGameMessage("A mysterious force prevents you from teleporting.");
 			return false;
 		}
@@ -149,7 +138,7 @@ public class WildernessActivity extends Activity {
 			showingSkull = true;
 			player.setCanPvp(true);
 			showSkull(player);
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 		} else if (showingSkull && (isAtWildSafe || !isAtWild)) {
 			removeIcon(player);
 		} else if (!isAtWildSafe && !isAtWild) {
@@ -157,11 +146,6 @@ public class WildernessActivity extends Activity {
 			removeIcon(player);
 			player.setCurrentActivity(Optional.empty());
 		}
-	}
-	
-	@Override
-	public boolean logout(Player player) {
-		return false;
 	}
 
 	@Override
@@ -180,14 +164,18 @@ public class WildernessActivity extends Activity {
 				|| (tile.getX() >= 3012 && tile.getX() <= 3059 && tile.getY() >= 10303 && tile.getY() <= 10351);
 	}
 
-	public boolean isAtWildSafe(Player player) {
+	public static boolean isAtWildSafe(Player player) {
 		player.getInterfaceManager().closeFixedOverlay();
 		return (player.getX() >= 2940 && player.getX() <= 3395 && player.getY() <= 3524 && player.getY() >= 3523);
+	}
+	
+	public static boolean isInideWilderness(Player player) {
+		return WildernessActivity.isAtWild(player) && !WildernessActivity.isAtWildSafe(player);
 	}
 
 	public int getWildLevel(Player player) {
 		if (player.getY() > 9900)
-			return (player.getY() - 9912) / 8 + 1;
+			return (player.getY() - 9920) / 8 + 1;
 		return (player.getY() - 3520) / 8 + 1;
 	}
 	
@@ -234,7 +222,7 @@ public class WildernessActivity extends Activity {
 			showingSkull = false;
 			player.setCanPvp(false);
 			player.setCurrentActivity(Optional.empty());
-			player.getAppearence().generateAppearenceData();
+			player.getAppearance().generateAppearenceData();
 			player.getEquipment().refresh(null);
 		}
 	}
@@ -245,5 +233,13 @@ public class WildernessActivity extends Activity {
 
 	public static boolean isDitch(int id) {
 		return id >= 1440 && id <= 1444 || id >= 65076 && id <= 65087;
+	}
+	
+	
+	public void setCanPvp(Player player, boolean canPvp) {
+		player.setCanPvp(canPvp);
+		player.getAppearance().getAppeareanceBlocks();
+		player.getPackets().sendPlayerOption(canPvp ? "Attack" : "null", 1, true);
+		player.getPackets().sendPlayerUnderNPCPriority(canPvp);
 	}
 }

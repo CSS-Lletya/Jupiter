@@ -6,27 +6,42 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.jupiter.Settings;
 import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.item.Item;
+import com.jupiter.game.player.activity.Activity.ActivitySafety;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.game.player.activity.impl.WildernessActivity;
 import com.jupiter.game.task.impl.ActorDeathTask;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.host.HostManager;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.host.HostManager;
 import com.jupiter.skills.Skills;
+import com.jupiter.skills.prayer.Prayer;
 
+/**
+ * Represents the Player's Death event
+ * @author Dennis
+ */
 public class PlayerDeath extends ActorDeathTask<Player> {
 
+	/**
+	 * Constructs a Players death
+	 * @param actor
+	 */
 	public PlayerDeath(Player actor) {
 		super(actor);
 	}
 
+	/**
+	 * Handles pre death conditions
+	 */
 	@Override
 	public void preDeath() {
-		if (!ActivityHandler.execute(getActor(), activity -> activity.sendDeath(getActor())))
+		if (ActivityHandler.execute(getActor(), activity -> !activity.sendDeath(getActor())))
 			return;
 		getActor().getMovement().lock();
 		getActor().setNextAnimation(new Animation(836));
 	}
 
+	/**
+	 * Handles death conditions
+	 */
 	@Override
 	public void death() {
 		if (getActor().getPoisonDamage().get() > 0) {
@@ -38,11 +53,14 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 		getActor().getAttributes().stopAll(getActor());
 	}
 
+	/**
+	 * Handles post death conditions
+	 */
 	@Override
 	public void postDeath() {
 		getActor().getPackets().sendMusicEffect(90);
 		getActor().getPackets().sendGameMessage("Oh dear, you have died.");
-		getActor().getMovement().move(Optional.empty(), Settings.RESPAWN_PLAYER_LOCATION);
+		getActor().setNextWorldTile(Settings.RESPAWN_PLAYER_LOCATION);
 		getActor().setNextAnimation(new Animation(-1));
 		getActor().heal(getActor().getMaxHitpoints());
 		final int maxPrayer = getActor().getSkills().getLevelForXp(Skills.PRAYER) * 10;
@@ -60,14 +78,20 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 				killer.getPackets().sendGameMessage("You don't receive any points because you and " + getActor().getDisplayName() + " are connected from the same network.");
 				return;
 			}
-			if (getActor().getCurrentActivity().get() instanceof WildernessActivity) {
-				if (getActor().getCurrentActivity().isPresent()) {
+			getActor().getCurrentActivity().ifPresent(p -> {
+				if (getActor().getCurrentActivity().get().getSafety() == ActivitySafety.DANGEROUS) {
 					sendItemsOnDeath(getActor(), killer);
 				}
-			}
+			});
 		}
 	}
 	
+	/**
+	 * Handles the Items kept on death and lost during PVP or applicable activities.
+	 * Note: This should be improved upon, but is functional.
+	 * @param player
+	 * @param killer
+	 */
 	public void sendItemsOnDeath(Player player, Player killer) {
 //		if (getRights().isStaff())
 //			return;
@@ -88,7 +112,7 @@ public class PlayerDeath extends ActorDeathTask<Player> {
 		int keptAmount = 0;
 //		if (!(getControlerManager().getControler() instanceof CorpBeastControler)) {
 			keptAmount = player.getCombatDefinitions().hasSkull() ? 0 : 3;
-			if (player.getPrayer().usingPrayer(0, 10) || player.getPrayer().usingPrayer(1, 0))
+			if (player.getPrayer().active(Prayer.PROTECT_ITEM_C) || player.getPrayer().active(Prayer.PROTECT_ITEM_N))
 				keptAmount++;
 //		}
 		CopyOnWriteArrayList<Item> keptItems = new CopyOnWriteArrayList<Item>();

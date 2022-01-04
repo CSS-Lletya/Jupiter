@@ -5,7 +5,7 @@ import java.util.List;
 import com.jupiter.cache.loaders.ObjectDefinitions;
 import com.jupiter.game.Entity;
 import com.jupiter.game.player.Player;
-import com.jupiter.net.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Animation;
 
 /**
  * A container class for a World Object.

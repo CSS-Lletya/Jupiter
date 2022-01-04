@@ -19,14 +19,16 @@ import com.jupiter.game.player.actions.Action;
 import com.jupiter.game.player.activity.ActivityHandler;
 import com.jupiter.game.route.Direction;
 import com.jupiter.game.task.Task;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.ForceTalk;
-import com.jupiter.net.encoders.other.Graphics;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.ForceTalk;
+import com.jupiter.network.encoders.other.Graphics;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.magic.Magic;
-import com.jupiter.utils.Utils;
+import com.jupiter.skills.prayer.Prayer;
+import com.jupiter.utility.RandomUtility;
+import com.jupiter.utility.Utility;
 
 public class PlayerCombat extends Action {
 
@@ -82,7 +84,7 @@ public class PlayerCombat extends Action {
 		if (distanceX > size + maxDistance || distanceX < -1 - maxDistance || distanceY > size + maxDistance
 				|| distanceY < -1 - maxDistance)
 			return 0;
-		if (!ActivityHandler.execute(player, activity -> activity.keepCombating(player, target)))
+		if (ActivityHandler.execute(player, activity -> !activity.keepCombating(player, target)))
 			return -1;
 		addAttackedByDelay(player);
 		if (spellId > 0) {
@@ -113,7 +115,7 @@ public class PlayerCombat extends Action {
 
 	private void addAttackedByDelay(Entity player) {
 		target.setAttackedBy(player);
-		target.setAttackedByDelay(Utils.currentTimeMillis() + 8000); // 8seconds
+		target.setAttackedByDelay(Utility.currentTimeMillis() + 8000); // 8seconds
 	}
 
 	private int getRangeCombatDelay(int weaponId, int attackStyle) {
@@ -169,7 +171,7 @@ public class PlayerCombat extends Action {
 						Player p2 = World.getPlayers().get(playerIndex);
 						if (p2 == null || p2 == player || p2 == target || p2.isDead() || !p2.isStarted()
 								|| p2.hasFinished() || !p2.isCanPvp() || !p2.isAtMultiArea()
-								|| !p2.withinDistance(target, maxDistance) || !ActivityHandler.execute(player, activity -> activity.canHit(player, p2)))
+								|| !p2.withinDistance(target, maxDistance) || ActivityHandler.execute(player, activity -> !activity.canHit(player, p2)))
 							continue;
 						possibleTargets.add(p2);
 						if (possibleTargets.size() == maxAmtTargets)
@@ -183,7 +185,7 @@ public class PlayerCombat extends Action {
 						NPC n = World.getNPCs().get(npcIndex);
 						if (n == null || n == target || n.isDead() || n.hasFinished()
 								|| !n.isAtMultiArea() || !n.withinDistance(target, maxDistance)
-								|| !n.getDefinitions().hasAttackOption() || !ActivityHandler.execute(player, activity -> activity.canHit(player, n)))
+								|| !n.getDefinitions().hasAttackOption() || ActivityHandler.execute(player, activity -> !activity.canHit(player, n)))
 							continue;
 						possibleTargets.add(n);
 						if (possibleTargets.size() == maxAmtTargets)
@@ -248,7 +250,7 @@ public class PlayerCombat extends Action {
 				Hit magicHit = getMagicHit(player, getRandomMagicMaxHit(player, 20));
 				delayMagicHit(2, magicHit);
 				World.sendProjectile(player, target, 178, 18, 18, 50, 50, 0, 0);
-				long currentTime = Utils.currentTimeMillis();
+				long currentTime = Utility.currentTimeMillis();
 				if (magicHit.getDamage() > 0 && target.getFrozenBlockedDelay() < currentTime)
 					target.addFreezeDelay(5000, true);
 				return 5;
@@ -259,7 +261,7 @@ public class PlayerCombat extends Action {
 				base_mage_xp = 91.1;
 				Hit snareHit = getMagicHit(player, getRandomMagicMaxHit(player, 30));
 				delayMagicHit(2, snareHit);
-				if (snareHit.getDamage() > 0 && target.getFrozenBlockedDelay() < Utils.currentTimeMillis())
+				if (snareHit.getDamage() > 0 && target.getFrozenBlockedDelay() < Utility.currentTimeMillis())
 					target.addFreezeDelay(10000, true);
 				World.sendProjectile(player, target, 178, 18, 18, 50, 50, 0, 0);
 				return 5;
@@ -270,7 +272,7 @@ public class PlayerCombat extends Action {
 				base_mage_xp = 91.1;
 				Hit entangleHit = getMagicHit(player, getRandomMagicMaxHit(player, 50));
 				delayMagicHit(2, entangleHit);
-				if (entangleHit.getDamage() > 0 && target.getFrozenBlockedDelay() < Utils.currentTimeMillis())
+				if (entangleHit.getDamage() > 0 && target.getFrozenBlockedDelay() < Utility.currentTimeMillis())
 					target.addFreezeDelay(20000, true);
 				World.sendProjectile(player, target, 178, 18, 18, 50, 50, 0, 0);
 				return 5;
@@ -450,7 +452,7 @@ public class PlayerCombat extends Action {
 				World.sendProjectile(player, target, 2735, 18, 18, 50, 50, 0, 0);
 				return 5;
 			case 86: // teleblock
-				if (target instanceof Player && ((Player) target).getTeleBlockDelay() <= Utils.currentTimeMillis()) {
+				if (target instanceof Player && ((Player) target).getTeleBlockDelay() <= Utility.currentTimeMillis()) {
 					player.setNextGraphics(new Graphics(1841));
 					player.setNextAnimation(new Animation(10503));
 					mage_hit_gfx = 1843;
@@ -912,7 +914,7 @@ public class PlayerCombat extends Action {
 					@Override
 					public boolean attack() {
 						magic_sound = 168;
-						long currentTime = Utils.currentTimeMillis();
+						long currentTime = Utility.currentTimeMillis();
 						if (target.getSize() >= 2 || target.getFreezeDelay() >= currentTime
 								|| target.getFrozenBlockedDelay() >= currentTime) {
 							mage_hit_gfx = 1677;
@@ -923,7 +925,7 @@ public class PlayerCombat extends Action {
 						base_mage_xp = 52;
 						int damage = getRandomMagicMaxHit(player, 300);
 						Hit hit = getMagicHit(player, damage);
-						delayMagicHit(Utils.getDistance(player, target) > 3 ? 4 : 2, hit);
+						delayMagicHit(Utility.getDistance(player, target) > 3 ? 4 : 2, hit);
 						World.sendProjectile(player, target, 368, 60, 32, 50, 50, 0, 0);
 						if (!nextTarget) {
 							if (damage == -1)
@@ -961,7 +963,7 @@ public class PlayerCombat extends Action {
 		int current = getMagicMaxHit(player, baseDamage);
 		if (current <= 0) // Splash.
 			return -1;
-		int hit = Utils.random(current + 1);
+		int hit = RandomUtility.random(current + 1);
 		if (hit > 0) {
 			if (target instanceof NPC) {
 				NPC n = (NPC) target;
@@ -979,7 +981,7 @@ public class PlayerCombat extends Action {
 	 * @return The current maximum hit.
 	 */
 	/*
-	 * public int getMagicMaxHit(Player player, int baseDamage) { //older formula double effectiveAttack = (Math.round((player.getSkills().getLevel(Skills.MAGIC) * player.getPrayer().getMageMultiplier())) + 8) + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_ATTACK]; if (fullVoidEquipped(player, new int[] { 11663, 11674 })) effectiveAttack *= 1.3; effectiveAttack *= player.getAuraManager().getMagicAccurayMultiplier(); double totalDefence = 0; if (target instanceof Player) { Player p2 = (Player) target; double effectiveDefence = (Math.round(p2.getSkills().getLevel(Skills.DEFENCE) + (p2.getPrayer().getDefenceMultiplier() + Utils.random(0, 14))) + 8) + p2.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DEF]; double effectiveMagicDefence = p2.getSkills().getLevel(Skills.MAGIC) + p2.getPrayer().getMageMultiplier(); effectiveMagicDefence *= 0.7; effectiveDefence *= 0.3; totalDefence = Math.round(effectiveMagicDefence + effectiveDefence); } else { NPC n = (NPC) target; totalDefence = n.getBonuses() != null ? n.getBonuses()[CombatDefinitions.MAGIC_DEF] : 0; } double attack = Math.round((effectiveAttack * (64 + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_ATTACK])) / 10); double defence = Math.round(((totalDefence * (64 + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DEF])) / 10)); double accuracy = 0.5; if (attack < defence) accuracy = (attack - 1) / (2 * defence); else if (attack > defence) accuracy = 1 - (defence + 1) / (2 * attack); if (accuracy > 0.90) accuracy = 0.90; else if (accuracy < 0.01) accuracy = 0.01; if (accuracy < Math.random()) { return 0; } max_hit = baseDamage; double boost = 1 + ((player.getSkills().getLevel(Skills.MAGIC) - player .getSkills().getLevelForXp(Skills.MAGIC)) * 0.03); if (boost > 1) max_hit *= boost; double magicPerc = player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DAMAGE]; if (spellcasterGloves > 0) { if (baseDamage > 60 || spellcasterGloves == 28 || spellcasterGloves == 25) { magicPerc += 17; if (target instanceof Player) { Player p = (Player) target; p.getSkills().drainLevel(0, p.getSkills().getLevel(0) / 10); p.getSkills().drainLevel(1, p.getSkills().getLevel(1) / 10); p.getSkills().drainLevel(2, p.getSkills().getLevel(2) / 10); p.getPackets().sendGameMessage("Your melee skills have been drained."); player.getPackets().sendGameMessage("Your spell weakened your enemy."); } player.getPackets().sendGameMessage("Your magic surged with extra power."); } } boost = magicPerc / 100 + 1; max_hit *= boost; return (int) Math.floor(max_hit); }
+	 * public int getMagicMaxHit(Player player, int baseDamage) { //older formula double effectiveAttack = (Math.round((player.getSkills().getLevel(Skills.MAGIC) * player.getPrayer().getMageMultiplier())) + 8) + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_ATTACK]; if (fullVoidEquipped(player, new int[] { 11663, 11674 })) effectiveAttack *= 1.3; effectiveAttack *= player.getAuraManager().getMagicAccurayMultiplier(); double totalDefence = 0; if (target instanceof Player) { Player p2 = (Player) target; double effectiveDefence = (Math.round(p2.getSkills().getLevel(Skills.DEFENCE) + (p2.getPrayer().getDefenceMultiplier() + RandomUtils.random(0, 14))) + 8) + p2.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DEF]; double effectiveMagicDefence = p2.getSkills().getLevel(Skills.MAGIC) + p2.getPrayer().getMageMultiplier(); effectiveMagicDefence *= 0.7; effectiveDefence *= 0.3; totalDefence = Math.round(effectiveMagicDefence + effectiveDefence); } else { NPC n = (NPC) target; totalDefence = n.getBonuses() != null ? n.getBonuses()[CombatDefinitions.MAGIC_DEF] : 0; } double attack = Math.round((effectiveAttack * (64 + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_ATTACK])) / 10); double defence = Math.round(((totalDefence * (64 + player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DEF])) / 10)); double accuracy = 0.5; if (attack < defence) accuracy = (attack - 1) / (2 * defence); else if (attack > defence) accuracy = 1 - (defence + 1) / (2 * attack); if (accuracy > 0.90) accuracy = 0.90; else if (accuracy < 0.01) accuracy = 0.01; if (accuracy < Math.random()) { return 0; } max_hit = baseDamage; double boost = 1 + ((player.getSkills().getLevel(Skills.MAGIC) - player .getSkills().getLevelForXp(Skills.MAGIC)) * 0.03); if (boost > 1) max_hit *= boost; double magicPerc = player.getCombatDefinitions().getBonuses()[CombatDefinitions.MAGIC_DAMAGE]; if (spellcasterGloves > 0) { if (baseDamage > 60 || spellcasterGloves == 28 || spellcasterGloves == 25) { magicPerc += 17; if (target instanceof Player) { Player p = (Player) target; p.getSkills().drainLevel(0, p.getSkills().getLevel(0) / 10); p.getSkills().drainLevel(1, p.getSkills().getLevel(1) / 10); p.getSkills().drainLevel(2, p.getSkills().getLevel(2) / 10); p.getPackets().sendGameMessage("Your melee skills have been drained."); player.getPackets().sendGameMessage("Your spell weakened your enemy."); } player.getPackets().sendGameMessage("Your magic surged with extra power."); } } boost = magicPerc / 100 + 1; max_hit *= boost; return (int) Math.floor(max_hit); }
 	 */
 
 	/*
@@ -1241,7 +1243,7 @@ public class PlayerCombat extends Action {
 				World.sendProjectile(player, target, 2001, 41, 41, 41, 35, 0, 0);
 				delayHit(2, weaponId, attackStyle,
 						getRangeHit(player, getRandomMaxHit(player, weaponId, attackStyle, true, true, 1.0, true) + 30
-								+ Utils.getRandom(120)));
+								+ RandomUtility.getRandom(120)));
 				dropAmmo(player);
 				break;
 			case 13954:// morrigan javelin
@@ -1308,7 +1310,7 @@ public class PlayerCombat extends Action {
 				} else if (weaponName.contains("crossbow")) {
 					int damage = 0;
 					int ammoId = player.getEquipment().getAmmoId();
-					if (ammoId != -1 && Utils.getRandom(10) == 5) {
+					if (ammoId != -1 && RandomUtility.getRandom(10) == 5) {
 						switch (ammoId) {
 						case 9237:
 							damage = getRandomMaxHit(player, weaponId, attackStyle, true);
@@ -1362,13 +1364,13 @@ public class PlayerCombat extends Action {
 					else
 						player.getEquipment().removeAmmo(ammoId, 1);
 				} else if (weaponId == 15241) {// handcannon
-					if (Utils.getRandom(player.getSkills().getLevel(Skills.FIREMAKING) << 1) == 0) {
+					if (RandomUtility.getRandom(player.getSkills().getLevel(Skills.FIREMAKING) << 1) == 0) {
 						// explode
 						player.setNextGraphics(new Graphics(2140));
 						player.getEquipment().getItems().set(3, null);
 						player.getEquipment().refresh((byte) 3);
-						player.getAppearence().generateAppearenceData();
-						player.applyHit(new Hit(player, Utils.getRandom(150) + 10, HitLook.REGULAR_DAMAGE));
+						player.getAppearance().generateAppearenceData();
+						player.applyHit(new Hit(player, RandomUtility.getRandom(150) + 10, HitLook.REGULAR_DAMAGE));
 						player.setNextAnimation(new Animation(12175));
 						return combatDelay;
 					} else {
@@ -1406,14 +1408,14 @@ public class PlayerCombat extends Action {
 						if (p.getInventory().containsItem(946, 1) || slashBased) {
 							delay /= 2;
 						}
-						if (p.getPrayer().usingPrayer(0, 18) || p.getPrayer().usingPrayer(1, 8)) {
+						if (p.getPrayer().isProtectingRange()) {
 							delay /= 2;
 						}
 						if (delay < 5000) {
 							delay = 5000;
 						}
 					}
-					long currentTime = Utils.currentTimeMillis();
+					long currentTime = Utility.currentTimeMillis();
 					if (getRandomMaxHit(player, weaponId, attackStyle, true) > 0
 							&& target.getFrozenBlockedDelay() < currentTime) {
 						target.addFreezeDelay(delay, true);
@@ -1502,7 +1504,7 @@ public class PlayerCombat extends Action {
 		} else if (quantity == -1 || quantity == -3) {
 			final int weaponId = player.getEquipment().getWeaponId();
 			if (weaponId != -1) {
-				if ((quantity == -3 && Utils.getRandom(10) < 2) || (quantity != -3 && Utils.getRandom(3) > 0)) {
+				if ((quantity == -3 && RandomUtility.getRandom(10) < 2) || (quantity != -3 && RandomUtility.getRandom(3) > 0)) {
 					int capeId = player.getEquipment().getCapeId();
 					if (capeId != -1 && ItemDefinitions.getItemDefinitions(capeId).getName().contains("Ava's"))
 						return; // nothing happens
@@ -1518,7 +1520,7 @@ public class PlayerCombat extends Action {
 			}
 		} else {
 			final int ammoId = player.getEquipment().getAmmoId();
-			if (Utils.getRandom(3) > 0) {
+			if (RandomUtility.getRandom(3) > 0) {
 				int capeId = player.getEquipment().getCapeId();
 				if (capeId != -1 && ItemDefinitions.getItemDefinitions(capeId).getName().contains("Ava's"))
 					return; // nothing happens
@@ -1621,7 +1623,7 @@ public class PlayerCombat extends Action {
 
 	@SuppressWarnings("unused")
 	private int getRangeHitDelay(Player player) {
-		return Utils.getDistance(player.getX(), player.getY(), target.getX(), target.getY()) >= 5 ? 2 : 1;
+		return Utility.getDistance(player.getX(), player.getY(), target.getX(), target.getY()) >= 5 ? 2 : 1;
 	}
 
 	private int meleeAttack(final Player player) {
@@ -1644,7 +1646,7 @@ public class PlayerCombat extends Action {
 			case 23690:
 				player.setNextAnimation(new Animation(11993));
 				target.setNextGraphics(new Graphics(1194));
-				delayNormalHit(weaponId, attackStyle, getMeleeHit(player, 50 + Utils.getRandom(100)),
+				delayNormalHit(weaponId, attackStyle, getMeleeHit(player, 50 + RandomUtility.getRandom(100)),
 						getMeleeHit(player, getRandomMaxHit(player, weaponId, attackStyle, false, true, 1.1, true)));
 				soundId = 3853;
 				break;
@@ -1793,7 +1795,7 @@ public class PlayerCombat extends Action {
 							if (hit > 0) {
 								hits = new int[] { 0, 0, 0, (int) (hit * 1.5) };
 							} else {
-								hits = new int[] { 0, 0, 0, Utils.getRandom(7) };
+								hits = new int[] { 0, 0, 0, RandomUtility.getRandom(7) };
 							}
 						}
 					}
@@ -2070,7 +2072,7 @@ public class PlayerCombat extends Action {
 			if (prob < Math.random())
 				return 0;
 		}
-		int hit = Utils.random(max_hit + 1);
+		int hit = RandomUtility.random(max_hit + 1);
 		if (target instanceof NPC) {
 			NPC n = (NPC) target;
 			if (n.getId() == 9463 && hasFireCape(player))
@@ -2386,7 +2388,7 @@ public class PlayerCombat extends Action {
 			Player player = (Player) hit.getSource();
 			if (target instanceof Player) {
 				Player p2 = (Player) target;
-				if (player.getPrayer().usingPrayer(1, 18))
+				if (player.getPrayer().active(Prayer.SOUL_SPLIT))
 					p2.getCombatDefinitions().sendSoulSplit(hit, player);
 			}
 			int damage = hit.getDamage() > target.getHitpoints() ? target.getHitpoints() : hit.getDamage();
@@ -2476,13 +2478,13 @@ public class PlayerCombat extends Action {
 									@SuppressWarnings("unused")
 									String name = ItemDefinitions.getItemDefinitions(weaponId).getName();
 //									if (name.contains("(p++)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(48);
 //									} else if (name.contains("(p+)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(38);
 //									} else if (name.contains("(p)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(28);
 //									}
 								}
@@ -2491,13 +2493,13 @@ public class PlayerCombat extends Action {
 									@SuppressWarnings("unused")
 									String name = ItemDefinitions.getItemDefinitions(weaponId).getName();
 //									if (name.contains("(p++)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(68);
 //									} else if (name.contains("(p+)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(58);
 //									} else if (name.contains("(p)")) {
-//										if (Utils.getRandom(8) == 0)
+//										if (RandomUtils.getRandom(8) == 0)
 //											target.getPoison().makePoisoned(48);
 //									}
 									if (target instanceof Player) {
@@ -2521,8 +2523,8 @@ public class PlayerCombat extends Action {
 								if (block_tele) {
 									if (target instanceof Player) {
 										Player targetPlayer = (Player) target;
-										targetPlayer.setTeleBlockDelay((targetPlayer.getPrayer().usingPrayer(0, 17)
-												|| targetPlayer.getPrayer().usingPrayer(1, 7) ? 100000 : 300000));
+//										targetPlayer.setTeleBlockDelay((targetPlayer.getPrayer().usingPrayer(0, 17)
+//												|| targetPlayer.getPrayer().usingPrayer(1, 7) ? 100000 : 300000));
 										targetPlayer.getPackets().sendGameMessage("You have been teleblocked.", true);
 									}
 								}
@@ -2531,7 +2533,7 @@ public class PlayerCombat extends Action {
 								playSound(magic_sound, player, target);
 						}
 					}
-//					if (max_poison_hit > 0 && Utils.getRandom(10) == 0) {
+//					if (max_poison_hit > 0 && RandomUtils.getRandom(10) == 0) {
 //						if (!target.getPoison().isPoisoned())
 //							target.getPoison().makePoisoned(max_poison_hit);
 //					}
@@ -2865,7 +2867,7 @@ public class PlayerCombat extends Action {
 				|| distanceY > size + maxDistance || distanceY < -1 - maxDistance) {
 			return false;
 		}
-		if (player.getFreezeDelay() >= Utils.currentTimeMillis()) {
+		if (player.getFreezeDelay() >= Utility.currentTimeMillis()) {
 			if (player.withinDistance(target, 0))// done
 				return false;
 			return true;
@@ -2903,10 +2905,10 @@ public class PlayerCombat extends Action {
 		if (!(target instanceof NPC && ((NPC) target).isForceMultiAttacked())) {
 
 			if (!target.isAtMultiArea() || !player.isAtMultiArea()) {
-				if (player.getAttackedBy() != target && player.getAttackedByDelay() > Utils.currentTimeMillis()) {
+				if (player.getAttackedBy() != target && player.getAttackedByDelay() > Utility.currentTimeMillis()) {
 					return false;
 				}
-				if (target.getAttackedBy() != player && target.getAttackedByDelay() > Utils.currentTimeMillis()) {
+				if (target.getAttackedBy() != player && target.getAttackedByDelay() > Utility.currentTimeMillis()) {
 					return false;
 				}
 			}
@@ -2934,12 +2936,12 @@ public class PlayerCombat extends Action {
 				player.addWalkSteps(player.getX(), target.getY(), 1);
 			return true;
 		}
-		if (Utils.collides(player, target) && !target.hasWalkSteps()) {
+		if (Utility.collides(player, target) && !target.hasWalkSteps()) {
 			player.resetWalkSteps();
 			return player.calcFollow(target, true); //might be double fixed and cause issues?.. check on this
 		}
 		int attackRange = getAttackRange(player);
-		if (!Utils.isInRange(player, target, attackRange) || !player.lineOfSightTo(target, attackRange <= 0)) {
+		if (!Utility.isInRange(player, target, attackRange) || !player.lineOfSightTo(target, attackRange <= 0)) {
 			if (!player.hasWalkSteps() || target.hasWalkSteps()) {
 				player.resetWalkSteps();
 				player.calcFollow(target, player.getRun() ? 2 : 1, true, true);
@@ -3035,7 +3037,7 @@ public class PlayerCombat extends Action {
 			
 			if (player.getCombatDefinitions().getAttackStyle() == 2)
 				atkRange += 2;
-			return Utils.clampI(atkRange, 0, 10);
+			return Utility.clampI(atkRange, 0, 10);
 		}
 		if (player.getEquipment().getWeaponId() != -1 && ItemDefinitions.getItemDefinitions(player.getEquipment().getWeaponId()).name.contains("halberd"))
 			return 1;
@@ -3587,36 +3589,36 @@ public class PlayerCombat extends Action {
 		}
 		if (player.getPrayer().hasPrayersOn() && hit.getDamage() != 0) {
 			if (hit.getLook() == HitLook.MAGIC_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 17))
+				if (player.getPrayer().active(Prayer.PROTECT_MAGIC))
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 7)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_MAGIC)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMagePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2228));
 						player.setNextAnimation(new Animation(12573));
 					}
 				}
 			} else if (hit.getLook() == HitLook.RANGE_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 18))
+				if (player.getPrayer().active(Prayer.PROTECT_RANGE))
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 8)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_RANGE)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getRangePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2229));
 						player.setNextAnimation(new Animation(12573));
 					}
 				}
 			} else if (hit.getLook() == HitLook.MELEE_DAMAGE) {
-				if (player.getPrayer().usingPrayer(0, 19))
+				if (player.getPrayer().active(Prayer.PROTECT_MELEE))
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
-				else if (player.getPrayer().usingPrayer(1, 9)) {
+				else if (player.getPrayer().active(Prayer.DEFLECT_MELEE)) {
 					int deflectedDamage = (int) (hit.getDamage() * 0.1);
 					hit.setDamage((int) (hit.getDamage() * source.getMeleePrayerMultiplier()));
-					if (deflectedDamage > 0) {
+					if (deflectedDamage > 0 && Math.random() < 0.6) {
 						source.applyHit(new Hit(player, deflectedDamage, HitLook.REFLECTED_DAMAGE));
 						player.setNextGraphics(new Graphics(2230));
 						player.setNextAnimation(new Animation(12573));
@@ -3650,313 +3652,20 @@ public class PlayerCombat extends Action {
 		}
 		int shieldId = player.getEquipment().getShieldId();
 		if (shieldId == 13742) { // elsyian
-			if (Utils.getRandom(100) <= 70)
+			if (RandomUtility.getRandom(100) <= 70)
 				hit.setDamage((int) (hit.getDamage() * 0.75));
 		} else if (shieldId == 13740) { // divine
 			int drain = (int) (Math.ceil(hit.getDamage() * 0.3) / 2);
-			if (player.getPrayer().getPrayerpoints() >= drain) {
+			if (player.getPrayer().getPoints() >= drain) {
 				hit.setDamage((int) (hit.getDamage() * 0.70));
 				player.getPrayer().drainPrayer(drain);
 			}
 		}
 		//TODO: player details veng
-//		if (player.castedVeng && hit.getDamage() >= 4) {
-//			player.castedVeng = false;
-//			player.setNextForceTalk(new ForceTalk("Taste vengeance!"));
-//			source.applyHit(new Hit(this, (int) (hit.getDamage() * 0.75), HitLook.REGULAR_DAMAGE));
-//		}
-		if (source instanceof Player) {
-			final Player p2 = (Player) source;
-			if (p2.getPrayer().hasPrayersOn()) {
-				if (p2.getPrayer().usingPrayer(0, 24)) { // smite
-					int drain = hit.getDamage() / 4;
-					if (drain > 0)
-						player.getPrayer().drainPrayer(drain);
-				} else {
-					if (hit.getDamage() == 0)
-						return;
-					if (!p2.getPrayer().isBoostedLeech()) {
-						if (hit.getLook() == HitLook.MELEE_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 19)) {
-								if (Utils.getRandom(4) == 0) {
-									p2.getPrayer().increaseTurmoilBonus(player);
-									p2.getPrayer().setBoostedLeech(true);
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 1)) { // sap att
-								if (Utils.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(0)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(0);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Attack from the enemy, boosting your Attack.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2214));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2215, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2216));
-											this.cancel();
-										}
-									});
-									return;
-								}
-							} else {
-								if (p2.getPrayer().usingPrayer(1, 10)) {
-									if (Utils.getRandom(7) == 0) {
-										if (p2.getPrayer().reachedMax(3)) {
-											p2.getPackets().sendGameMessage(
-													"Your opponent has been weakened so much that your leech curse has no effect.",
-													true);
-										} else {
-											p2.getPrayer().increaseLeechBonus(3);
-											p2.getPackets().sendGameMessage(
-													"Your curse drains Attack from the enemy, boosting your Attack.",
-													true);
-										}
-										p2.setNextAnimation(new Animation(12575));
-										p2.getPrayer().setBoostedLeech(true);
-										World.sendProjectile(p2, player, 2231, 35, 35, 20, 5, 0, 0);
-										World.get().submit(new Task(1) {
-											@Override
-											protected void execute() {
-												player.setNextGraphics(new Graphics(2232));
-											}
-										});
-										return;
-									}
-								}
-								if (p2.getPrayer().usingPrayer(1, 14)) {
-									if (Utils.getRandom(7) == 0) {
-										if (p2.getPrayer().reachedMax(7)) {
-											p2.getPackets().sendGameMessage(
-													"Your opponent has been weakened so much that your leech curse has no effect.",
-													true);
-										} else {
-											p2.getPrayer().increaseLeechBonus(7);
-											p2.getPackets().sendGameMessage(
-													"Your curse drains Strength from the enemy, boosting your Strength.",
-													true);
-										}
-										p2.setNextAnimation(new Animation(12575));
-										p2.getPrayer().setBoostedLeech(true);
-										World.sendProjectile(p2, player, 2248, 35, 35, 20, 5, 0, 0);
-										World.get().submit(new Task(1) {
-											@Override
-											protected void execute() {
-												player.setNextGraphics(new Graphics(2250));
-											}
-										});
-										return;
-									}
-								}
-
-							}
-						}
-						if (hit.getLook() == HitLook.RANGE_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 2)) { // sap range
-								if (Utils.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(1)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(1);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Range from the enemy, boosting your Range.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2217));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2218, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2219));
-										}
-									});
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 11)) {
-								if (Utils.getRandom(7) == 0) {
-									if (p2.getPrayer().reachedMax(4)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your leech curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(4);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Range from the enemy, boosting your Range.", true);
-									}
-									p2.setNextAnimation(new Animation(12575));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2236, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2238));
-										}
-									});
-									return;
-								}
-							}
-						}
-						if (hit.getLook() == HitLook.MAGIC_DAMAGE) {
-							if (p2.getPrayer().usingPrayer(1, 3)) { // sap mage
-								if (Utils.getRandom(4) == 0) {
-									if (p2.getPrayer().reachedMax(2)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your sap curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(2);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Magic from the enemy, boosting your Magic.", true);
-									}
-									p2.setNextAnimation(new Animation(12569));
-									p2.setNextGraphics(new Graphics(2220));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2221, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2222));
-										}
-									});
-									return;
-								}
-							} else if (p2.getPrayer().usingPrayer(1, 12)) {
-								if (Utils.getRandom(7) == 0) {
-									if (p2.getPrayer().reachedMax(5)) {
-										p2.getPackets().sendGameMessage(
-												"Your opponent has been weakened so much that your leech curse has no effect.",
-												true);
-									} else {
-										p2.getPrayer().increaseLeechBonus(5);
-										p2.getPackets().sendGameMessage(
-												"Your curse drains Magic from the enemy, boosting your Magic.", true);
-									}
-									p2.setNextAnimation(new Animation(12575));
-									p2.getPrayer().setBoostedLeech(true);
-									World.sendProjectile(p2, player, 2240, 35, 35, 20, 5, 0, 0);
-									World.get().submit(new Task(1) {
-										@Override
-										protected void execute() {
-											player.setNextGraphics(new Graphics(2242));
-										}
-									});
-									return;
-								}
-							}
-						}
-
-						// overall
-
-						if (p2.getPrayer().usingPrayer(1, 13)) { // leech defence
-							if (Utils.getRandom(10) == 0) {
-								if (p2.getPrayer().reachedMax(6)) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getPrayer().increaseLeechBonus(6);
-									p2.getPackets().sendGameMessage(
-											"Your curse drains Defence from the enemy, boosting your Defence.", true);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2244, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2246));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 15)) {
-							if (Utils.getRandom(10) == 0) {
-								if (player.getPlayerDetails().getRunEnergy() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 90 ? 100 : p2.getPlayerDetails().getRunEnergy() + 10);
-									player.getMovement().setRunEnergy(p2.getPlayerDetails().getRunEnergy() > 10 ? player.getPlayerDetails().getRunEnergy() - 10 : 0);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2256, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2258));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 16)) {
-							if (Utils.getRandom(10) == 0) {
-								if (player.getCombatDefinitions().getSpecialAttackPercentage() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your leech curse has no effect.",
-											true);
-								} else {
-									p2.getCombatDefinitions().restoreSpecialAttack();
-									player.getCombatDefinitions().decreaseSpecialAttack(10);
-								}
-								p2.setNextAnimation(new Animation(12575));
-								p2.getPrayer().setBoostedLeech(true);
-								World.sendProjectile(p2, player, 2252, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2254));
-									}
-								});
-								return;
-							}
-						}
-
-						if (p2.getPrayer().usingPrayer(1, 4)) { // sap spec
-							if (Utils.getRandom(10) == 0) {
-								p2.setNextAnimation(new Animation(12569));
-								p2.setNextGraphics(new Graphics(2223));
-								p2.getPrayer().setBoostedLeech(true);
-								if (player.getCombatDefinitions().getSpecialAttackPercentage() <= 0) {
-									p2.getPackets().sendGameMessage(
-											"Your opponent has been weakened so much that your sap curse has no effect.",
-											true);
-								} else {
-									player.getCombatDefinitions().decreaseSpecialAttack(10);
-								}
-								World.sendProjectile(p2, player, 2224, 35, 35, 20, 5, 0, 0);
-								World.get().submit(new Task(1) {
-									@Override
-									protected void execute() {
-										player.setNextGraphics(new Graphics(2225));
-									}
-								});
-								return;
-							}
-						}
-					}
-				}
-			}
-		} else {
-			NPC n = (NPC) source;
-			if (n.getId() == 13448)
-				player.getCombatDefinitions().sendSoulSplit(hit, n);
+		if (player.isCastedVeng() && hit.getDamage() >= 4) {
+			player.setCastedVeng(false);
+			player.setNextForceTalk(new ForceTalk("Taste vengeance!"));
+			source.applyHit(new Hit(player, (int) (hit.getDamage() * 0.75), HitLook.REGULAR_DAMAGE));
 		}
 	}
 }

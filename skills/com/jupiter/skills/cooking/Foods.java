@@ -7,11 +7,11 @@ import com.jupiter.cache.loaders.ItemDefinitions;
 import com.jupiter.game.item.Item;
 import com.jupiter.game.player.Player;
 import com.jupiter.game.player.activity.ActivityHandler;
-import com.jupiter.net.encoders.other.Animation;
-import com.jupiter.net.encoders.other.Hit;
-import com.jupiter.net.encoders.other.Hit.HitLook;
+import com.jupiter.network.encoders.other.Animation;
+import com.jupiter.network.encoders.other.Hit;
+import com.jupiter.network.encoders.other.Hit.HitLook;
 import com.jupiter.skills.Skills;
-import com.jupiter.utils.Utils;
+import com.jupiter.utility.RandomUtility;
 
 /**
  * 
@@ -39,13 +39,13 @@ public class Foods {
 
 		KARAMBWANI(3144, 18),
 
-		SLIMY_EEL(3381, 7 + Utils.random(2)),
+		SLIMY_EEL(3381, 7 + RandomUtility.random(2)),
 
 		RAINBOW_FISH(10136, 11),
 
-		CAVE_EEL(5003, 8 + Utils.random(2)),
+		CAVE_EEL(5003, 8 + RandomUtility.random(2)),
 
-		LAVA_EEL(2149, 7 + Utils.random(2)),
+		LAVA_EEL(2149, 7 + RandomUtility.random(2)),
 
 		HERRING(347, 5),
 
@@ -262,11 +262,11 @@ public class Foods {
 
 		CHEESE_WHEEL(18789, 2),
 
-		THIN_SNAIL_MEAT(3369, 5 + Utils.random(2)),
+		THIN_SNAIL_MEAT(3369, 5 + RandomUtility.random(2)),
 
 		LEAN_SNAIL_MEAT(3371, 8),
 
-		FAT_SNAIL_MEAT(3373, 8 + Utils.random(2));
+		FAT_SNAIL_MEAT(3373, 8 + RandomUtility.random(2));
 
 		/**
 		 * The food id
@@ -451,7 +451,7 @@ public class Foods {
 			@Override
 			public void effect(Object object) {
 				Player player = (Player) object;
-				if (Utils.random(100) > 5) {
+				if (RandomUtility.random(100) > 5) {
 					int level = player.getSkills().getLevel(Skills.COOKING);
 					int realLevel = player.getSkills().getLevelForXp(Skills.COOKING);
 					player.getSkills().set(Skills.COOKING, level >= realLevel ? realLevel + 6 : level + 6);
@@ -476,7 +476,7 @@ public class Foods {
 			public void effect(Object object) {
 				Player player = (Player) object;
 				player.getPackets()
-						.sendGameMessage("It hurts to see a grown " + player.getAppearence().isMale() != null ? "male"
+						.sendGameMessage("It hurts to see a grown " + player.getAppearance().isMale() != null ? "male"
 								: "female" + "cry.");
 			}
 		},
@@ -499,8 +499,8 @@ public class Foods {
 		Food food = Food.forId(item.getId());
 		if (food == null)
 			return false;
-		if (!ActivityHandler.execute(player, activity -> activity.canEat(player, food)))
-			return true;
+		if (ActivityHandler.execute(player, activity -> !activity.canEat(player, food)))
+			return false;
 		String name = ItemDefinitions.getItemDefinitions(food.getId()).getName().toLowerCase();
 		player.getPackets().sendGameMessage("You eat the " + name + ".");
 		player.setNextAnimation(EAT_ANIM);
@@ -508,7 +508,7 @@ public class Foods {
 		player.getActionManager().setActionDelay((int) foodDelay / 1000);
 		player.getActionManager().setActionDelay(player.getActionManager().getActionDelay() + 2);
 		player.getInventory().getItems().set(slot, food.getNewId() == 0 ? null : new Item(food.getNewId(), 1));
-//		player.getInventory().refresh(slot);
+		player.getInventory().refresh(slot);
 		int hp = player.getHitpoints();
 		player.heal(food.getHeal() * 10, food.getExtraHP() * 10);
 		if (player.getHitpoints() > hp)
