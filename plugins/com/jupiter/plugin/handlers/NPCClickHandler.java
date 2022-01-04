@@ -4,7 +4,7 @@ import com.jupiter.cache.io.InputStream;
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.route.strategy.RouteEvent;
+import com.jupiter.game.route.RouteEvent;
 import com.jupiter.plugin.PluginManager;
 import com.jupiter.plugin.events.NPCClickEvent;
 

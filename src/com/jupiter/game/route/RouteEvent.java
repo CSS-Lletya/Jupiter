@@ -1,4 +1,4 @@
-package com.jupiter.game.route.strategy;
+package com.jupiter.game.route;
 
 import com.jupiter.combat.npc.NPC;
 import com.jupiter.game.Entity;
@@ -6,8 +6,10 @@ import com.jupiter.game.item.FloorItem;
 import com.jupiter.game.map.WorldObject;
 import com.jupiter.game.map.WorldTile;
 import com.jupiter.game.player.Player;
-import com.jupiter.game.route.RouteFinder;
-import com.jupiter.game.route.RouteStrategy;
+import com.jupiter.game.route.strategy.EntityStrategy;
+import com.jupiter.game.route.strategy.FixedTileStrategy;
+import com.jupiter.game.route.strategy.FloorItemStrategy;
+import com.jupiter.game.route.strategy.ObjectStrategy;
 import com.jupiter.utility.Utility;
 
 public class RouteEvent {

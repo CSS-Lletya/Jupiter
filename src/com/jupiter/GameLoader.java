@@ -14,6 +14,7 @@ import com.jupiter.game.player.content.FriendChatsManager;
 import com.jupiter.network.ServerChannelHandler;
 import com.jupiter.network.host.HostListType;
 import com.jupiter.network.host.HostManager;
+import com.jupiter.network.packets.logic.LogicPacketDispatcher;
 import com.jupiter.network.packets.outgoing.OutgoingPacketDispatcher;
 import com.jupiter.network.utility.Huffman;
 import com.jupiter.plugin.PluginManager;
@@ -78,6 +79,7 @@ public class GameLoader {
 			NPCCombatDispatcher.load();
 			WeaponSpecialDispatcher.load();
 			OutgoingPacketDispatcher.load();
+			LogicPacketDispatcher.load();
 			ItemWeights.init();
 		});
 		getBackgroundLoader().submit(() -> {

@@ -1,6 +1,9 @@
 package com.jupiter.network.packets.outgoing.impl;
 
+import java.util.List;
+
 import com.jupiter.cache.io.InputStream;
+import com.jupiter.game.map.World;
 import com.jupiter.game.player.Player;
 import com.jupiter.network.encoders.other.PublicChatMessage;
 import com.jupiter.network.packets.outgoing.OutgoingPacket;
@@ -39,8 +42,23 @@ public class ChatPacket implements OutgoingPacket {
 		if (player.getPlayerDetails().getChatType() == 1)
 			player.getCurrentFriendChat().sendFriendsChannelMessage(player, Utility.fixChatMessage(message));
 		else
-			player.sendPublicChatMessage(new PublicChatMessage(Utility.fixChatMessage(message), effects));
+			sendPublicChatMessage(player, new PublicChatMessage(Utility.fixChatMessage(message), effects));
 		 
-			LogUtility.log(Type.INFO, "World Packet Decoder", "Chat type: " + player.getPlayerDetails());
+			LogUtility.log(Type.INFO, "World Packet Decoder", "Chat type: " + player.getPlayerDetails().getChatType());
+	}
+	
+	public static void sendPublicChatMessage(Player player, PublicChatMessage message) {
+		for (int regionId : player.getMapRegionsIds()) {
+			List<Integer> playersIndexes = World.getRegion(regionId).getPlayerIndexes();
+			if (playersIndexes == null)
+				continue;
+			for (Integer playerIndex : playersIndexes) {
+				Player p = World.getPlayers().get(playerIndex);
+				if (p == null || !p.isStarted() || p.hasFinished()
+						|| p.getLocalPlayerUpdate().getLocalPlayers()[player.getIndex()] == null)
+					continue;
+				p.getPackets().sendPublicMessage(player, message);
+			}
+		}
 	}
 }

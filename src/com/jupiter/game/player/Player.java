@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import com.jupiter.Settings;
+import com.jupiter.cache.io.InputStream;
 import com.jupiter.cache.loaders.VarManager;
 import com.jupiter.combat.player.CombatDefinitions;
 import com.jupiter.combat.player.PlayerCombat;
@@ -32,13 +33,12 @@ import com.jupiter.game.player.content.MusicsManager;
 import com.jupiter.game.player.content.PriceCheckManager;
 import com.jupiter.game.player.content.Toolbelt;
 import com.jupiter.game.route.CoordsEvent;
-import com.jupiter.game.route.strategy.RouteEvent;
+import com.jupiter.game.route.RouteEvent;
 import com.jupiter.game.task.Task;
 import com.jupiter.game.task.impl.CombatEffectTask;
 import com.jupiter.game.task.impl.SkillActionTask;
 import com.jupiter.network.Session;
 import com.jupiter.network.decoders.LogicPacket;
-import com.jupiter.network.decoders.WorldPacketsDecoder;
 import com.jupiter.network.encoders.WorldPacketsEncoder;
 import com.jupiter.network.encoders.other.HintIconsManager;
 import com.jupiter.network.encoders.other.Hit;
@@ -47,6 +47,7 @@ import com.jupiter.network.encoders.other.LocalPlayerUpdate;
 import com.jupiter.network.encoders.other.PublicChatMessage;
 import com.jupiter.network.host.HostListType;
 import com.jupiter.network.host.HostManager;
+import com.jupiter.network.packets.logic.LogicPacketDispatcher;
 import com.jupiter.network.utility.IsaacKeyPair;
 import com.jupiter.skills.Skills;
 import com.jupiter.skills.prayer.Prayer;
@@ -396,10 +397,12 @@ public class Player extends Entity {
 	/**
 	 * Processes the Logic-based packets to the game network
 	 */
-	public void processLogicPackets() {
+	public void processLogicPackets(Player player) {
 		LogicPacket packet;
-		while ((packet = logicPackets.poll()) != null)
-			WorldPacketsDecoder.decodeLogicPacket(this, packet);
+		while ((packet = player.getLogicPackets().poll()) != null) {
+			InputStream stream = new InputStream(packet.getData());
+			LogicPacketDispatcher.execute(player, stream, packet.getId());
+		}
 	}
 	
 	/**
@@ -412,7 +415,7 @@ public class Player extends Entity {
 		}
 		if (finishing)
 			finish(0);
-		processLogicPackets();
+		processLogicPackets(this);
 		super.processEntity();
 		if (coordsEvent != null && coordsEvent.processEvent(this))
 			coordsEvent = null;
@@ -620,26 +623,6 @@ public class Player extends Entity {
 	@Override
 	public void handleIngoingHit(final Hit hit) {
 		PlayerCombat.handleIncomingHit(this, hit);
-	}
-	
-	/**
-	 * TODO: same as 633
-	 */
-
-	//TODO: Add to chat packet class after decoder packet rework
-	public void sendPublicChatMessage(PublicChatMessage message) {
-		for (int regionId : getMapRegionsIds()) {
-			List<Integer> playersIndexes = World.getRegion(regionId).getPlayerIndexes();
-			if (playersIndexes == null)
-				continue;
-			for (Integer playerIndex : playersIndexes) {
-				Player p = World.getPlayers().get(playerIndex);
-				if (p == null || !p.isStarted() || p.hasFinished()
-						|| p.getLocalPlayerUpdate().getLocalPlayers()[getIndex()] == null)
-					continue;
-				p.getPackets().sendPublicMessage(this, message);
-			}
-		}
 	}
 
 	/**
